@@ -48,7 +48,7 @@ public class ConnectionTest extends TestCase {
         System.out.println("testGet1");
         try {
             // TODO add your test code.
-            URL url = new URL("xmldb:exist://guest:guest@dignity:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
             InputStream is = url.openStream();
             
             copyDocument(is, System.out);
@@ -67,7 +67,7 @@ public class ConnectionTest extends TestCase {
         System.out.println("testGet2");
         try {
             // TODO add your test code.
-            URL url = new URL("xmldb:exist://guest:guest@dignity:8080/exist/xmlrpc/db/foobar/macbeth.xml");
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/foobar/macbeth.xml");
             InputStream is = url.openStream();
             
             copyDocument(is, System.out);
@@ -92,7 +92,7 @@ public class ConnectionTest extends TestCase {
         // TODO add your test code.
         try {
             // TODO add your test code.
-            URL url = new URL("xmldb:exist://guest:guest@dignity:8080/exist/xmlrpc/db/build.xml");
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/build.xml");
             OutputStream os = url.openConnection().getOutputStream();
             
             FileInputStream is = new FileInputStream("build.xml");

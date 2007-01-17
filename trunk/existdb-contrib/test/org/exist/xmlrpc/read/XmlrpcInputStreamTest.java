@@ -55,6 +55,9 @@ public class XmlrpcInputStreamTest extends TestCase {
     protected void tearDown() throws Exception {
     }
     
+    /**
+     * Test retrieve document from db.
+     */
     public void testGetXmlDoc1() {
         System.out.println("testGetXmlDoc1");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -68,6 +71,9 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
+    /**
+     * Test try retrieve non existing document from db.
+     */
     public void testGetXmlDoc2() {
         System.out.println("testGetXmlDoc2");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -77,16 +83,21 @@ public class XmlrpcInputStreamTest extends TestCase {
             getDocument(xmldbUri, baos);
             baos.close();
             fail("exception should be thrown");
+            
         } catch (Exception ex) {
             System.out.println("Expected exception:");
             ex.printStackTrace();
         }
     }
     
+    /**
+     * Test retrieve binary document from db.
+     */
     public void testGetBinaryDoc1() throws Exception {
         System.out.println("testGetBinaryDoc1");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/shakes.css";
+        
         XmldbURI xmldbUri = XmldbURI.create(uri);
         try {
             getDocument(xmldbUri, baos);
@@ -96,7 +107,10 @@ public class XmlrpcInputStreamTest extends TestCase {
             ex.printStackTrace();
         }
     }
-    
+
+    /**
+     * Test retrieve non existing binary document from db.
+     */
     public void testGetBinaryDoc2() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foo.css";
@@ -110,6 +124,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
+    // Copy document from URL to outputstream
     private void getDocument(XmldbURI uri, OutputStream os) throws IOException{
         
         // Setup

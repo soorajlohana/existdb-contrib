@@ -33,10 +33,15 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 /**
+ * jUnit test for the eXist URLStreamHandlerFactory (xmldb).
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class eXistURLStreamHandlerFactoryTest extends TestCase {
+    
+    private static String XMLDB_URL_1=
+            "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
     
     private static boolean firstTime=true;
     
@@ -55,7 +60,7 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
     }
     
     /**
-     * Test of createURLStreamHandler method, of class org.exist.protocols.eXistURLStreamHandlerFactory.
+     * Test of eXistURLStreamHandlerFactory.
      */
     public void testXMLDBURLStreamHandler() {
         System.out.println("createURLStreamHandler");
@@ -63,11 +68,11 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
         URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
         
         try {
-            // TODO add your test code.
-            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
+            URL url = new URL(XMLDB_URL_1);
             InputStream is = url.openStream();
             copyDocument(is, System.out);
             is.close();
+            
         } catch (MalformedURLException ex) {
             fail(ex.toString());
             ex.printStackTrace();
@@ -78,20 +83,14 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
         
     }
     
+    // Transfer bytes from inputstream to outputstream
     private void copyDocument(InputStream is, OutputStream os) throws IOException{
         
-        // Transfer bytes from in to out
         byte[] buf = new byte[4096];
         int len;
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        
-        // Shutdown
         os.flush();
-        
     }
-    
-
-    
 }

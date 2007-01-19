@@ -25,7 +25,6 @@ package org.exist.xmlrpc.read;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -33,6 +32,8 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
+import org.exist.protocols.Credentials;
+import org.exist.protocols.Shared;
 import org.exist.xmldb.XmldbURI;
 
 /**
@@ -50,36 +51,13 @@ public class XmlrpcReadResourceThread extends Thread {
     private String username=null;
     private String password=null;
     
-    private void extractCredentials(){
-//        String modifiedDocUri = "http"+docUri.toString().substring(11);
-//        
-//        String userInfo=null;
-//        try {
-//            userInfo = new URL(modifiedDocUri).getUserInfo();
-//        } catch (MalformedURLException ex) {
-//            logger.error(ex.getMessage());
-//        }
-//        
-//        if(userInfo==null){
-//            username="guest";
-//            password="guest";
-//        } else {
-//            int separator = userInfo.indexOf('/');
-//            if(separator==-1){
-//                username=userInfo;
-//                password=null;
-//            } else {
-//                username=userInfo.substring(0,separator);
-//                password=userInfo.substring(separator);
-//            }
-//        }
-    }
-    
-    
     public XmlrpcReadResourceThread(XmldbURI docUri, OutputStream os) {
         this.docUri=docUri;
         this.outputStream=os;
-        extractCredentials();
+        
+        Credentials creds =Shared.extractUserInfo(docUri.toString());
+        username=creds.username;
+        password=creds.password;
     }
     
     /**
@@ -112,7 +90,10 @@ public class XmlrpcReadResourceThread extends Thread {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            xmlrpc.setBasicAuthentication(username, password);
+            
+            if(username!=null){
+                xmlrpc.setBasicAuthentication(username, password);
+            }
             
             // Setup xml serializer
             Hashtable options = new Hashtable();

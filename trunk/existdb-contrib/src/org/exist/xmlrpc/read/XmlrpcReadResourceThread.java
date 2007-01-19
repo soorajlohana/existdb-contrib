@@ -25,6 +25,7 @@ package org.exist.xmlrpc.read;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -43,12 +44,42 @@ public class XmlrpcReadResourceThread extends Thread {
     private final static Logger logger = Logger.getLogger(XmlrpcReadResourceThread.class);
     private XmldbURI docUri;
     private OutputStream outputStream;
-    private String userInfo="guest:guest";
+    
     private Exception exception=null;
+    
+    private String username=null;
+    private String password=null;
+    
+    private void extractCredentials(){
+//        String modifiedDocUri = "http"+docUri.toString().substring(11);
+//        
+//        String userInfo=null;
+//        try {
+//            userInfo = new URL(modifiedDocUri).getUserInfo();
+//        } catch (MalformedURLException ex) {
+//            logger.error(ex.getMessage());
+//        }
+//        
+//        if(userInfo==null){
+//            username="guest";
+//            password="guest";
+//        } else {
+//            int separator = userInfo.indexOf('/');
+//            if(separator==-1){
+//                username=userInfo;
+//                password=null;
+//            } else {
+//                username=userInfo.substring(0,separator);
+//                password=userInfo.substring(separator);
+//            }
+//        }
+    }
+    
     
     public XmlrpcReadResourceThread(XmldbURI docUri, OutputStream os) {
         this.docUri=docUri;
         this.outputStream=os;
+        extractCredentials();
     }
     
     /**
@@ -73,15 +104,15 @@ public class XmlrpcReadResourceThread extends Thread {
      * @param writer Object that receives the serialized data.
      */
     private void streamResource( OutputStream os ) {
-                
-        String url = "http://"+userInfo+"@" + docUri.getAuthority() + docUri.getContext();
+        
+        String url = "http://" + docUri.getAuthority() + docUri.getContext();
         String path = docUri.getCollectionPath();
         
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            xmlrpc.setBasicAuthentication("guest", "guest"); // TODO get from uri
+            xmlrpc.setBasicAuthentication(username, password);
             
             // Setup xml serializer
             Hashtable options = new Hashtable();

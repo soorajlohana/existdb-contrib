@@ -11,6 +11,7 @@ package org.exist.protocols;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.exist.protocols.Credentials;
 
 /**
  *
@@ -18,7 +19,9 @@ import java.net.URL;
  */
 public class Shared {
     
-    public static void extractUserInfo(String url, String username, String password){
+    public static Credentials extractUserInfo(String url){
+        
+        Credentials creds = new Credentials();
         
         String rewrittenUrl = (url.startsWith("xmldb:exist:"))
             ? "http"+url.toString().substring(11)
@@ -33,19 +36,28 @@ public class Shared {
         }
         
         if(userInfo==null){
-            username="guest";
-            password="guest";
+            creds.username=null;
+            creds.password=null;
         } else {
             int separator = userInfo.indexOf(':');
             if(separator==-1){
-                username=userInfo;
-                password=null;
+                creds.username=userInfo;
+                creds.password=null;
             } else {
-                username=userInfo.substring(0,separator);
-                password=userInfo.substring(separator);
+                creds.username=userInfo.substring(0,separator);
+                creds.password=userInfo.substring(separator+1);
             }
         }
         
+        if(creds.username!=null && creds.username.equals("")){
+            creds.username=null;
+        }
+        
+        if(creds.password!=null && creds.password.equals("")){
+            creds.password=null;
+        }
+        
+        return creds;
     }
     
 }

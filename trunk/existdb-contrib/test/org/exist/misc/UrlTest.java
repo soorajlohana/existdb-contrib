@@ -25,6 +25,7 @@ package org.exist.misc;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.*;
+import org.exist.protocols.Credentials;
 import org.exist.protocols.Shared;
 import org.exist.protocols.eXistURLStreamHandlerFactory;
 
@@ -81,43 +82,42 @@ public class UrlTest extends TestCase {
             Assert.assertEquals(XMLDB_URL_1, new URL(XMLDB_URL_1).toString() );
             
             // Double test :-) makes no sense
-            String username=null;
-            String password=null;
+            Credentials creds=null;
             String userinfo = getUserInfo(XMLDB_URL_1);
             assertEquals("guest:guest", userinfo );
             assertTrue( !"foo:bar".equals(userinfo) );
             
-            Shared.extractUserInfo(XMLDB_URL_1, username, password);
-            assertEquals("guest", username );
-            assertEquals("guest", password );
+            creds=Shared.extractUserInfo(XMLDB_URL_1);
+            assertEquals("guest", creds.username );
+            assertEquals("guest", creds.password );
             
-            username=null;
-            password=null;
+            creds=null;
             userinfo = getUserInfo(XMLDB_URL_2);
+            creds=Shared.extractUserInfo(XMLDB_URL_2);
             assertEquals("guest", userinfo);
-            assertEquals("guest", username );
-            assertNull(null, password );
+            assertEquals("guest", creds.username );
+            assertNull(null, creds.password );
             
-            username=null;
-            password=null;
+            creds=null;
             userinfo = getUserInfo(XMLDB_URL_3);
+            creds=Shared.extractUserInfo(XMLDB_URL_3);
             assertEquals("", userinfo);
-            assertNull(null, username );
-            assertNull(null, password );
+            assertNull(null, creds.username );
+            assertNull(null, creds.password );
             
-            username=null;
-            password=null;
+            creds=null;
             userinfo = getUserInfo(XMLDB_URL_4);
+            creds=Shared.extractUserInfo(XMLDB_URL_4);
             assertEquals(":", userinfo);
-            assertNull(null, username );
-            assertNull(null, password );
+            assertNull(null, creds.username );
+            assertNull(null, creds.password );
             
-            username=null;
-            password=null;
+            creds=null;
             userinfo = getUserInfo(XMLDB_URL_5);
+            creds=Shared.extractUserInfo(XMLDB_URL_5);
             assertNull(userinfo);
-            assertNull(null, username );
-            assertNull(null, password );
+            assertNull(null, creds.username );
+            assertNull(null, creds.password );
             
             
         } catch (MalformedURLException ex) {

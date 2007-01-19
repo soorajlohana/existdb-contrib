@@ -25,6 +25,7 @@ package org.exist.misc;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.*;
+import org.exist.protocols.Shared;
 import org.exist.protocols.eXistURLStreamHandlerFactory;
 
 /**
@@ -36,6 +37,27 @@ public class UrlTest extends TestCase {
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
+    
+    private static String XMLDB_URL_2=
+            "xmldb:exist://guest@localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
+    private static String XMLDB_URL_3=
+            "xmldb:exist://@localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
+    private static String XMLDB_URL_4=
+            "xmldb:exist://:@localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
+    private static String XMLDB_URL_5=
+            "xmldb:exist://localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
+    private String getUserInfo(String xmldbUri) throws MalformedURLException{
+        URL modifiedURL = new URL( "http"+xmldbUri.substring(11) );
+        return modifiedURL.getUserInfo();
+    }
     
     public UrlTest(String testName) {
         super(testName);
@@ -50,45 +72,53 @@ public class UrlTest extends TestCase {
     // TODO add test methods here. The name must begin with 'test'. For example:
     // public void testHello() {}
     
-    public void testXmldbURI_getUserInfo1() {
-        System.out.println("testXmldbURI_getUserInfo1");
+    public void testXmldbURI_getUserInfo() {
+        System.out.println("testXmldbURI_getUserInfo");
         
         URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
         try {
+            // check wether round trip is ok
+            Assert.assertEquals(XMLDB_URL_1, new URL(XMLDB_URL_1).toString() );
             
-            URL test = new URL(XMLDB_URL_1);
-            String result = test.toString();
+            // Double test :-) makes no sense
+            String username=null;
+            String password=null;
+            String userinfo = getUserInfo(XMLDB_URL_1);
+            assertEquals("guest:guest", userinfo );
+            assertTrue( !"foo:bar".equals(userinfo) );
             
-            Assert.assertEquals(XMLDB_URL_1, result);
+            Shared.extractUserInfo(XMLDB_URL_1, username, password);
+            assertEquals("guest", username );
+            assertEquals("guest", password );
             
-            String modified = "http"+result.substring(11);
+            username=null;
+            password=null;
+            userinfo = getUserInfo(XMLDB_URL_2);
+            assertEquals("guest", userinfo);
+            assertEquals("guest", username );
+            assertNull(null, password );
             
-            URL modifiedURL = new URL(modified);
+            username=null;
+            password=null;
+            userinfo = getUserInfo(XMLDB_URL_3);
+            assertEquals("", userinfo);
+            assertNull(null, username );
+            assertNull(null, password );
             
-            Assert.assertEquals("guest:guest", modifiedURL.getUserInfo() );
+            username=null;
+            password=null;
+            userinfo = getUserInfo(XMLDB_URL_4);
+            assertEquals(":", userinfo);
+            assertNull(null, username );
+            assertNull(null, password );
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
-    
-    public void testXmldbURI_getUserInfo2() {
-        System.out.println("testXmldbURI_getUserInfo2");
-        
-        //URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-        try {
+            username=null;
+            password=null;
+            userinfo = getUserInfo(XMLDB_URL_5);
+            assertNull(userinfo);
+            assertNull(null, username );
+            assertNull(null, password );
             
-            URL test = new URL(XMLDB_URL_1);
-            String result = test.toString();
-            
-            Assert.assertEquals(XMLDB_URL_1, result);
-            
-            String modified = "http"+result.substring(11);
-            
-            URL modifiedURL = new URL(modified);
-            
-            assertTrue(!"foo:bar".equals( modifiedURL.getUserInfo() ) );
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());

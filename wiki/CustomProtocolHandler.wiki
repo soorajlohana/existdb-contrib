@@ -1,6 +1,6 @@
-#summary The "xmldb:exist://" custom protocol handler.
+#summary The xmldb:exist:// custom protocol handler.
 
-= Custom protocol handler "xmldb:exist://" =
+=== Custom protocol handler "xmldb:exist://" ====
 
 Under certain conditions it is handy to be able to access data stored in eXist via a *xmldb:exist://* type URL, straight out of javacode. The code below shows how to do this.
 
@@ -44,7 +44,6 @@ The equivalent for sending data to the database does not work well enough yet. E
 {{{
 OutputStream os = url.openConnection().getOutputStream();
 }}}
-
 
 
 

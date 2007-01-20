@@ -85,17 +85,12 @@ public class XmlrpcOutputStream  extends OutputStream {
     }
 
     public void close() throws IOException {
-        System.out.println("close");
-        
-        
-//        bis.flush();
        
         bis.closeOutputStream();
-//         bis.close();
+        bis.close();
         
         if(rt.isExceptionThrown())
         {
-            System.out.println("close+exception");
             logger.error(rt.getThrownException());
             throw new IOException(rt.getThrownException());
         }

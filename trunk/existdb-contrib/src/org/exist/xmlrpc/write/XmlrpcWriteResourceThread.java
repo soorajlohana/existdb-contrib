@@ -60,8 +60,9 @@ public class XmlrpcWriteResourceThread extends Thread {
      * Start Thread.
      */
     public void run() {
-        logger.debug("Start thread." );
+        logger.debug("Thread started." );
         streamResource( inputStream );
+        logger.debug("Thread stopped." );
     }
     
     public boolean isExceptionThrown(){
@@ -138,6 +139,10 @@ public class XmlrpcWriteResourceThread extends Thread {
             ex.printStackTrace();
             logger.error(ex);
             
+        } catch (Exception ex) { // Catch all
+            exception=ex;
+            ex.printStackTrace();
+            logger.error(ex);
             
         } finally {
             try {

@@ -45,19 +45,14 @@ public class XmlrpcReadResourceThread extends Thread {
     private final static Logger logger = Logger.getLogger(XmlrpcReadResourceThread.class);
     private XmldbURI docUri;
     private OutputStream outputStream;
-    
     private Exception exception=null;
-    
-    private String username=null;
-    private String password=null;
+    private Credentials creds=null;
     
     public XmlrpcReadResourceThread(XmldbURI docUri, OutputStream os) {
         this.docUri=docUri;
         this.outputStream=os;
         
-        Credentials creds =Shared.extractUserInfo(docUri.toString());
-        username=creds.username;
-        password=creds.password;
+        creds =Shared.extractUserInfo(docUri.toString());
     }
     
     /**
@@ -91,8 +86,8 @@ public class XmlrpcReadResourceThread extends Thread {
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(url);
             
-            if(username!=null){
-                xmlrpc.setBasicAuthentication(username, password);
+            if(creds.username!=null){
+                xmlrpc.setBasicAuthentication(creds.username, creds.password);
             }
             
             // Setup xml serializer

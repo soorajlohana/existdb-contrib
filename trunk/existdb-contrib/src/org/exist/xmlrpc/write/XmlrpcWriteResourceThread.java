@@ -31,6 +31,10 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
+import org.exist.protocols.Credentials;
+import org.exist.protocols.Shared;
+import org.exist.util.MimeTable;
+import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURI;
 
 /**
@@ -42,13 +46,14 @@ public class XmlrpcWriteResourceThread extends Thread {
     private final static Logger logger = Logger.getLogger(XmlrpcWriteResourceThread.class);
     private XmldbURI docUri;
     private InputStream inputStream;
-    private String userInfo="guest:guest";
     private Exception exception;
+    private Credentials creds;
     
     
     public XmlrpcWriteResourceThread(XmldbURI docUri, InputStream is) {
         this.docUri=docUri;
         this.inputStream=is;
+        creds =Shared.extractUserInfo(docUri.toString());
     }
     
     /**
@@ -69,14 +74,23 @@ public class XmlrpcWriteResourceThread extends Thread {
     
     private void streamResource( InputStream is ){
         
-        String url = "http://"+userInfo+"@" + docUri.getAuthority() + docUri.getContext();
+        String url = "http://" + docUri.getAuthority() + docUri.getContext();
         String path = docUri.getCollectionPath();
+        
+        // get mimetype
+        String contentType=MimeType.BINARY_TYPE.getName();
+        MimeType mime = MimeTable.getInstance().getContentTypeFor(docUri.toString());
+        if (mime != null)
+            contentType = mime.getName();
         
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            xmlrpc.setBasicAuthentication("guest", "guest"); // TODO
+            
+            if(creds.username!=null){
+                xmlrpc.setBasicAuthentication(creds.username, creds.password);
+            }
             
             // Initialize xmlrpc parameters
             Vector params = new Vector();
@@ -100,6 +114,7 @@ public class XmlrpcWriteResourceThread extends Thread {
             params.addElement(handle);
             params.addElement(path);
             params.addElement(new Boolean(true));
+            params.addElement(contentType);
             Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions
             
             // Check result
@@ -123,7 +138,7 @@ public class XmlrpcWriteResourceThread extends Thread {
             ex.printStackTrace();
             logger.error(ex);
             
-
+            
         } finally {
             try {
                 // nothing

@@ -45,6 +45,14 @@ The equivalent for sending data to the database does not work well enough yet. E
 OutputStream os = url.openConnection().getOutputStream();
 }}}
 
+== Known Issues ==
+
+ * It is not possible to specify "userinfo" in the url (xmldb:exist://username:password@hostname:portnr/exist/xmlrpc/db/collection/doc.xml)
+_This is because the eXist *XmldbURI* class does not provide methods to get the username/password yet. Alternatively we could pass a xmldb:exist-uri as a string to the URL class, and get the wanted info via this route. The problem is that we might need to check the correctness of the URL on too many locations_
+
+ * Error/exception handling for uploading documents not complete yet.
+_When a document is send to eXist, e.g. to a collection which does not exist, the exception is not propagated. It seems that the 'thread' is never ended. Difficult to tackle, might need to perform a significant rewrite._
+
 
 
 

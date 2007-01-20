@@ -59,8 +59,9 @@ public class XmlrpcReadResourceThread extends Thread {
      * Start Thread.
      */
     public void run() {
-        logger.debug("Start thread." );
+        logger.debug("Thread started." );
         streamResource( outputStream );
+        logger.debug("Thread stopped." );
     }
     
     public boolean isExceptionThrown(){

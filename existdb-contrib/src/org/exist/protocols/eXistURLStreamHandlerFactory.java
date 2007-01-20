@@ -38,7 +38,7 @@ public class eXistURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
     public URLStreamHandler createURLStreamHandler(String protocol) {
         
-        System.out.println("createURLStreamHandler="+protocol);
+        LOG.debug("createURLStreamHandler for '"+protocol+"'.");
         
         if("xmldb".equals(protocol)){
             return new Handler();

@@ -23,8 +23,11 @@
 package org.exist.misc;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import junit.framework.*;
+import org.apache.log4j.BasicConfigurator;
 import org.exist.protocols.Credentials;
 import org.exist.protocols.Shared;
 import org.exist.protocols.eXistURLStreamHandlerFactory;
@@ -34,6 +37,8 @@ import org.exist.protocols.eXistURLStreamHandlerFactory;
  * @author Dannes Wessels
  */
 public class UrlTest extends TestCase {
+    
+    private static boolean firstTime=true;
     
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
@@ -65,6 +70,10 @@ public class UrlTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
+        if(firstTime){
+            BasicConfigurator.configure();
+            firstTime=false;
+        }
     }
     
     protected void tearDown() throws Exception {
@@ -124,6 +133,31 @@ public class UrlTest extends TestCase {
             fail(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+    
+    public void testXmldbURI_roundtrip() {
+        
+        try{
+            // Check wether URL class kills xmldb info
+            URL url = new URL(XMLDB_URL_1);
+            assertEquals(XMLDB_URL_1, url.toString());
+//            assertEquals("guest:guest", url.getUserInfo());
+            
+            // Check wether URI class kills xmldb info
+            URI uri = new URI(XMLDB_URL_1);
+            assertEquals(XMLDB_URL_1, uri.toString());
+//            assertEquals("guest:guest", uri.getUserInfo());
+            
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+            
+        } catch (URISyntaxException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+        }
+        
     }
     
 }

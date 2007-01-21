@@ -25,6 +25,7 @@ package org.exist.xmlrpc.write;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -38,22 +39,30 @@ import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURI;
 
 /**
- *
- * @author wessels
+ *  Writes data from an inputstream to a specified URL
+ * @author Dannes Wessels
  */
 public class XmlrpcWriteResourceThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(XmlrpcWriteResourceThread.class);
-    private XmldbURI docUri;
+    private XmldbURI docXmldbURI;
+    private URL docURL;
     private InputStream inputStream;
     private Exception exception;
     private Credentials creds;
     
     
-    public XmlrpcWriteResourceThread(XmldbURI docUri, InputStream is) {
-        this.docUri=docUri;
+   // NEW
+    public XmlrpcWriteResourceThread(URL url, InputStream is) {
+        this.docURL=url;
         this.inputStream=is;
-        creds =Shared.extractUserInfo(docUri.toString());
+        creds =Shared.extractUserInfo(docURL.toString());
+    }
+    
+    public XmlrpcWriteResourceThread(XmldbURI uri, InputStream is) {
+        this.docXmldbURI=uri;
+        this.inputStream=is;
+        creds =Shared.extractUserInfo(uri.toString());
     }
     
     /**
@@ -75,19 +84,24 @@ public class XmlrpcWriteResourceThread extends Thread {
     
     private void streamResource( InputStream is ){
         
-        String url = "http://" + docUri.getAuthority() + docUri.getContext();
-        String path = docUri.getCollectionPath();
+        // TODO
+        // -cast URL to xmldb
+        // -distill authority + context from xmldbUri
+        // -distill collectionpath
+        String xmlrpcURL = "http://" + docXmldbURI.getAuthority() + docXmldbURI.getContext();
+        String collectionPath = docXmldbURI.getCollectionPath();
         
         // get mimetype
         String contentType=MimeType.BINARY_TYPE.getName();
-        MimeType mime = MimeTable.getInstance().getContentTypeFor(docUri.toString());
-        if (mime != null)
+        MimeType mime = MimeTable.getInstance().getContentTypeFor(docXmldbURI.toString());
+        if (mime != null){
             contentType = mime.getName();
+        }
         
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
-            XmlRpcClient xmlrpc = new XmlRpcClient(url);
+            XmlRpcClient xmlrpc = new XmlRpcClient(xmlrpcURL);
             
             if(creds.username!=null){
                 xmlrpc.setBasicAuthentication(creds.username, creds.password);
@@ -113,7 +127,7 @@ public class XmlrpcWriteResourceThread extends Thread {
             // All data transported, parse data on server
             params.clear();
             params.addElement(handle);
-            params.addElement(path);
+            params.addElement(collectionPath);
             params.addElement(new Boolean(true));
             params.addElement(contentType);
             Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions

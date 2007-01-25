@@ -35,11 +35,11 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;
+
+import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  *  Example code for demonstrating XMLRPC methods upload
@@ -53,7 +53,7 @@ public class StoreChunked {
     private final static Logger LOG = Logger.getLogger(StoreChunked.class);
     
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-        
+        LOG.debug("Begin document upload");
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
@@ -64,7 +64,7 @@ public class StoreChunked {
             }
             
             String contentType=MimeType.BINARY_TYPE.getName();
-            MimeType mime 
+            MimeType mime
                     = MimeTable.getInstance().getContentTypeFor(xmldbURL.getDocumentName());
             if (mime != null){
                 contentType = mime.getName();
@@ -113,6 +113,8 @@ public class StoreChunked {
             LOG.error(ex);
             throw new IOException(ex.getMessage());
         }
+        
+        LOG.debug("Finished document upload");
     }
     
     public static void main(String[] args) {
@@ -130,11 +132,11 @@ public class StoreChunked {
             rc.stream(xmldbURL, new FileInputStream("build.xml"));
             
         } catch (MalformedURLException ex) {
-            LOG.error("Wrong XmldbURL "+url, ex);
+            LOG.error("Wrong XmldbURL !"+url, ex);
             
         } catch (IOException ex) {
-            LOG.error("IOException"+url, ex);
-            LOG.error(ex);
+            LOG.error("IOException !", ex);
+            
         }
         
     }

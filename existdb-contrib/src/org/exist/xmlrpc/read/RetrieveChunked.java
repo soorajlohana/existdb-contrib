@@ -49,9 +49,9 @@ import org.exist.xmldb.XmldbURL;
 public class RetrieveChunked {
     
     private final static Logger LOG = Logger.getLogger(RetrieveChunked.class);
-        
+    
     public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
-                
+        LOG.debug("Begin document download");
         try {
             // Setup client client
             XmlRpc.setEncoding("UTF-8");
@@ -102,7 +102,8 @@ public class RetrieveChunked {
         } catch (XmlRpcException ex) {
             LOG.error(ex);
             throw new IOException(ex.getMessage());
-        } 
+        }
+        LOG.debug("Finished document upload"); // TODO never here?
     }
     
     public static void main(String[] args) {
@@ -110,7 +111,7 @@ public class RetrieveChunked {
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/mondial/mondial.xml";
         
-        // Setup 
+        // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
         RetrieveChunked rc = new RetrieveChunked();
@@ -127,6 +128,6 @@ public class RetrieveChunked {
         }
         
     }
-
+    
     
 }

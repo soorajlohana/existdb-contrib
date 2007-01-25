@@ -77,8 +77,7 @@ public class Connection extends URLConnection {
             xis = new XmlrpcInputStream( new XmldbURL(url) );
             
         } catch (MalformedURLException ex) {
-            LOG.info(ex);
-            //ex.printStackTrace();
+            LOG.error(ex);
             throw new IOException(ex.getMessage());
         }
         return xis;
@@ -95,8 +94,7 @@ public class Connection extends URLConnection {
         try {
             xos = new XmlrpcOutputStream( new XmldbURL(url) );
         } catch (MalformedURLException ex) {
-            LOG.info(ex);
-            //ex.printStackTrace();
+            LOG.error(ex);
             throw new IOException(ex.getMessage());
         }
         return xos;

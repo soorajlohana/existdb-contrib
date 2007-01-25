@@ -22,16 +22,22 @@
 
 package org.exist.xmlrpc.chunked;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-import org.exist.xmldb.XmldbURI;
+
+import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURL;
 
 /**
  *  Example code for demonstrating XMLRPC methods getDocumentData
@@ -42,76 +48,85 @@ import org.exist.xmldb.XmldbURI;
  */
 public class RetrieveChunked {
     
-    /**
-     * @param args ignored command line arguments
-     */
-    public static void main(String[] args) {
+    private final static Logger LOG = Logger.getLogger(RetrieveChunked.class);
         
-        // Download file (ohoh not in spec) using xmldb url
-        String xmldbUri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/mondial/mondial.xml";
-        XmldbURI uri = XmldbURI.create(xmldbUri);
-        
-        // Construct url for xmlrpc, without collections / document
-        // username/password yet hardcoded, need to update XmldbUri fir this
-        String url = "http://guest:guest@" + uri.getAuthority() + uri.getContext();
-        String path =uri.getCollectionPath();
-        
-        System.out.println("url="+url);
-        System.out.println("path="+path);
-        
-        // Hardcoded yet too
-        String filename="mondial.xml";
-        
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+                
         try {
-            // Setup xmlrpc client
+            // Setup client client
             XmlRpc.setEncoding("UTF-8");
-            XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            xmlrpc.setBasicAuthentication("guest", "guest");
+            XmlRpcClient client = new XmlRpcClient( xmldbURL.getXmlRpcURL() );
+            
+            if(xmldbURL.hasUserInfo()){
+                client.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
+            }
             
             // Setup xml serializer
             Hashtable options = new Hashtable();
             options.put("indent", "no");
             options.put("encoding", "UTF-8");
             
-            // Setup xmlrpc parameters
+            // Setup client parameters
             Vector params = new Vector();
-            params.addElement( path );
+            params.addElement( xmldbURL.getCollectionPath() );
             params.addElement( options );
             
-            // Setup output stream
-            FileOutputStream fos = new FileOutputStream(filename);
-            
             // Shoot first method write data
-            Hashtable ht = (Hashtable) xmlrpc.execute("getDocumentData", params);
+            Hashtable ht = (Hashtable) client.execute("getDocumentData", params);
             int offset = ((Integer)ht.get("offset")).intValue();
             byte[]data= (byte[]) ht.get("data");
             String handle = (String) ht.get("handle");
-            fos.write(data);
+            os.write(data);
             
             // When there is more data to download
             while(offset!=0){
-                // Clean and re-setup xmlrpc parameters
+                // Clean and re-setup client parameters
                 params.clear();
                 params.addElement(handle);
                 params.addElement(new Integer(offset));
                 
                 // Get and write next chunk
-                ht = (Hashtable) xmlrpc.execute("getNextChunk", params);
+                ht = (Hashtable) client.execute("getNextChunk", params);
                 data= (byte[]) ht.get("data");
                 offset = ((Integer)ht.get("offset")).intValue();
-                fos.write(data);
+                os.write(data);
             }
             
             // Finish transport
-            fos.close();
+            os.close();
             
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
+            throw new IOException(ex.getMessage());
+            
         } catch (XmlRpcException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+            LOG.error(ex);
+            throw new IOException(ex.getMessage());
+        } 
     }
+    
+    public static void main(String[] args) {
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/mondial/mondial.xml";
+        
+        // Setup 
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        BasicConfigurator.configure();
+        RetrieveChunked rc = new RetrieveChunked();
+        
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            rc.stream(xmldbURL, System.out);
+            
+        } catch (MalformedURLException ex) {
+            LOG.error(ex);
+            
+        } catch (IOException ex) {
+            LOG.error(ex);
+        }
+        
+    }
+
     
 }

@@ -23,16 +23,23 @@
 package org.exist.xmlrpc.chunked;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Vector;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-import org.exist.xmldb.XmldbURI;
+
+import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.util.MimeTable;
+import org.exist.util.MimeType;
+import org.exist.xmldb.XmldbURL;
 
 /**
  *  Example code for demonstrating XMLRPC methods upload
@@ -43,27 +50,25 @@ import org.exist.xmldb.XmldbURI;
  */
 public class StoreChunked {
     
+    private final static Logger LOG = Logger.getLogger(StoreChunked.class);
     
-    public static void main(String args[])  {
+    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
         
-        // Download file (ohoh not in spec) using xmldb url
-        String xmldbUri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/netbeans.png";
-        XmldbURI uri = XmldbURI.create(xmldbUri);
-        
-        // Construct url for xmlrpc, without collections / document
-        // username/password yet hardcoded, need to update XmldbUri fir this
-        String url = "http://guest:guest@" + uri.getAuthority() + uri.getContext();
-        String path =uri.getCollectionPath();
-        
-        // Hardcoded yet too
-        String filename="netbeans.png";
         try {
-            InputStream fis = new FileInputStream(filename);
-            
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
-            XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            xmlrpc.setBasicAuthentication("guest", "guest");
+            XmlRpcClient xmlrpc = new XmlRpcClient( xmldbURL.getXmlRpcURL() );
+            
+            if(xmldbURL.hasUserInfo()){
+                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
+            }
+            
+            String contentType=MimeType.BINARY_TYPE.getName();
+            MimeType mime 
+                    = MimeTable.getInstance().getContentTypeFor(xmldbURL.getDocumentName());
+            if (mime != null){
+                contentType = mime.getName();
+            }
             
             // Initialize xmlrpc parameters
             Vector params = new Vector();
@@ -72,7 +77,7 @@ public class StoreChunked {
             // Copy data from inputstream to database
             byte[] buf = new byte[4096];
             int len;
-            while ((len = fis.read(buf)) > 0) {
+            while ((len = is.read(buf)) > 0) {
                 params.clear();
                 if(handle!=null){
                     params.addElement(handle);
@@ -81,29 +86,56 @@ public class StoreChunked {
                 params.addElement(new Integer(len));
                 handle = (String)xmlrpc.execute("upload", params);
             }
-            fis.close();
+            is.close();
             
             // All data transported, parse data on server
             params.clear();
             params.addElement(handle);
-            params.addElement(path);
+            params.addElement( xmldbURL.getCollectionPath() );
             params.addElement(new Boolean(true));
+            params.addElement(contentType);
             Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions
             
             // Check result
-            if(result.booleanValue())
-                System.out.println("document stored.");
-            else
-                System.out.println("could not store document.");
+            if(result.booleanValue()){
+                LOG.debug("Document stored.");
+                
+            } else {
+                LOG.debug("Could not store document.");
+                throw new IOException("Could not store document.");
+            }
             
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
+            throw new IOException(ex.getMessage());
+            
         } catch (XmlRpcException ex) {
-            ex.printStackTrace();
+            LOG.error(ex);
+            throw new IOException(ex.getMessage());
         }
+    }
+    
+    public static void main(String[] args) {
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
+        
+        // Setup
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        BasicConfigurator.configure();
+        StoreChunked rc = new StoreChunked();
+        
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            rc.stream(xmldbURL, new FileInputStream("build.xml"));
+            
+        } catch (MalformedURLException ex) {
+            LOG.error("Wrong XmldbURL "+url, ex);
+            
+        } catch (IOException ex) {
+            LOG.error("IOException"+url, ex);
+            LOG.error(ex);
+        }
+        
     }
 }

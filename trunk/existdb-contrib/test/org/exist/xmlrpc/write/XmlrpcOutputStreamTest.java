@@ -148,12 +148,6 @@ public class XmlrpcOutputStreamTest extends TestCase {
             xos.write(buf, 0, len);
         }
         
-        try {
-            Thread.sleep(10*1000L);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-        
         // Shutdown
         xos.flush();
         xos.close();

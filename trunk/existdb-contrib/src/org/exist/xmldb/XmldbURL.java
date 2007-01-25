@@ -181,4 +181,12 @@ public class XmldbURL {
         return myUrl.getPath().substring(13);
     }
     
+    public String getXmlRpcURL(){
+        return "http://" + myUrl.getAuthority() + getContext();
+    }
+    
+    public boolean hasUserInfo(){
+        return (getUserInfo()!=null && getUsername()!=null);
+    }
+    
 }

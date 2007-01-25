@@ -31,7 +31,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.exist.xmldb.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
 /**
@@ -49,7 +49,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             BasicConfigurator.configure();
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
             firstTime=false;
         }
     }

@@ -32,9 +32,9 @@ import org.exist.protocols.xmldb.Handler;
  *
  * @author wessels
  */
-public class eXistURLStreamHandlerFactory implements URLStreamHandlerFactory {
+public class XmldbURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
-    private final static Logger LOG = Logger.getLogger(eXistURLStreamHandlerFactory.class);
+    private final static Logger LOG = Logger.getLogger(XmldbURLStreamHandlerFactory.class);
     
     public URLStreamHandler createURLStreamHandler(String protocol) {
         

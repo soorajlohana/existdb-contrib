@@ -36,7 +36,7 @@ import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 
-import org.exist.xmldb.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
 /**
@@ -111,7 +111,7 @@ public class RetrieveChunked {
                 +"/exist/xmlrpc/db/mondial/mondial.xml";
         
         // Setup 
-        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
         RetrieveChunked rc = new RetrieveChunked();
         

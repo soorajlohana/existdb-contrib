@@ -25,12 +25,12 @@ package org.exist.protocols.xmldb;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.log4j.Logger;
-import org.exist.xmldb.XmldbURI;
+import org.exist.xmldb.XmldbURL;
 import org.exist.xmlrpc.read.XmlrpcInputStream;
 import org.exist.xmlrpc.write.XmlrpcOutputStream;
 
@@ -74,9 +74,9 @@ public class Connection extends URLConnection {
         
         InputStream xis=null;
         try {
-            xis = new XmlrpcInputStream(XmldbURI.create(url.toURI()));
+            xis = new XmlrpcInputStream( new XmldbURL(url) );
             
-        } catch (URISyntaxException ex) {
+        } catch (MalformedURLException ex) {
             LOG.info(ex);
             //ex.printStackTrace();
             throw new IOException(ex.getMessage());
@@ -93,8 +93,8 @@ public class Connection extends URLConnection {
         
         XmlrpcOutputStream xos=null;
         try {
-            xos = new XmlrpcOutputStream(XmldbURI.create(url.toURI()));
-        } catch (URISyntaxException ex) {
+            xos = new XmlrpcOutputStream( new XmldbURL(url) );
+        } catch (MalformedURLException ex) {
             LOG.info(ex);
             //ex.printStackTrace();
             throw new IOException(ex.getMessage());

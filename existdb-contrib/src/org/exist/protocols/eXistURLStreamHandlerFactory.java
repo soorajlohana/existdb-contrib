@@ -42,7 +42,9 @@ public class eXistURLStreamHandlerFactory implements URLStreamHandlerFactory {
         
         if("xmldb".equals(protocol)){
             return new Handler();
-        } 
+        } else {
+            LOG.error("Protocol should be xmldb, not "+protocol);
+        }
         
         return null;
             

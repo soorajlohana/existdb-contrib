@@ -22,6 +22,7 @@
 
 package org.exist.protocols;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,6 +55,7 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             BasicConfigurator.configure();
             firstTime=false;
         }
@@ -63,14 +65,13 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
      * Test of eXistURLStreamHandlerFactory.
      */
     public void testXMLDBURLStreamHandler() {
-        System.out.println("createURLStreamHandler");
+        System.out.println("testXMLDBURLStreamHandler");
         
-        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-        
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
         try {
             URL url = new URL(XMLDB_URL_1);
             InputStream is = url.openStream();
-            copyDocument(is, System.out);
+            copyDocument(is, baos);
             is.close();
             
         } catch (MalformedURLException ex) {

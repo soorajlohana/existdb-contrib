@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
+import org.exist.xmldb.XmldbURL;
 import org.exist.validation.internal.BlockingInputStream;
-import org.exist.xmldb.XmldbURI;
 
 /**
  *
@@ -40,7 +40,7 @@ public class XmlrpcOutputStream  extends OutputStream {
     private BlockingInputStream bis;
     private XmlrpcWriteResourceThread rt; 
     
-    public XmlrpcOutputStream(XmldbURI uri) {
+    public XmlrpcOutputStream(XmldbURL uri) {
         
         logger.debug("Initializing XmlrpcOutputStream");
         
@@ -86,7 +86,8 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void close() throws IOException {
        
-        bis.closeOutputStream();
+        //bis.closeOutputStream();
+        bis.closeInputStream();
         bis.close();
         
         if(rt.isExceptionThrown())

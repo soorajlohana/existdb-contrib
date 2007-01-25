@@ -26,12 +26,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.exist.xmldb.XmldbURI;
-import org.exist.xmlrpc.read.XmlrpcInputStream;
+import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURL;
 
 /**
  *
@@ -48,6 +50,7 @@ public class XmlrpcInputStreamTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             BasicConfigurator.configure();
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             firstTime=false;
         }
     }
@@ -62,9 +65,13 @@ public class XmlrpcInputStreamTest extends TestCase {
         System.out.println("testGetXmlDoc1");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml";
-        XmldbURI xmldbUri = XmldbURI.create(uri);
+        
         try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
         } catch (Exception ex) {
             fail(ex.getMessage());
             ex.printStackTrace();
@@ -78,12 +85,15 @@ public class XmlrpcInputStreamTest extends TestCase {
         System.out.println("testGetXmlDoc2");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foobar.xml";
-        XmldbURI xmldbUri = XmldbURI.create(uri);
         try {
+            XmldbURL xmldbUri=xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             baos.close();
             fail("exception should be thrown");
             
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
         } catch (Exception ex) {
             System.out.println("Expected exception:");
             ex.printStackTrace();
@@ -98,26 +108,33 @@ public class XmlrpcInputStreamTest extends TestCase {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/shakes.css";
         
-        XmldbURI xmldbUri = XmldbURI.create(uri);
+        
         try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
         } catch (Exception ex) {
             fail(ex.getMessage());
             ex.printStackTrace();
         }
     }
-
+    
     /**
      * Test retrieve non existing binary document from db.
      */
     public void testGetBinaryDoc2() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foo.css";
-        XmldbURI xmldbUri = XmldbURI.create(uri);
+        
         try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("exception should be thrown");
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
         } catch (Exception ex) {
             System.out.println("Excpected exception:");
             ex.printStackTrace();
@@ -125,7 +142,7 @@ public class XmlrpcInputStreamTest extends TestCase {
     }
     
     // Copy document from URL to outputstream
-    private void getDocument(XmldbURI uri, OutputStream os) throws IOException{
+    private void getDocument(XmldbURL uri, OutputStream os) throws IOException{
         
         // Setup
         InputStream xis = new XmlrpcInputStream(uri);

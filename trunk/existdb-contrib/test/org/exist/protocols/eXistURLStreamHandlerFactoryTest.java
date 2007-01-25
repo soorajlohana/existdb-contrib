@@ -32,7 +32,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.exist.xmldb.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  * jUnit test for the eXist URLStreamHandlerFactory (xmldb).
@@ -56,14 +56,14 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
             BasicConfigurator.configure();
             firstTime=false;
         }
     }
     
     /**
-     * Test of eXistURLStreamHandlerFactory.
+     * Test of XmldbURLStreamHandlerFactory.
      */
     public void testXMLDBURLStreamHandler() {
         System.out.println("testXMLDBURLStreamHandler");

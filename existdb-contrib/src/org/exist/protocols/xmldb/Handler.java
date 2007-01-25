@@ -54,20 +54,22 @@ public class Handler extends URLStreamHandler {
     protected void parseURL(URL url, String spec, int start, int limit) {
         LOG.debug("Parsing URL "+spec);
         if(spec.startsWith("xmldb:exist:")){
-            // xmldb:exist://....
+            LOG.debug("Parsing xmldb:exist:// URL.");
             super.parseURL(url, spec, 12, limit);
-        } else {
-            // xmldb://....
+            
+        } else if(spec.startsWith("xmldb:")) {
+            LOG.debug("Parsing xmldb:// URL.");
             super.parseURL(url, spec, 6, limit);
+            
+        } else {
+            LOG.error("Expected xmldb URL, found "+spec);
+            super.parseURL(url, spec, start, limit);
         }
         
     }
     
-    
     protected URLConnection openConnection(URL u) throws IOException {
         return new Connection(u);
     }
-    
-    
-    
+
 }

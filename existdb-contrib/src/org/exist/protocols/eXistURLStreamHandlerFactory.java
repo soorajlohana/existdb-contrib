@@ -38,16 +38,14 @@ public class eXistURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
     public URLStreamHandler createURLStreamHandler(String protocol) {
         
-        LOG.debug("createURLStreamHandler for '"+protocol+"'.");
-        
         if("xmldb".equals(protocol)){
+            LOG.debug("createURLStreamHandler for '"+protocol+"'.");
             return new Handler();
         } else {
-            LOG.error("Protocol should be xmldb, not "+protocol);
+            //LOG.error("Protocol should be xmldb, not "+protocol);
         }
         
         return null;
-            
     }
     
 }

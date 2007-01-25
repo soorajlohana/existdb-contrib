@@ -32,6 +32,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
+import org.exist.xmldb.eXistURLStreamHandlerFactory;
 
 /**
  * jUnit test for the eXist URLStreamHandlerFactory (xmldb).

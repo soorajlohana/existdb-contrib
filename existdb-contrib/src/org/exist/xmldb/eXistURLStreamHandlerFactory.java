@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.protocols;
+package org.exist.xmldb;
 
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;

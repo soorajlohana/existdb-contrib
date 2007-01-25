@@ -24,8 +24,10 @@ package org.exist.xmlrpc.read;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
+import org.exist.xmldb.XmldbURL;
 import org.exist.validation.internal.BlockingOutputStream;
 import org.exist.xmldb.XmldbURI;
 
@@ -40,13 +42,13 @@ public class XmlrpcInputStream  extends InputStream {
     private XmlrpcReadResourceThread rt;
     
     
-    public XmlrpcInputStream(XmldbURI uri) {
+    public XmlrpcInputStream(XmldbURL uri) throws MalformedURLException {
         
         logger.debug("Initializing ResourceInputStream");
         
         bos = new BlockingOutputStream();
         
-        rt = new XmlrpcReadResourceThread(uri, bos);
+        rt = new XmlrpcReadResourceThread( uri , bos); 
         
         rt.start();
         

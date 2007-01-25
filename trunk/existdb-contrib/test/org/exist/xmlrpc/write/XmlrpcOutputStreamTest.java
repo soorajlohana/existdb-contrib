@@ -25,12 +25,14 @@ package org.exist.xmlrpc.write;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.exist.xmldb.XmldbURI;
-import org.exist.xmlrpc.write.XmlrpcOutputStream;
+import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.XmldbURL;
 
 /**
  *
@@ -42,12 +44,12 @@ public class XmlrpcOutputStreamTest extends TestCase {
     
     public XmlrpcOutputStreamTest(String testName) {
         super(testName);
-        
     }
     
     protected void setUp() throws Exception {
         if(firstTime){
             BasicConfigurator.configure();
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             firstTime=false;
         }
     }
@@ -60,24 +62,34 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendXmlDoc1");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/build.xml";
-            XmldbURI xmldbUri = XmldbURI.create(uri);
+            String uri = "xmldb:exist://guest:guest@dignity:8080"
+                    +"/exist/xmlrpc/db/build.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+            
         } catch (Exception ex) {
             fail(ex.getMessage());
             ex.printStackTrace();
         }
     }
     
-    public void bugtestSendXmlDoc2() {
+    public void testSendXmlDoc2() {
         System.out.println("testSendXmlDoc2");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/notexisting/build.xml";
-            XmldbURI xmldbUri = XmldbURI.create(uri);
+            String uri = "xmldb:exist://guest:guest@dignity:8080"
+                    +"/exist/xmlrpc/db/notexisting/build.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
             fail("Expected exception");
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+            
         } catch (Exception ex) {
             System.out.println("Expected exception:");
             ex.printStackTrace();
@@ -88,33 +100,43 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendBinaryDoc1");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/manifest.mf";
-            XmldbURI xmldbUri = XmldbURI.create(uri);
+            String uri = "xmldb:exist://guest:guest@dignity:8080"
+                    +"/exist/xmlrpc/db/manifest.mf";
+            XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+            
         } catch (Exception ex) {
             fail(ex.getMessage());
             ex.printStackTrace();
         }
     }
     
-    public void bugtestSendBinaryDoc2() {
+    public void testSendBinaryDoc2() {
         System.out.println("testSendBinaryDoc2");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/notexisting/manifest.mf";
-            XmldbURI xmldbUri = XmldbURI.create(uri);
-            sendDocument(xmldbUri, fis);
+            String uri = "xmldb:exist://guest:guest@dignity:8080"
+                    +"/exist/xmlrpc/db/notexisting/manifest.mf";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument( xmldbUri, fis);
             fis.close();
             
             fail("Expected exception");
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            ex.printStackTrace();
+            
         } catch (Exception ex) {
             System.out.println("Expected exception:");
             ex.printStackTrace();
         }
     }
     
-    private void sendDocument(XmldbURI uri, InputStream is) throws IOException{
+    private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
         
         // Setup
         XmlrpcOutputStream xos = new XmlrpcOutputStream(uri);
@@ -126,13 +148,15 @@ public class XmlrpcOutputStreamTest extends TestCase {
             xos.write(buf, 0, len);
         }
         
+        try {
+            Thread.sleep(10*1000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        
         // Shutdown
         xos.flush();
         xos.close();
-//        xos.flush();// required; checks wether all is OK
-//        xos.close();// required; checks wether all is OK
-//        xos.close();
-     
         
     }
     

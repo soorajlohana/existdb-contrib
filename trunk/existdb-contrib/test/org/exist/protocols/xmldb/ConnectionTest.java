@@ -22,6 +22,7 @@
 
 package org.exist.protocols.xmldb;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,8 +35,9 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 /**
+ *  Tests for GETting and PUTting data to eXist.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class ConnectionTest extends TestCase {
     
@@ -54,60 +56,18 @@ public class ConnectionTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
+        // empty yet
     }
     
     /**
-     * Test of reading existent data from eXist server.
+     * Test of writing data to eXist server. Data will be reused by
+     * subsequent tests.
      */
-    public void testGet1() {
-        System.out.println("testGet1");
+    public void testPutDocumentToExistingCollection() throws Exception {
+        System.out.println("testPutDocumentToExistingCollection");
         try {
-            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
-
-            InputStream is = url.openStream();
-            copyDocument(is, System.out);
-            is.close();
-            
-        } catch (MalformedURLException ex) {
-            fail(ex.toString());
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            fail(ex.toString());
-            ex.printStackTrace();
-        }
-    }
-    
-    /**
-     * Test of reading non existent data from eXist server.
-     */
-    public void testGet2() {
-        System.out.println("testGet2");
-        try {
-            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/foobar/macbeth.xml");
-
-            InputStream is = url.openStream();
-            copyDocument(is, System.out);
-            is.close();
-            
-            fail("Document should not exist");
-            
-        } catch (MalformedURLException ex) {
-            fail(ex.toString());
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            //fail(ex.toString());
-            // Expected TODO more acurate check
-            ex.printStackTrace();
-        }
-    }
-    
-    /**
-     * Test of writing data to eXist server.
-     */
-    public void testPut() throws Exception {
-        System.out.println("testPut");
-        try {
-            URL url = new URL("xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/build.xml");
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/build.xml");
 
             OutputStream os = url.openConnection().getOutputStream();
             FileInputStream is = new FileInputStream("build.xml");
@@ -116,11 +76,86 @@ public class ConnectionTest extends TestCase {
             os.close();
             
         } catch (MalformedURLException ex) {
-            fail(ex.toString());
-            ex.printStackTrace();
+            fail(ex.getMessage());
+                        
         } catch (IOException ex) {
-            fail(ex.toString());
-            ex.printStackTrace();
+            fail(ex.getMessage());
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            
+        }
+    }
+    
+    /**
+     * Test reading an existing document from eXist.
+     */
+    public void testGetExistingDocument() {
+        System.out.println("testGetExistingDocument");
+        try {
+            ByteArrayOutputStream baos =  new ByteArrayOutputStream();
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
+
+            InputStream is = url.openStream();
+            copyDocument(is, baos);
+            is.close();
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            
+        } catch (IOException ex) {
+            fail(ex.getMessage());
+            
+        }
+    }
+    
+    /**
+     * Test reading an non-existing document from eXist.
+     */
+    public void testGetNonExistingDocument() {
+        System.out.println("testGetNonExistingDocument");
+        try {
+            ByteArrayOutputStream baos =  new ByteArrayOutputStream();
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/foobar/macbeth.xml");
+
+            InputStream is = url.openStream();
+            copyDocument(is, baos);
+            is.close();
+            
+            fail("Document should not exist");
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+
+        } catch (IOException ex) {
+            assertTrue(ex.getMessage().contains("Collection /db/foobar not found!"));
+        }
+    }
+
+    /**
+     * Test reading an existing document from eXist as a non-existing user.
+     */
+    public void testGetDocumentForNonExistingUser() {
+        System.out.println("testGetDocumentForNonExistingUser");
+        ByteArrayOutputStream baos =  new ByteArrayOutputStream();
+        try {
+            URL url = new URL("xmldb:exist://foo:bar@localhost:8080"
+                    +"/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
+
+            InputStream is = url.openStream();
+            copyDocument(is, baos);
+            is.close();
+            
+            fail("user should not exist");
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            
+        } catch (IOException ex) {
+            assertTrue(ex.getMessage().contains("User foo unknown"));
+            
         }
     }
     

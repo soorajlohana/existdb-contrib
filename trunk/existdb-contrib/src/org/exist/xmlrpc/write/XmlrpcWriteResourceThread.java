@@ -25,18 +25,15 @@ package org.exist.xmlrpc.write;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-import org.exist.protocols.Credentials;
-import org.exist.protocols.Shared;
+import org.exist.xmldb.XmldbURL;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
-import org.exist.xmldb.XmldbURI;
 
 /**
  *  Writes data from an inputstream to a specified URL
@@ -45,24 +42,20 @@ import org.exist.xmldb.XmldbURI;
 public class XmlrpcWriteResourceThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(XmlrpcWriteResourceThread.class);
-    private XmldbURI docXmldbURI;
-    private URL docURL;
+    private XmldbURL xmldbURL;
     private InputStream inputStream;
     private Exception exception;
-    private Credentials creds;
     
     
-   // NEW
-    public XmlrpcWriteResourceThread(URL url, InputStream is) {
-        this.docURL=url;
+//   // NEW
+//    public XmlrpcWriteResourceThread(URL url, InputStream is) {
+//        this.docURL=url;
+//        this.inputStream=is;
+//    }
+    
+    public XmlrpcWriteResourceThread(XmldbURL uri, InputStream is) {
+        this.xmldbURL=uri;
         this.inputStream=is;
-        creds =Shared.extractUserInfo(docURL.toString());
-    }
-    
-    public XmlrpcWriteResourceThread(XmldbURI uri, InputStream is) {
-        this.docXmldbURI=uri;
-        this.inputStream=is;
-        creds =Shared.extractUserInfo(uri.toString());
     }
     
     /**
@@ -88,12 +81,15 @@ public class XmlrpcWriteResourceThread extends Thread {
         // -cast URL to xmldb
         // -distill authority + context from xmldbUri
         // -distill collectionpath
-        String xmlrpcURL = "http://" + docXmldbURI.getAuthority() + docXmldbURI.getContext();
-        String collectionPath = docXmldbURI.getCollectionPath();
+        String xmlrpcURL = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
+        String collectionPath = xmldbURL.getCollection();
+        
+//                String url = "http://" + docUri.getAuthority() + docUri.getContext();
+//        String path = docUri.getCollection();
         
         // get mimetype
         String contentType=MimeType.BINARY_TYPE.getName();
-        MimeType mime = MimeTable.getInstance().getContentTypeFor(docXmldbURI.toString());
+        MimeType mime = MimeTable.getInstance().getContentTypeFor(xmldbURL.toString());
         if (mime != null){
             contentType = mime.getName();
         }
@@ -103,8 +99,8 @@ public class XmlrpcWriteResourceThread extends Thread {
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(xmlrpcURL);
             
-            if(creds.username!=null){
-                xmlrpc.setBasicAuthentication(creds.username, creds.password);
+            if(xmldbURL.getUserInfo()!=null){
+                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
             }
             
             // Initialize xmlrpc parameters
@@ -135,6 +131,7 @@ public class XmlrpcWriteResourceThread extends Thread {
             // Check result
             if(result.booleanValue()){
                 logger.debug("document stored.");
+
             } else {
                 logger.debug("could not store document.");
                 exception = new IOException("Could not store document");

@@ -32,9 +32,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-import org.exist.protocols.Credentials;
-import org.exist.protocols.Shared;
-import org.exist.xmldb.XmldbURI;
+import org.exist.xmldb.XmldbURL;
 
 /**
  *
@@ -43,16 +41,13 @@ import org.exist.xmldb.XmldbURI;
 public class XmlrpcReadResourceThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(XmlrpcReadResourceThread.class);
-    private XmldbURI docUri;
+    private XmldbURL xmldbURL;
     private OutputStream outputStream;
     private Exception exception=null;
-    private Credentials creds=null;
     
-    public XmlrpcReadResourceThread(XmldbURI docUri, OutputStream os) {
-        this.docUri=docUri;
+    public XmlrpcReadResourceThread(XmldbURL docUri, OutputStream os) {
+        this.xmldbURL=docUri;
         this.outputStream=os;
-        
-        creds =Shared.extractUserInfo(docUri.toString());
     }
     
     /**
@@ -79,16 +74,19 @@ public class XmlrpcReadResourceThread extends Thread {
      */
     private void streamResource( OutputStream os ) {
         
-        String url = "http://" + docUri.getAuthority() + docUri.getContext();
-        String path = docUri.getCollectionPath();
+        String url = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
+        String path = xmldbURL.getCollectionPath();
+        
+        System.out.println("read url="+url);
+        System.out.println("read path="+path);
         
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
             XmlRpcClient xmlrpc = new XmlRpcClient(url);
             
-            if(creds.username!=null){
-                xmlrpc.setBasicAuthentication(creds.username, creds.password);
+            if(xmldbURL.getUserInfo()!=null){
+                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
             }
             
             // Setup xml serializer

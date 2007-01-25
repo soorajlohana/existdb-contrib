@@ -56,6 +56,9 @@ public class RetrieveChunked {
         String url = "http://guest:guest@" + uri.getAuthority() + uri.getContext();
         String path =uri.getCollectionPath();
         
+        System.out.println("url="+url);
+        System.out.println("path="+path);
+        
         // Hardcoded yet too
         String filename="mondial.xml";
         

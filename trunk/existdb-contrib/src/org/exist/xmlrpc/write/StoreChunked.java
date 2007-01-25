@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.xmlrpc.chunked;
+package org.exist.xmlrpc.write;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 
-import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.xmldb.eXistURLStreamHandlerFactory;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;

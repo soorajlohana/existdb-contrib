@@ -116,11 +116,11 @@ public class XmlrpcDownloadChunked {
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        XmlrpcDownloadChunked rc = new XmlrpcDownloadChunked();
+        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
-            rc.stream(xmldbURL, System.out);
+            xdc.stream(xmldbURL, System.out);
             
         } catch (MalformedURLException ex) {
             LOG.error("Caught exception", ex);

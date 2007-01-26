@@ -126,11 +126,11 @@ public class XmlrpcUploadChunked {
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        XmlrpcUploadChunked rc = new XmlrpcUploadChunked();
+        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
-            rc.stream(xmldbURL, new FileInputStream("build.xml"));
+            xuc.stream(xmldbURL, new FileInputStream("build.xml"));
             
         } catch (MalformedURLException ex) {
             LOG.error("Caught exception"+url, ex);

@@ -55,7 +55,19 @@ public class XmlrpcReadResourceThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        streamResource( outputStream );
+        try {
+            XmlrpcDownloadChunked xuc = new XmlrpcDownloadChunked();
+            xuc.stream(xmldbURL, outputStream);
+        } catch (Exception ex) {
+            logger.error(ex);
+            exception=new Exception(ex.getMessage());
+        } finally {
+            try { // NEEDED!
+                outputStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
         logger.debug("Thread stopped." );
     }
     
@@ -74,78 +86,78 @@ public class XmlrpcReadResourceThread extends Thread {
      */
     private void streamResource( OutputStream os ) {
         
-        String url = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
-        String path = xmldbURL.getCollectionPath();
-        
-        System.out.println("read url="+url);
-        System.out.println("read path="+path);
-        
-        try {
-            // Setup xmlrpc client
-            XmlRpc.setEncoding("UTF-8");
-            XmlRpcClient xmlrpc = new XmlRpcClient(url);
-            
-            if(xmldbURL.getUserInfo()!=null){
-                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
-            }
-            
-            // Setup xml serializer
-            Hashtable options = new Hashtable();
-            options.put("indent", "no");
-            options.put("encoding", "UTF-8");
-            
-            // Setup xmlrpc parameters
-            Vector params = new Vector();
-            params.addElement( path );
-            params.addElement( options );
-            
-            // Shoot first method write data
-            Hashtable ht = (Hashtable) xmlrpc.execute("getDocumentData", params);
-            int offset = ((Integer)ht.get("offset")).intValue();
-            byte[]data= (byte[]) ht.get("data");
-            String handle = (String) ht.get("handle");
-            os.write(data);
-            
-            // When there is more data to download
-            while(offset!=0){
-                // Clean and re-setup xmlrpc parameters
-                params.clear();
-                params.addElement(handle);
-                params.addElement(new Integer(offset));
-                
-                // Get and write next chunk
-                ht = (Hashtable) xmlrpc.execute("getNextChunk", params);
-                data= (byte[]) ht.get("data");
-                offset = ((Integer)ht.get("offset")).intValue();
-                os.write(data);
-            }
-            
-            // Finish transport
-            os.flush();
-//            os.close(); // DWES this should not be here!
-            
-        } catch (MalformedURLException ex) {
-            logger.error(ex);
-            exception=ex;
-        } catch (XmlRpcException ex) {
-            ex.printStackTrace();
-            logger.error(ex);
-            exception=ex;
-        } catch (IOException ex) {
-            logger.error(ex);
-            exception=ex;
-        } catch (Exception ex){
-            logger.error(ex);
-            exception=ex;
-            
-        } finally {
-            try {
-                os.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                exception=ex;;
-            }
-        }
+//        String url = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
+//        String path = xmldbURL.getCollectionPath();
+//        
+//        System.out.println("read url="+url);
+//        System.out.println("read path="+path);
+//        
+//        try {
+//            // Setup xmlrpc client
+//            XmlRpc.setEncoding("UTF-8");
+//            XmlRpcClient xmlrpc = new XmlRpcClient(url);
+//            
+//            if(xmldbURL.getUserInfo()!=null){
+//                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
+//            }
+//            
+//            // Setup xml serializer
+//            Hashtable options = new Hashtable();
+//            options.put("indent", "no");
+//            options.put("encoding", "UTF-8");
+//            
+//            // Setup xmlrpc parameters
+//            Vector params = new Vector();
+//            params.addElement( path );
+//            params.addElement( options );
+//            
+//            // Shoot first method write data
+//            Hashtable ht = (Hashtable) xmlrpc.execute("getDocumentData", params);
+//            int offset = ((Integer)ht.get("offset")).intValue();
+//            byte[]data= (byte[]) ht.get("data");
+//            String handle = (String) ht.get("handle");
+//            os.write(data);
+//            
+//            // When there is more data to download
+//            while(offset!=0){
+//                // Clean and re-setup xmlrpc parameters
+//                params.clear();
+//                params.addElement(handle);
+//                params.addElement(new Integer(offset));
+//                
+//                // Get and write next chunk
+//                ht = (Hashtable) xmlrpc.execute("getNextChunk", params);
+//                data= (byte[]) ht.get("data");
+//                offset = ((Integer)ht.get("offset")).intValue();
+//                os.write(data);
+//            }
+//            
+//            // Finish transport
+//            os.flush();
+////            os.close(); // DWES this should not be here!
+//            
+//        } catch (MalformedURLException ex) {
+//            logger.error(ex);
+//            exception=ex;
+//        } catch (XmlRpcException ex) {
+//            ex.printStackTrace();
+//            logger.error(ex);
+//            exception=ex;
+//        } catch (IOException ex) {
+//            logger.error(ex);
+//            exception=ex;
+//        } catch (Exception ex){
+//            logger.error(ex);
+//            exception=ex;
+//            
+//        } finally {
+//            try {
+//                os.close();
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//                exception=ex;;
+//            }
+//        }
     }
     
 }

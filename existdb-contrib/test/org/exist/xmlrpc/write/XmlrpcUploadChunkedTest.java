@@ -22,8 +22,9 @@ import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmlrpc.write.XmlrpcUploadChunked;
 
 /**
- *
- * @author wessels
+ *  jUnit tests for XmlrpcUploadChunked class
+ * .
+ * @author Dannes Wessels
  */
 public class XmlrpcUploadChunkedTest extends TestCase {
     

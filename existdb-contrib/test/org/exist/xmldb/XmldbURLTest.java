@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 /**
- *  Set of tests for XmldbURL.
+ *  jUnit tests for the XmldbURL class.
  *
  * @author Dannes Wessels
  */

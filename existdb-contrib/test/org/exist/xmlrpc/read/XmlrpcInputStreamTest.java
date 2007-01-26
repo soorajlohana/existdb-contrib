@@ -36,8 +36,9 @@ import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
 /**
+ *  jUnit tests for XmlrpcInputStream class.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcInputStreamTest extends TestCase {
     

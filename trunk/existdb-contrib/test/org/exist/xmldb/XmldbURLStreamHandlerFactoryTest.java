@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.protocols;
+package org.exist.xmldb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,14 +32,13 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  * jUnit test for the eXist URLStreamHandlerFactory (xmldb).
  *
  * @author Dannes Wessels
  */
-public class eXistURLStreamHandlerFactoryTest extends TestCase {
+public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
@@ -47,7 +46,7 @@ public class eXistURLStreamHandlerFactoryTest extends TestCase {
     
     private static boolean firstTime=true;
     
-    public eXistURLStreamHandlerFactoryTest(String testName) {
+    public XmldbURLStreamHandlerFactoryTest(String testName) {
         super(testName);
     }
     

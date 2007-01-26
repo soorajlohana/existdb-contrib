@@ -21,8 +21,9 @@ import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmlrpc.read.XmlrpcDownloadChunked;
 
 /**
+ *  jUnit tests for XmlrpcDownloadChunked class.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcDownloadChunkedTest extends TestCase {
     

@@ -35,7 +35,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 /**
- *  Tests for GETting and PUTting data to eXist.
+ *  jUnit tests for GETting and PUTting data to eXist.
  *
  * @author Dannes Wessels
  */

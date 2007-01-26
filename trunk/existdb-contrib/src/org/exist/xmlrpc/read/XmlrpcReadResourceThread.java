@@ -35,8 +35,9 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
 
 /**
+ *  jUnit tests for XmlrpcReadResource class.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcReadResourceThread extends Thread {
     

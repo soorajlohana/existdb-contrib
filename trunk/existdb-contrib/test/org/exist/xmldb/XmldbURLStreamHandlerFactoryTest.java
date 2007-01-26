@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 /**
- * jUnit test for the eXist URLStreamHandlerFactory (xmldb).
+ * jUnit test for the eXist XmldbURLStreamHandlerFactory class.
  *
  * @author Dannes Wessels
  */

@@ -29,7 +29,8 @@ import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  Writes data from an inputstream to a specified URL
+ *  Writes data from an inputstream to a specified URL.
+ *
  * @author Dannes Wessels
  */
 public class XmlrpcWriteResourceThread extends Thread {

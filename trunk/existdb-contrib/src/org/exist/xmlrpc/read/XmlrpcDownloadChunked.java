@@ -46,9 +46,9 @@ import org.exist.xmldb.XmldbURL;
  *
  * @author dizzzz
  */
-public class RetrieveChunked {
+public class XmlrpcDownloadChunked {
     
-    private final static Logger LOG = Logger.getLogger(RetrieveChunked.class);
+    private final static Logger LOG = Logger.getLogger(XmlrpcDownloadChunked.class);
     
     public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         LOG.debug("Begin document download");
@@ -95,15 +95,16 @@ public class RetrieveChunked {
             // Finish transport
             os.close();
             
-        } catch (MalformedURLException ex) {
-            LOG.error(ex);
-            throw new IOException(ex.getMessage());
-            
         } catch (XmlRpcException ex) {
             LOG.error(ex);
             throw new IOException(ex.getMessage());
+            
+        } catch (MalformedURLException ex){
+            LOG.error(ex);
+            throw new IOException(ex.getMessage());
+        } finally {
+            LOG.debug("Finished document download"); 
         }
-        LOG.debug("Finished document upload"); // TODO never here?
     }
     
     public static void main(String[] args) {
@@ -114,17 +115,17 @@ public class RetrieveChunked {
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        RetrieveChunked rc = new RetrieveChunked();
+        XmlrpcDownloadChunked rc = new XmlrpcDownloadChunked();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             rc.stream(xmldbURL, System.out);
             
         } catch (MalformedURLException ex) {
-            LOG.error(ex);
+            LOG.error("Caught exception", ex);
             
         } catch (IOException ex) {
-            LOG.error(ex);
+            LOG.error("Caught exception", ex);
         }
         
     }

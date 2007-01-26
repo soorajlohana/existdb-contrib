@@ -48,9 +48,9 @@ import org.exist.xmldb.XmldbURLStreamHandlerFactory;
  *
  * @author dizzzz
  */
-public class StoreChunked {
+public class XmlrpcUploadChunked {
     
-    private final static Logger LOG = Logger.getLogger(StoreChunked.class);
+    private final static Logger LOG = Logger.getLogger(XmlrpcUploadChunked.class);
     
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
         LOG.debug("Begin document upload");
@@ -94,7 +94,7 @@ public class StoreChunked {
             params.addElement( xmldbURL.getCollectionPath() );
             params.addElement(new Boolean(true));
             params.addElement(contentType);
-            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions
+            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // TOT which exceptions
             
             // Check result
             if(result.booleanValue()){
@@ -112,30 +112,31 @@ public class StoreChunked {
         } catch (XmlRpcException ex) {
             LOG.error(ex);
             throw new IOException(ex.getMessage());
+            
+        } finally {
+           LOG.debug("Finished document upload");
         }
-        
-        LOG.debug("Finished document upload");
     }
     
     public static void main(String[] args) {
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/build.xml";
+                +"/exist/xmlrpc/db/foobar/build.xml";
         
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        StoreChunked rc = new StoreChunked();
+        XmlrpcUploadChunked rc = new XmlrpcUploadChunked();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             rc.stream(xmldbURL, new FileInputStream("build.xml"));
             
         } catch (MalformedURLException ex) {
-            LOG.error("Wrong XmldbURL !"+url, ex);
+            LOG.error("Caught exception"+url, ex);
             
         } catch (IOException ex) {
-            LOG.error("IOException !", ex);
+            LOG.error("Caught exception", ex);
             
         }
         

@@ -56,6 +56,12 @@ public class XmlrpcWriteResourceThread extends Thread {
         } catch (Exception ex) {
             logger.error(ex);
             exception=new Exception(ex.getMessage());
+        } finally {
+            try { // not needed?
+                inputStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
         logger.debug("Thread stopped." );
     }

@@ -94,7 +94,7 @@ public class XmlrpcUploadChunked {
             params.addElement( xmldbURL.getCollectionPath() );
             params.addElement(new Boolean(true));
             params.addElement(contentType);
-            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // TOT which exceptions
+            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // TODO which exceptions
             
             // Check result
             if(result.booleanValue()){

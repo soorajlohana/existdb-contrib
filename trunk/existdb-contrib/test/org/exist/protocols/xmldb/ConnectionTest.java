@@ -130,7 +130,10 @@ public class ConnectionTest extends TestCase {
             fail(ex.getMessage());
 
         } catch (IOException ex) {
-            assertTrue(ex.getMessage().contains("Collection /db/foobar not found!"));
+            if(!ex.getMessage().contains("Collection /db/foobar not found!")){
+                fail(ex.getMessage());
+            }
+            
         }
     }
 
@@ -154,8 +157,9 @@ public class ConnectionTest extends TestCase {
             fail(ex.getMessage());
             
         } catch (IOException ex) {
-            assertTrue(ex.getMessage().contains("User foo unknown"));
-            
+            if(!ex.getMessage().contains("User foo unknown")){
+                fail(ex.getMessage());
+            }
         }
     }
     

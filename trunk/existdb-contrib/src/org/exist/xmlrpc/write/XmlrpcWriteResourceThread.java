@@ -24,16 +24,9 @@ package org.exist.xmlrpc.write;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpc;
-import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
-import org.exist.util.MimeTable;
-import org.exist.util.MimeType;
 
 /**
  *  Writes data from an inputstream to a specified URL
@@ -46,15 +39,9 @@ public class XmlrpcWriteResourceThread extends Thread {
     private InputStream inputStream;
     private Exception exception;
     
-    
-//   // NEW
-//    public XmlrpcWriteResourceThread(URL url, InputStream is) {
-//        this.docURL=url;
-//        this.inputStream=is;
-//    }
-    
-    public XmlrpcWriteResourceThread(XmldbURL uri, InputStream is) {
-        this.xmldbURL=uri;
+        
+    public XmlrpcWriteResourceThread(XmldbURL url, InputStream is) {
+        this.xmldbURL=url;
         this.inputStream=is;
     }
     
@@ -63,7 +50,13 @@ public class XmlrpcWriteResourceThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        streamResource( inputStream );
+        try {
+            XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+            xuc.stream(xmldbURL, inputStream);
+        } catch (Exception ex) {
+            logger.error(ex);
+            exception=new Exception(ex.getMessage());
+        }
         logger.debug("Thread stopped." );
     }
     
@@ -77,94 +70,94 @@ public class XmlrpcWriteResourceThread extends Thread {
     
     private void streamResource( InputStream is ){
         
-        // TODO
-        // -cast URL to xmldb
-        // -distill authority + context from xmldbUri
-        // -distill collectionpath
-        String xmlrpcURL = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
-        String collectionPath = xmldbURL.getCollection();
-        
-//                String url = "http://" + docUri.getAuthority() + docUri.getContext();
-//        String path = docUri.getCollection();
-        
-        // get mimetype
-        String contentType=MimeType.BINARY_TYPE.getName();
-        MimeType mime = MimeTable.getInstance().getContentTypeFor(xmldbURL.toString());
-        if (mime != null){
-            contentType = mime.getName();
-        }
-        
-        try {
-            // Setup xmlrpc client
-            XmlRpc.setEncoding("UTF-8");
-            XmlRpcClient xmlrpc = new XmlRpcClient(xmlrpcURL);
-            
-            if(xmldbURL.getUserInfo()!=null){
-                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
-            }
-            
-            // Initialize xmlrpc parameters
-            Vector params = new Vector();
-            String handle=null;
-            
-            // Copy data from inputstream to database
-            byte[] buf = new byte[4096];
-            int len;
-            while ((len = is.read(buf)) > 0) {
-                params.clear();
-                if(handle!=null){
-                    params.addElement(handle);
-                }
-                params.addElement(buf);
-                params.addElement(new Integer(len));
-                handle = (String)xmlrpc.execute("upload", params);
-            }
-            
-            // All data transported, parse data on server
-            params.clear();
-            params.addElement(handle);
-            params.addElement(collectionPath);
-            params.addElement(new Boolean(true));
-            params.addElement(contentType);
-            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions
-            
-            // Check result
-            if(result.booleanValue()){
-                logger.debug("document stored.");
-
-            } else {
-                logger.debug("could not store document.");
-                exception = new IOException("Could not store document");
-            }
-            
-        } catch (MalformedURLException ex) {
-            exception=ex;
-            logger.error(ex);
-            
-        } catch (IOException ex) {
-            exception=ex;
-            logger.error(ex);
-            
-        } catch (XmlRpcException ex) {
-            exception=ex;
-            ex.printStackTrace();
-            logger.error(ex);
-            
-        } catch (Exception ex) { // Catch all
-            exception=ex;
-            ex.printStackTrace();
-            logger.error(ex);
-            
-        } finally {
-            try {
-                // nothing
-                is.close();
-            } catch (IOException ex) {
-                exception=ex;
-                ex.printStackTrace();
-                logger.error(ex);
-            }
-        }
+//        // TODO
+//        // -cast URL to xmldb
+//        // -distill authority + context from xmldbUri
+//        // -distill collectionpath
+//        String xmlrpcURL = "http://" + xmldbURL.getAuthority() + xmldbURL.getContext();
+//        String collectionPath = xmldbURL.getCollection();
+//        
+////                String url = "http://" + docUri.getAuthority() + docUri.getContext();
+////        String path = docUri.getCollection();
+//        
+//        // get mimetype
+//        String contentType=MimeType.BINARY_TYPE.getName();
+//        MimeType mime = MimeTable.getInstance().getContentTypeFor(xmldbURL.toString());
+//        if (mime != null){
+//            contentType = mime.getName();
+//        }
+//        
+//        try {
+//            // Setup xmlrpc client
+//            XmlRpc.setEncoding("UTF-8");
+//            XmlRpcClient xmlrpc = new XmlRpcClient(xmlrpcURL);
+//            
+//            if(xmldbURL.getUserInfo()!=null){
+//                xmlrpc.setBasicAuthentication(xmldbURL.getUsername(), xmldbURL.getPassword());
+//            }
+//            
+//            // Initialize xmlrpc parameters
+//            Vector params = new Vector();
+//            String handle=null;
+//            
+//            // Copy data from inputstream to database
+//            byte[] buf = new byte[4096];
+//            int len;
+//            while ((len = is.read(buf)) > 0) {
+//                params.clear();
+//                if(handle!=null){
+//                    params.addElement(handle);
+//                }
+//                params.addElement(buf);
+//                params.addElement(new Integer(len));
+//                handle = (String)xmlrpc.execute("upload", params);
+//            }
+//            
+//            // All data transported, parse data on server
+//            params.clear();
+//            params.addElement(handle);
+//            params.addElement(collectionPath);
+//            params.addElement(new Boolean(true));
+//            params.addElement(contentType);
+//            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // exceptions
+//            
+//            // Check result
+//            if(result.booleanValue()){
+//                logger.debug("document stored.");
+//
+//            } else {
+//                logger.debug("could not store document.");
+//                exception = new IOException("Could not store document");
+//            }
+//            
+//        } catch (MalformedURLException ex) {
+//            exception=ex;
+//            logger.error(ex);
+//            
+//        } catch (IOException ex) {
+//            exception=ex;
+//            logger.error(ex);
+//            
+//        } catch (XmlRpcException ex) {
+//            exception=ex;
+//            ex.printStackTrace();
+//            logger.error(ex);
+//            
+//        } catch (Exception ex) { // Catch all
+//            exception=ex;
+//            ex.printStackTrace();
+//            logger.error(ex);
+//            
+//        } finally {
+//            try {
+//                // nothing
+//                is.close();
+//            } catch (IOException ex) {
+//                exception=ex;
+//                ex.printStackTrace();
+//                logger.error(ex);
+//            }
+//        }
         
     }
     

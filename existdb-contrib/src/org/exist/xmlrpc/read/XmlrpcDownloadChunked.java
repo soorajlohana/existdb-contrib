@@ -102,6 +102,7 @@ public class XmlrpcDownloadChunked {
         } catch (MalformedURLException ex){
             LOG.error(ex);
             throw new IOException(ex.getMessage());
+            
         } finally {
             LOG.debug("Finished document download"); 
         }

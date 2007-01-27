@@ -31,6 +31,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
@@ -40,6 +41,8 @@ import org.exist.xmldb.XmldbURL;
  * @author Dannes Wessels.
  */
 public class XmlrpcOutputStreamTest extends TestCase {
+    
+    private static Logger LOG = Logger.getLogger(XmlrpcOutputStreamTest.class);
     
     private static boolean firstTime=true;
     
@@ -69,11 +72,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             sendDocument(xmldbUri, fis);
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
             
         } catch (Exception ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     
@@ -89,11 +92,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
             
         } catch (Exception ex) {
             System.out.println("Expected exception:");
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     
@@ -108,11 +111,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fis.close();
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
             
         } catch (Exception ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     
@@ -129,11 +132,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
             
         } catch (Exception ex) {
             System.out.println("Expected exception:");
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     

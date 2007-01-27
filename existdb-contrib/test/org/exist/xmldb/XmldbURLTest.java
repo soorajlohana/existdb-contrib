@@ -23,11 +23,11 @@
 package org.exist.xmldb;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 /**
  *  jUnit tests for the XmldbURL class.
@@ -35,6 +35,8 @@ import org.apache.log4j.BasicConfigurator;
  * @author Dannes Wessels
  */
 public class XmldbURLTest extends TestCase {
+    
+    private static Logger LOG = Logger.getLogger(XmldbURLTest.class);
     
     private static boolean firstRun=true;
     
@@ -159,7 +161,7 @@ public class XmldbURLTest extends TestCase {
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     
@@ -209,7 +211,7 @@ public class XmldbURLTest extends TestCase {
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-//            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     

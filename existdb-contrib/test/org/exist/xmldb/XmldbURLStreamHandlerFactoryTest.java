@@ -32,6 +32,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 /**
  * jUnit test for the eXist XmldbURLStreamHandlerFactory class.
@@ -39,6 +40,8 @@ import org.apache.log4j.BasicConfigurator;
  * @author Dannes Wessels
  */
 public class XmldbURLStreamHandlerFactoryTest extends TestCase {
+    
+    private static Logger LOG = Logger.getLogger(XmldbURLStreamHandlerFactoryTest.class);
     
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
@@ -76,10 +79,10 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             
         } catch (MalformedURLException ex) {
             fail(ex.toString());
-//            ex.printStackTrace();
+            LOG.error(ex);
         } catch (IOException ex) {
             fail(ex.toString());
-//            ex.printStackTrace();
+            LOG.error(ex);
         }
         
     }

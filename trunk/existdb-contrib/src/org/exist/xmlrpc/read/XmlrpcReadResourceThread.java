@@ -66,7 +66,7 @@ public class XmlrpcReadResourceThread extends Thread {
             try { // NEEDED!
                 outputStream.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                logger.debug(ex);
             }
         }
         logger.debug("Thread stopped." );

@@ -86,9 +86,13 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void close() throws IOException {
        
-        //bis.closeOutputStream();
-        bis.closeInputStream();
+        bis.closeOutputStream(); // to extend?
+//        bis.closeInputStream();
         bis.close();
+//        joinThread();
+//        if (!rt.isValid()) {
+//            throw new IOException("oops");
+//        }
         
         if(rt.isExceptionThrown())
         {
@@ -99,10 +103,25 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void flush() throws IOException {
         bis.flush();
+//        joinThread();
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
             throw new IOException(rt.getThrownException());
+        }
+    }
+    
+    /**
+     * Wait for the thread to finish.
+     * Interrupt it when it doesn't finish in time.
+     */
+    private void joinThread() {
+        final int TIME_OUT = 1000; // One second.
+        try {
+            rt.join(TIME_OUT);
+            if (rt.isAlive()) rt.interrupt();
+        } catch (InterruptedException e) {
+            // Ignore.
         }
     }
     

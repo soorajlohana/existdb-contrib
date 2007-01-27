@@ -209,7 +209,7 @@ public class XmldbURLTest extends TestCase {
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
     }
     

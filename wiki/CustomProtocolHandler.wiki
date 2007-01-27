@@ -1,4 +1,5 @@
 #summary The xmldb:exist:// custom protocol handler.
+#labels Featured,Phase-Implementation
 
 == Custom protocol handler "xmldb:exist://" ==
 
@@ -45,13 +46,20 @@ The equivalent for sending data to the database does not work well enough yet. E
 OutputStream os = url.openConnection().getOutputStream();
 }}}
 
+== Dependancies ==
+The code does have a dependancy with the eXist jar files, in particular:
+ * exist.jar
+ * exist-optional.jar (to be checked)
+ * log4j-1.2.14.jar
+ * xmldb.jar
+ * xmlrpc-1.2-patched.jar
+
 == Known Issues ==
 
- * It is not possible to specify "userinfo" in the url (xmldb:exist://username:password@hostname:portnr/exist/xmlrpc/db/collection/doc.xml)
-_This is because the eXist *XmldbURI* class does not provide methods to get the username/password yet. Alternatively we could pass a xmldb:exist-uri as a string to the URL class, and get the wanted info via this route. The problem is that we might need to check the correctness of the URL on too many locations_
-
  * Error/exception handling for uploading documents not complete yet.
-_When a document is send to eXist, e.g. to a collection which does not exist, the exception is not propagated. It seems that the 'thread' is never ended. Difficult to tackle, might need to perform a significant rewrite._
+_When a document is uploaded to the eXist-db, and an error occurs (e.g. collection does not exist, unknown user, not authorized), this error is not propagated to the end user. It is caused by a Threading issue, which is difficult to tackle. The issues are shown when running the test suite._
+
+
 
 
 

@@ -76,10 +76,10 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             
         } catch (MalformedURLException ex) {
             fail(ex.toString());
-            ex.printStackTrace();
+//            ex.printStackTrace();
         } catch (IOException ex) {
             fail(ex.toString());
-            ex.printStackTrace();
+//            ex.printStackTrace();
         }
         
     }

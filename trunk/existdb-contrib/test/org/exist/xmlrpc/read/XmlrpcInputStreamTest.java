@@ -32,6 +32,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
@@ -41,6 +42,8 @@ import org.exist.xmldb.XmldbURL;
  * @author Dannes Wessels
  */
 public class XmlrpcInputStreamTest extends TestCase {
+    
+    private static Logger LOG = Logger.getLogger(XmlrpcInputStreamTest.class);
     
     private static boolean firstTime=true;
     
@@ -96,8 +99,10 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail(ex.getMessage());
             ex.printStackTrace();
         } catch (Exception ex) {
-            System.out.println("Expected exception:");
-            ex.printStackTrace();
+            if(!ex.getMessage().contains("document not found")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
         }
     }
     
@@ -115,10 +120,10 @@ public class XmlrpcInputStreamTest extends TestCase {
             getDocument(xmldbUri, baos);
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
         } catch (Exception ex) {
             fail(ex.getMessage());
-            ex.printStackTrace();
+            LOG.error(ex);
         }
     }
     
@@ -137,8 +142,10 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail(ex.getMessage());
             ex.printStackTrace();
         } catch (Exception ex) {
-            System.out.println("Excpected exception:");
-            ex.printStackTrace();
+            if(!ex.getMessage().contains("document not found")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
         }
     }
     

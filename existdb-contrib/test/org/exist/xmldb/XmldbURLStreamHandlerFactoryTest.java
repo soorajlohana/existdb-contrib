@@ -77,9 +77,6 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             copyDocument(is, baos);
             is.close();
             
-        } catch (MalformedURLException ex) {
-            fail(ex.toString());
-            LOG.error(ex);
         } catch (IOException ex) {
             fail(ex.toString());
             LOG.error(ex);

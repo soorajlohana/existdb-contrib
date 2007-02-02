@@ -86,13 +86,10 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void close() throws IOException {
        
-        bis.closeOutputStream(); // to extend?
-//        bis.closeInputStream();
-        bis.close();
 //        joinThread();
-//        if (!rt.isValid()) {
-//            throw new IOException("oops");
-//        }
+        
+        bis.closeOutputStream(); // to extend?
+        bis.close();
         
         if(rt.isExceptionThrown())
         {
@@ -103,7 +100,7 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void flush() throws IOException {
         bis.flush();
-//        joinThread();
+
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());

@@ -162,7 +162,12 @@ public class XmldbURL {
     }
     
     public String getHost(){
-        return myUrl.getHost();
+        String hostname=myUrl.getHost();
+        if(hostname.equals("")){
+            return null;
+        } else {
+            return hostname;
+        }
     }    
     
     public int getPort(){

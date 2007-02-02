@@ -64,6 +64,31 @@ public class XmldbURLTest extends TestCase {
             "xmldb:exist://localhost:8080/exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
     
+    // Check some situation
+    private static String XMLDB_URL_11=
+            "xmldb:exist://localhost:8080/exist/xmlrpc/db/";
+    
+    private static String XMLDB_URL_12=
+            "xmldb:exist://localhost:8080/exist/xmlrpc/db";
+    
+    private static String XMLDB_URL_13=
+            "xmldb:exist://localhost:8080/exist/xmlrpc/";
+    
+    private static String XMLDB_URL_14=
+            "xmldb:exist://localhost:8080/exist/xmlrpc";
+    
+    private static String XMLDB_URL_15=
+            "xmldb:exist://localhost:8080/exist";
+    
+    // Check some more
+    private static String XMLDB_URL_21=
+            "xmldb:exist://localhost:8080/exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
+    private static String XMLDB_URL_22=
+            "xmldb:foobar:///exist/xmlrpc"
+            +"/db/shakespeare/plays/macbeth.xml";
+    
     
     public XmldbURLTest(String testName) {
         super(testName);
@@ -169,7 +194,7 @@ public class XmldbURLTest extends TestCase {
     
     public void testXmldbURI_getUserInfo() {
         System.out.println("testXmldbURI_getUserInfo");
-    
+        
         try {
             String userinfo=null;
             
@@ -215,5 +240,36 @@ public class XmldbURLTest extends TestCase {
         }
     }
     
+    public void testXmldbURI_HostName() {
+        System.out.println("testXmldbURI_HostName");
+        
+        try {
+            XmldbURL url = new XmldbURL(XMLDB_URL_21);
+            assertEquals("localhost", url.getHost());
+            
+            url = new XmldbURL(XMLDB_URL_22);
+            assertNull(url.getHost());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        }
+    }
+    
+    public void testXmldbURI_InstanceName() {
+        System.out.println("testXmldbURI_InstanceName");
+        
+//        try {
+//            XmldbURL url = new XmldbURL(XMLDB_URL_21);
+//            assertEquals("localhost", url.getHost());
+//            
+//            url = new XmldbURL(XMLDB_URL_22);
+//            assertNull(url.getHost());
+//            
+//        } catch (MalformedURLException ex) {
+//            fail(ex.getMessage());
+//            LOG.error(ex);
+//        }
+    }
     
 }

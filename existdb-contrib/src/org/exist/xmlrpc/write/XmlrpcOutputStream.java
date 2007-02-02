@@ -86,8 +86,8 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void close() throws IOException {
        
-//        bis.closeOutputStream(); // to extend?
-        bis.closeInputStream();
+        bis.closeOutputStream(); // to extend?
+//        bis.closeInputStream();
         bis.close();
 //        joinThread();
 //        if (!rt.isValid()) {

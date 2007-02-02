@@ -73,9 +73,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
+
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
@@ -95,9 +93,6 @@ public class XmlrpcInputStreamTest extends TestCase {
             baos.close();
             fail("exception should be thrown");
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
         } catch (Exception ex) {
             if(!ex.getMessage().contains("document not found")){
                 fail(ex.getMessage());

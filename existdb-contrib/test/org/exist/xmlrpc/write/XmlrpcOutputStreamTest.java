@@ -89,8 +89,10 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            System.out.println("Expected exception:");
-            LOG.error(ex);
+            // TODO check message
+            if(!ex.getMessage().contains("Collection db/notexisting not found")){
+                fail(ex.getMessage());
+            }
         }
     }
     
@@ -123,8 +125,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            System.out.println("Expected exception:");
-            LOG.error(ex);
+            
+            // TODO check message
+            if(!ex.getMessage().contains("Collection db/notexisting not found")){
+                fail(ex.getMessage());
+            }
         }
     }
     

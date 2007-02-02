@@ -27,7 +27,7 @@ import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
-import org.exist.validation.internal.BlockingInputStream;
+import org.exist.localcopied.BlockingInputStream;
 
 /**
  *
@@ -86,8 +86,8 @@ public class XmlrpcOutputStream  extends OutputStream {
 
     public void close() throws IOException {
        
-        bis.closeOutputStream(); // to extend?
-//        bis.closeInputStream();
+//        bis.closeOutputStream(); // to extend?
+        bis.closeInputStream();
         bis.close();
 //        joinThread();
 //        if (!rt.isValid()) {

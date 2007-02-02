@@ -85,8 +85,8 @@ public class XmldbURLTest extends TestCase {
             "xmldb:exist://localhost:8080/exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
     
-    private static String XMLDB_URL_22=
-            "xmldb:foobar:///exist/xmlrpc"
+    private static String XMLDB_URL_22=         
+            "xmldb:exist:///exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
     
     
@@ -245,7 +245,7 @@ public class XmldbURLTest extends TestCase {
         
         try {
             XmldbURL url = new XmldbURL(XMLDB_URL_21);
-            assertEquals("localhost", url.getHost());
+            assertEquals("localhost", url.getHost()); ///
             
             url = new XmldbURL(XMLDB_URL_22);
             assertNull(url.getHost());
@@ -259,17 +259,17 @@ public class XmldbURLTest extends TestCase {
     public void testXmldbURI_InstanceName() {
         System.out.println("testXmldbURI_InstanceName");
         
-//        try {
-//            XmldbURL url = new XmldbURL(XMLDB_URL_21);
-//            assertEquals("localhost", url.getHost());
-//            
-//            url = new XmldbURL(XMLDB_URL_22);
-//            assertNull(url.getHost());
-//            
-//        } catch (MalformedURLException ex) {
-//            fail(ex.getMessage());
-//            LOG.error(ex);
-//        }
+        try {
+            XmldbURL url = new XmldbURL(XMLDB_URL_1);
+            assertEquals("exist", url.getInstanceName());
+            
+//            url = new XmldbURL(XMLDB_URL_21);
+//           assertEquals("foobar", url.getInstanceName());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        }
     }
     
 }

@@ -193,5 +193,9 @@ public class XmldbURL {
     public boolean hasUserInfo(){
         return (getUserInfo()!=null && getUsername()!=null);
     }
+
+    public String getInstanceName() {
+        return "exist";  // No other choice
+    }
     
 }

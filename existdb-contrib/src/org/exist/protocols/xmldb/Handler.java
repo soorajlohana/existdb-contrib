@@ -51,6 +51,7 @@ public class Handler extends URLStreamHandler {
         LOG.debug("Setup \"xmldb:exist:\" handler");
     }
     
+    // TODO: check exist:foobar:// as well !
     protected void parseURL(URL url, String spec, int start, int limit) {
         LOG.debug("Parsing URL "+spec);
         if(spec.startsWith("xmldb:exist://")){
@@ -67,7 +68,6 @@ public class Handler extends URLStreamHandler {
         }
         
     }
-    
     
     
     protected URLConnection openConnection(URL u) throws IOException {

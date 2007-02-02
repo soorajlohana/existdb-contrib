@@ -66,13 +66,10 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendXmlDoc1");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@dignity:8080"
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/build.xml";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
             
         } catch (Exception ex) {
             fail(ex.getMessage());
@@ -84,15 +81,12 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendXmlDoc2");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@dignity:8080"
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/notexisting/build.xml";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
             fail("Expected exception");
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
             
         } catch (Exception ex) {
             System.out.println("Expected exception:");
@@ -104,14 +98,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendBinaryDoc1");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@dignity:8080"
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/manifest.mf";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
             
         } catch (Exception ex) {
             fail(ex.getMessage());
@@ -123,16 +114,13 @@ public class XmlrpcOutputStreamTest extends TestCase {
         System.out.println("testSendBinaryDoc2");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@dignity:8080"
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/notexisting/manifest.mf";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument( xmldbUri, fis);
             fis.close();
             
             fail("Expected exception");
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
             
         } catch (Exception ex) {
             System.out.println("Expected exception:");

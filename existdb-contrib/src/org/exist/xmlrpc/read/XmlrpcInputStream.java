@@ -28,7 +28,7 @@ import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
-import org.exist.validation.internal.BlockingOutputStream;
+import org.exist.localcopied.BlockingOutputStream;
 import org.exist.xmldb.XmldbURI;
 
 /**

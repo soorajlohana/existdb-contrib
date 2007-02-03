@@ -1,0 +1,130 @@
+#summary Another Set of Custom Ant Tasks.
+
+While developing for the eXist Native XML database (http://www.exist-db.org) I needed some additonal Ant Tasks. Since I could not find them on the internet, I decided to write them myself.....
+
+What can you expect:
+ * unsign jar files
+ * repack (normalize) jar files (so they can be signed and packed using Pack200)
+ * Pack200 tasks
+
+and
+
+ * SVN tasks, e.g. to determine revision.
+
+You'll need Java5+ to compile it, the tasks are developed for Apache Ant 1.6.5. The Tasks will be used for Java1.4 too, so additional availability tests of Classes need to be performed.
+
+As expected, an Ant build.xml file is provided. The code has been developped with Netbeans 5.5 (nbproject folder is provided too)
+
+Note; the jUnit jar must be installed as wel, either in your ant install or in your favourite IDE.......
+
+
+Example code from eXist-db sources:
+
+=== shared ===
+{{{
+    <!-- additional set of ant tasks -->
+    <property name='asocat-exist.jar' location='${tools.ant}/lib/asocat-exist.jar'/>
+    <property name='javasvn.jar' location='${tools.ant}/lib/svnkit-1.1.0.jar'/>
+    <available file='${javasvn.jar}' property='svn-present' />
+}}}
+
+=== unsign ===
+{{{
+    <target name='jnlp-unsign-all'>
+        <taskdef name='unsignjar' 
+                 classname='nl.ow.dilemma.ant.jar.UnsignJarTask' 
+                 classpath='${asocat-exist.jar}'/>
+        <unsignjar>
+            <fileset dir='.'>
+                <include name='exist*.jar'/>
+                <include name='start.jar'/>
+            </fileset>
+            <fileset dir='lib/core'>
+                <include name='*.jar'/>
+            </fileset>
+        </unsignjar>
+    </target>
+}}}
+
+=== (re)pack ===
+{{{
+   <target name='jnlp-pack200'>
+        <!-- First remove all signatures from the jar files -->
+        <antcall target='jnlp-unsign-all'/>
+
+....
+        
+        <!-- Secondly pack-unpack the jar files (normalize) -->
+        <taskdef name='repack' 
+                 classname='nl.ow.dilemma.ant.jar.RepackJarTask' 
+                 classpath='${asocat-exist.jar}'/>
+        <repack>
+            <fileset dir='.'>
+                <include name='exist*.jar'/>
+                <include name='start.jar'/>
+            </fileset>
+            <fileset dir='lib/core'>
+                <include name='*.jar'/>
+            </fileset>
+        </repack>
+        
+        <!-- Sign all jars -->
+        <antcall target='jnlp-sign-exist'/>
+        <antcall target='jnlp-sign-core'/>
+        
+        <!-- Create jar.pack.gz files -->
+        <taskdef name='pack' 
+                 classname='nl.ow.dilemma.ant.jar.Pack200Task' 
+                 classpath='${asocat-exist.jar}'/>
+        <pack>
+            <fileset dir='.'>
+                <include name='exist*.jar'/>
+                <include name='start.jar'/>
+            </fileset>
+            <fileset dir='lib/core'>
+                <include name='*.jar'/>
+            </fileset>
+        </pack>
+    </target> 
+}}}
+
+=== SVN ===
+{{{
+    <target name='svn-download'>
+    
+      <get src='http://mirrors.ibiblio.org/pub/mirrors/maven2/com/svnkit/svnkit/1.1.0/svnkit-1.1.0.jar'
+                  dest='${tools.ant}/lib/svnkit-1.1.0.jar' verbose='true' />
+
+    </target>
+
+    <target name='svn-prepare' if='svn-present'>
+        <taskdef name='svninfo' classname='nl.ow.dilemma.ant.svn.SubversionInfoTask'>
+            <classpath refid='classpath.core'/>
+        </taskdef>
+    
+      <tstamp/>
+      
+      <svninfo url='https://exist.svn.sourceforge.net/svnroot/exist/trunk/eXist-1.0' username='anonymous' password='anonymous' />
+      
+      <propertyfile file='VERSION.txt' comment='eXist build info'>
+        <entry  key='project.version' value='${project.version}'/>
+        <entry  key='project.build' value='${DSTAMP}'/>          
+        <entry  key='svn.revision' value='${svn.revision}'/>
+      </propertyfile>
+    </target>
+
+.....
+
+       <tstamp/>
+        <property file='VERSION.txt'/>
+        
+        <echo message='-------------------------'/>
+        <echo message='eXist ${project.version} build'/>
+        <echo message='-------------------------'/>
+        <echo message='SVN revision ${svn.revision}'/>    	
+        <echo message=''/>
+        <echo message='${ant.version}'/>
+        <echo message='-------------------------'/>
+        <echo/>
+}}}
+

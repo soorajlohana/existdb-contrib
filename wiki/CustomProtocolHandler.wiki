@@ -5,6 +5,8 @@
 
 Under certain conditions it is handy to be able to access data stored in eXist via a *xmldb:exist://* type URL, straight out of javacode. The code below shows how to do this.
 
+[http://www.exist-db.org/ http://www.exist-db.org/logo.jpg]
+
 To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
  * call URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
@@ -58,7 +60,6 @@ The code does have a dependancy with the eXist jar files, in particular:
 
  * Error/exception handling for uploading documents not complete yet.
 _When a document is uploaded to the eXist-db, and an error occurs (e.g. collection does not exist, unknown user, not authorized), this error is not propagated to the end user. It is caused by a Threading issue, which is difficult to tackle. The issues are shown when running the test suite._
-
 
 
 

@@ -3,6 +3,8 @@
 
 While developing for the eXist Native XML database (http://www.exist-db.org) I needed some additonal Ant Tasks. Since I could not find them on the internet, I decided to write them myself.....
 
+[http://www.exist-db.org/ http://www.exist-db.org/logo.jpg]
+
 What can you expect:
  * unsign jar files
  * repack (normalize) jar files (so they can be signed and packed using Pack200)

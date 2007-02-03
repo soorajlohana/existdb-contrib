@@ -31,8 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *  jUnit tests for GETting and PUTting data to eXist.
@@ -49,7 +48,7 @@ public class ConnectionTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocols" );
             firstTime=false;
         }

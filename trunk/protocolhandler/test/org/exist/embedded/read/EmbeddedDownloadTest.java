@@ -13,9 +13,8 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -27,7 +26,7 @@ import org.xmldb.api.base.Database;
 
 /**
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class EmbeddedDownloadTest extends TestCase {
     
@@ -42,7 +41,7 @@ public class EmbeddedDownloadTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }
     }

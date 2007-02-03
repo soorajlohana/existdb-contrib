@@ -11,9 +11,8 @@ import java.io.FileInputStream;
 import junit.framework.*;
 import java.io.InputStream;
 import java.net.URL;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.exist.embedded.read.EmbeddedDownload;
+import org.apache.log4j.PropertyConfigurator;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
@@ -34,7 +33,7 @@ public class EmbeddedUploadTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }
     }

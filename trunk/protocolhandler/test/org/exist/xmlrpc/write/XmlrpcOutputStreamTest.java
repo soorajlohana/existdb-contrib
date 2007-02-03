@@ -25,13 +25,11 @@ package org.exist.xmlrpc.write;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
@@ -52,7 +50,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
             firstTime=false;
         }

@@ -13,12 +13,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
-import org.exist.xmlrpc.read.XmlrpcDownloadChunked;
 
 /**
  *  jUnit tests for XmlrpcDownloadChunked class.
@@ -38,7 +36,7 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }
     }

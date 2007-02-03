@@ -25,9 +25,8 @@ package org.exist.xmldb;
 import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *  jUnit tests for the XmldbURL class.
@@ -96,7 +95,7 @@ public class XmldbURLTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstRun){
-            BasicConfigurator.configure();
+            PropertyConfigurator.configure("log4j.conf");
             System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocols" );
             firstRun=false;
         }

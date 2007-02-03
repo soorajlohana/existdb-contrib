@@ -1,0 +1,1 @@
+Copy all eXist lib/core jar files into this directory

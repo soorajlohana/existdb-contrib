@@ -198,4 +198,11 @@ public class XmldbURL {
         return "exist";  // No other choice
     }
     
+    public String toString(){
+        return myUrl.toString();
+    }
+    
+    public boolean isEmbedded(){
+        return (getHost()==null);
+    }
 }

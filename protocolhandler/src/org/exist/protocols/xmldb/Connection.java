@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.log4j.Logger;
+import org.exist.embedded.read.EmbeddedInputStream;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmlrpc.read.XmlrpcInputStream;
 import org.exist.xmlrpc.write.XmlrpcOutputStream;
@@ -73,12 +74,17 @@ public class Connection extends URLConnection {
         LOG.debug("getInputStream="+url) ;
         
         InputStream xis=null;
-        try {
+        XmldbURL xu = new XmldbURL(url);
+        if(xu.isEmbedded()){
+            xis = new EmbeddedInputStream( new XmldbURL(url) );
+        } else {
+//            try {
             xis = new XmlrpcInputStream( new XmldbURL(url) );
             
-        } catch (MalformedURLException ex) {
-            LOG.error(ex);
-            throw new IOException(ex.getMessage());
+//            } catch (MalformedURLException ex) {
+//                LOG.error(ex);
+//                throw new IOException(ex.getMessage());
+//            }
         }
         return xis;
     }

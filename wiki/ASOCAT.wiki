@@ -21,7 +21,9 @@ As expected, an Ant build.xml file is provided. The code has been developped wit
 Note; the jUnit jar must be installed as wel, either in your ant install or in your favourite IDE.......
 
 
-Example code from eXist-db sources:
+= Example code =
+
+from eXist-db.org sources:
 
 === shared ===
 {{{
@@ -130,3 +132,8 @@ Example code from eXist-db sources:
         <echo message='-------------------------'/>
         <echo/>
 }}}
+
+= Links =
+ * [http://java.sun.com/j2se/1.5.0/docs/guide/deployment/deployment-guide/pack200.html Pack200 and Compression]
+ * [http://wiki.eclipse.org/index.php/Pack200#Compression_and_Signing Compression and Signing]
+ * [https://java-pack200-ant-task.dev.java.net/ java-pack200-ant-task] (not maintained)

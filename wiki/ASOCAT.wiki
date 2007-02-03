@@ -1,4 +1,5 @@
 #summary Another Set of Custom Ant Tasks.
+#labels Featured
 
 While developing for the eXist Native XML database (http://www.exist-db.org) I needed some additonal Ant Tasks. Since I could not find them on the internet, I decided to write them myself.....
 
@@ -127,4 +128,3 @@ Example code from eXist-db sources:
         <echo message='-------------------------'/>
         <echo/>
 }}}
-

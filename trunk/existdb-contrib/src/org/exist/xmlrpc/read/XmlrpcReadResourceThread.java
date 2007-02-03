@@ -68,8 +68,8 @@ public class XmlrpcReadResourceThread extends Thread {
             } catch (IOException ex) {
                 logger.debug(ex);
             }
+            logger.debug("Thread stopped." );
         }
-        logger.debug("Thread stopped." );
     }
     
     public boolean isExceptionThrown(){

@@ -40,7 +40,7 @@ public class XmlrpcWriteResourceThread extends Thread {
     private InputStream inputStream;
     private Exception exception;
     
-        
+    
     public XmlrpcWriteResourceThread(XmldbURL url, InputStream is) {
         this.xmldbURL=url;
         this.inputStream=is;
@@ -63,8 +63,9 @@ public class XmlrpcWriteResourceThread extends Thread {
             } catch (IOException ex) {
                 logger.debug(ex);
             }
+            logger.debug("Thread stopped." );
         }
-        logger.debug("Thread stopped." );
+        
     }
     
     public boolean isExceptionThrown(){

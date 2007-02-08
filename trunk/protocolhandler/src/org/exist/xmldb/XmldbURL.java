@@ -85,12 +85,19 @@ public class XmldbURL {
     
     // /exist/xmlrpc/db/shakespeare/plays/macbeth.xml
     // /exist/xmlrpc/db/shakespeare/plays/
+    // /db/shakespeare/plays/macbeth.xml
+    // /db/shakespeare/plays/
     public String getCollection(){
         String serverPath=myUrl.getFile();
         String collectionName=null;
         
-        if(!serverPath.startsWith("/exist/xmlrpc/")){
-            collectionName=null;
+        if(serverPath.startsWith("/db")){
+            if(serverPath.endsWith("/")){
+                collectionName=serverPath;
+            } else {
+                int lastSep=serverPath.lastIndexOf('/'); // TODO extra checks
+                collectionName=serverPath.substring(0, lastSep);
+            }
         } else {
             if(serverPath.endsWith("/")){
                 collectionName=serverPath.substring(13);

@@ -53,8 +53,15 @@ public class Handler extends URLStreamHandler {
     
     // TODO: check exist:foobar:// as well !
     protected void parseURL(URL url, String spec, int start, int limit) {
-        LOG.debug("Parsing URL "+spec);
-        if(spec.startsWith("xmldb:exist://")){
+        LOG.debug("Parsing URL "+spec+" "+ start+" "+limit);
+        
+        
+//        if(spec.startsWith("xmldb:exist:///")){
+//            spec = "xmldb:exist://"
+//            
+//        } else 
+            
+            if(spec.startsWith("xmldb:exist://")){
             LOG.debug("Parsing xmldb:exist:// URL.");
             super.parseURL(url, spec, 12, limit);
             
@@ -73,5 +80,5 @@ public class Handler extends URLStreamHandler {
     protected URLConnection openConnection(URL u) throws IOException {
         return new Connection(u);
     }
-
+    
 }

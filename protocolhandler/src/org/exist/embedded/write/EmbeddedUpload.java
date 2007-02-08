@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
+import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
@@ -42,12 +43,18 @@ public class EmbeddedUpload {
         Collection collection = null;
         BrokerPool pool =null;
         DBBroker broker =null;
+        TransactionManager transact = null;
+        Txn txn = null;
         
         boolean collectionLocked = true;
-        TransactionManager transact = pool.getTransactionManager();
-        Txn txn = transact.beginTransaction();
+        
         
         try {
+            pool = BrokerPool.getInstance();
+            broker = pool.get(SecurityManager.SYSTEM_USER);
+            
+            transact = pool.getTransactionManager();
+            txn = transact.beginTransaction();
             
             XmldbURI collectionUri = XmldbURI.create(xmldbURL.getCollection());
             XmldbURI documentUri = XmldbURI.create(xmldbURL.getDocumentName());
@@ -76,7 +83,7 @@ public class EmbeddedUpload {
             DocumentImpl doc = null;
             if(mime.isXMLType()) {
                 LOG.debug("storing XML resource");
-                InputSource inputsource = new InputSource(is);
+                InputSource inputsource = new InputSource(is); // TODO reconsider
                 IndexInfo info = collection.validateXMLResource(txn, broker, documentUri, inputsource);
                 doc = info.getDocument();
                 doc.getMetadata().setMimeType(contentType);
@@ -99,7 +106,7 @@ public class EmbeddedUpload {
             transact.abort(txn);
             LOG.debug(e);
             throw new IOException(e.getMessage());
-                        
+            
         } finally {
             LOG.debug("Done.");
             if(collectionLocked && collection != null)

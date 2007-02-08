@@ -1,20 +1,26 @@
 /*
- * EmbeddedDownloadTest.java
+ * EmbeddedTest.java
  * JUnit based test
  *
  * Created on February 2, 2007, 8:42 PM
  */
 
-package org.exist.embedded.read;
+package org.exist.embedded;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.exist.embedded.read.*;
+import org.exist.embedded.write.EmbeddedUpload;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -28,13 +34,13 @@ import org.xmldb.api.base.Database;
  *
  * @author Dannes Wessels
  */
-public class EmbeddedDownloadTest extends TestCase {
+public class EmbeddedTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(EmbeddedDownloadTest.class);
+    private static Logger LOG = Logger.getLogger(EmbeddedTest.class);
     
     private static boolean firstTime=true;
     
-    public EmbeddedDownloadTest(String testName) {
+    public EmbeddedTest(String testName) {
         super(testName);
     }
     
@@ -67,25 +73,20 @@ public class EmbeddedDownloadTest extends TestCase {
         return null;
     }
     
-    /**
-     * Test of stream method, of class org.exist.embedded.read.EmbeddedDownload.
-     */
-    public void testGetDocumentEmbedded() {
-        System.out.println("testGetDocumentEmbedded");
+    public void testStreamDocumentToDB() {
+        System.out.println("testStreamDocumentToDB");
         BrokerPool pool = null;
         DBBroker broker = null;
         
         try {
             pool = startDB();
             broker = pool.get(SecurityManager.SYSTEM_USER);
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
+            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            EmbeddedUpload instance = new EmbeddedUpload();
+            instance.stream(xmldbURL, is);
+            is.close();
             
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
-            OutputStream os = new FileOutputStream("out.xml");
-            EmbeddedDownload instance = new EmbeddedDownload();
-            
-            instance.stream(xmldbURL, os);
-            os.flush();
-            os.close();
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
@@ -94,7 +95,33 @@ public class EmbeddedDownloadTest extends TestCase {
         }
     }
     
-    public void testGetDocumentEmbeddedInputStream() {
+    /**
+     * Test of stream method, of class org.exist.embedded.read.EmbeddedDownload.
+     */
+    public void testStreamDocumentFromDB() {
+        System.out.println("testStreamDocumentFromDB");
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        
+        try {
+            pool = startDB();
+            broker = pool.get(SecurityManager.SYSTEM_USER);
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
+            OutputStream os = new FileOutputStream("out.xml");
+            EmbeddedDownload instance = new EmbeddedDownload();
+            instance.stream(xmldbURL, os);
+            os.flush();
+            os.close();
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        } finally {
+            pool.release(broker);
+        }
+    }
+    
+    public void testGetStoredDocument() {
         System.out.println("testGetDocumentEmbeddedInputStream");
         BrokerPool pool = null;
         DBBroker broker = null;
@@ -108,7 +135,7 @@ public class EmbeddedDownloadTest extends TestCase {
             
             getDocument(xmldbURL,os);
             
-
+            
             os.flush();
             os.close();
         } catch (Exception ex) {
@@ -131,7 +158,7 @@ public class EmbeddedDownloadTest extends TestCase {
             os.write(buf, 0, len);
         }
         
-        is.close(); 
+        is.close();
     }
     
 }

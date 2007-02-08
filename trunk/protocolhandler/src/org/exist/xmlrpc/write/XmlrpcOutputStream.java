@@ -38,6 +38,7 @@ public class XmlrpcOutputStream  extends OutputStream {
     
     private final static Logger logger = Logger.getLogger(XmlrpcOutputStream.class);
     private BlockingInputStream bis;
+    private OutputStream bos;
     private XmlrpcWriteResourceThread rt; 
     
     public XmlrpcOutputStream(XmldbURL uri) {
@@ -45,6 +46,7 @@ public class XmlrpcOutputStream  extends OutputStream {
         logger.debug("Initializing XmlrpcOutputStream");
         
         bis = new BlockingInputStream();
+        bos = bis.getOutputStream();
         
         rt = new XmlrpcWriteResourceThread(uri, bis);
         
@@ -61,7 +63,7 @@ public class XmlrpcOutputStream  extends OutputStream {
             throw new IOException(rt.getThrownException());
         }
                 
-        bis.write(b);
+        bos.write(b);
     }
 
     public void write(byte[] b) throws IOException {
@@ -71,7 +73,7 @@ public class XmlrpcOutputStream  extends OutputStream {
             throw new IOException(rt.getThrownException());
         }
 
-        bis.write(b,0,b.length);
+        bos.write(b,0,b.length);
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
@@ -81,31 +83,33 @@ public class XmlrpcOutputStream  extends OutputStream {
             throw new IOException(rt.getThrownException());
         }
 
-        bis.write(b,off,len);
+        bos.write(b,off,len);
     }
 
     public void close() throws IOException {
        
 //        joinThread();
         
-        bis.closeOutputStream(); // to extend?
-        bis.close();
+//        bos.close(); // to extend?
+//        bis.close();  // NOTE (COFF): Probably wrong to close both sides here!
         
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
             throw new IOException(rt.getThrownException());
         }
+        bos.close();
     }
 
     public void flush() throws IOException {
-        bis.flush();
+        
 
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
             throw new IOException(rt.getThrownException());
         }
+        bos.flush();
     }
     
     /**

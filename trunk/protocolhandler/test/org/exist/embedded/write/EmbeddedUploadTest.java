@@ -65,4 +65,8 @@ public class EmbeddedUploadTest extends TestCase {
 
     }
     
+    public void testEMptytest() {
+
+    }
+    
 }

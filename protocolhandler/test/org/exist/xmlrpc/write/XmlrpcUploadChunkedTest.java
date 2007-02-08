@@ -127,7 +127,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
     /**
      * Test upload of file to a forbidden collection
      */
-    public void bugtestUploadFile4() {
+    public void testUploadFile4() {
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/build.xml";
         File src = new File("build.xml");

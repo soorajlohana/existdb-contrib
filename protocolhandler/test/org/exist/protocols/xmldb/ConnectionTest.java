@@ -74,12 +74,6 @@ public class ConnectionTest extends TestCase {
             is.close();
             os.close();
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-                        
-        } catch (IOException ex) {
-            fail(ex.getMessage());
-            
         } catch (Exception ex) {
             fail(ex.getMessage());
             
@@ -100,10 +94,7 @@ public class ConnectionTest extends TestCase {
             copyDocument(is, baos);
             is.close();
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             fail(ex.getMessage());
             
         }
@@ -125,14 +116,15 @@ public class ConnectionTest extends TestCase {
             
             fail("Document should not exist");
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
 
         } catch (IOException ex) {
             if(!ex.getMessage().contains("Collection /db/foobar not found!")){
                 fail(ex.getMessage());
             }
             
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+
         }
     }
 
@@ -152,13 +144,13 @@ public class ConnectionTest extends TestCase {
             
             fail("user should not exist");
             
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-            
         } catch (IOException ex) {
             if(!ex.getMessage().contains("User foo unknown")){
                 fail(ex.getMessage());
             }
+        }  catch (Exception ex) {
+            fail(ex.getMessage());
+            
         }
     }
     

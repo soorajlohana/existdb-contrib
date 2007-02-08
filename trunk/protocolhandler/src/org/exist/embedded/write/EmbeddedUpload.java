@@ -9,6 +9,9 @@
 
 package org.exist.embedded.write;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,6 +40,29 @@ public class EmbeddedUpload {
     private final static Logger LOG = Logger.getLogger(EmbeddedUpload.class);
     
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+        File tmp =null;
+        try{
+            tmp = File.createTempFile("EMBEDDED", "tmp");
+            FileOutputStream fos = new FileOutputStream(tmp);
+            
+            // Transfer bytes from in to out
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = is.read(buf)) > 0) {
+                fos.write(buf, 0, len);
+            }
+            is.close();
+            fos.close();
+            
+            stream(xmldbURL, tmp);
+        } finally {
+            if(tmp!=null){
+                tmp.delete();
+            }
+        }
+    }
+    
+    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
         LOG.debug("Begin document upload");
         
         DocumentImpl resource = null;
@@ -83,7 +109,8 @@ public class EmbeddedUpload {
             DocumentImpl doc = null;
             if(mime.isXMLType()) {
                 LOG.debug("storing XML resource");
-                InputSource inputsource = new InputSource(is); // TODO reconsider
+                
+                InputSource inputsource = new InputSource(tmp.toURI().toASCIIString());
                 IndexInfo info = collection.validateXMLResource(txn, broker, documentUri, inputsource);
                 doc = info.getDocument();
                 doc.getMetadata().setMimeType(contentType);
@@ -93,8 +120,8 @@ public class EmbeddedUpload {
                 LOG.debug("done");
             } else {
                 LOG.debug("storing Binary resource");
-                // to check -1
-                doc = collection.addBinaryResource(txn, broker, documentUri, is, contentType, -1);
+                InputStream is = new FileInputStream(tmp);
+                doc = collection.addBinaryResource(txn, broker, documentUri, is, contentType, (int) tmp.length());
                 is.close();
                 LOG.debug("done");
             }

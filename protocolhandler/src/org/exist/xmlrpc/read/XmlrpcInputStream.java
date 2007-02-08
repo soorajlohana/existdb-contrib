@@ -24,12 +24,12 @@ package org.exist.xmlrpc.read;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
-import org.exist.localcopied.BlockingOutputStream;
-import org.exist.xmldb.XmldbURI;
+import org.exist.localcopied.BlockingInputStream;
 
 /**
  *
@@ -38,7 +38,8 @@ import org.exist.xmldb.XmldbURI;
 public class XmlrpcInputStream  extends InputStream {
     
     private final static Logger logger = Logger.getLogger(XmlrpcInputStream.class);
-    private BlockingOutputStream bos;
+    private BlockingInputStream bis;
+    private OutputStream bos;
     private XmlrpcReadResourceThread rt;
     
     
@@ -46,7 +47,8 @@ public class XmlrpcInputStream  extends InputStream {
         
         logger.debug("Initializing ResourceInputStream");
         
-        bos = new BlockingOutputStream();
+        bis = new BlockingInputStream();
+        bos = bis.getOutputStream();
         
         rt = new XmlrpcReadResourceThread( uri , bos); 
         
@@ -63,7 +65,7 @@ public class XmlrpcInputStream  extends InputStream {
             throw new IOException(rt.getThrownException());
         }
         
-        return bos.read(b, off, len);
+        return bis.read(b, off, len);
     }
 
     public int read(byte[] b) throws IOException {
@@ -73,7 +75,7 @@ public class XmlrpcInputStream  extends InputStream {
             throw new IOException(rt.getThrownException());
         }
         
-        return bos.read(b, 0, b.length);
+        return bis.read(b, 0, b.length);
     }
 
 //    public void mark(int readlimit) {
@@ -96,7 +98,7 @@ public class XmlrpcInputStream  extends InputStream {
             throw new IOException(rt.getThrownException());
         }
         
-        return bos.read();
+        return bis.read();
     }
 
 //    public boolean markSupported() {
@@ -109,7 +111,7 @@ public class XmlrpcInputStream  extends InputStream {
 
     public void close() throws IOException {
 
-        bos.close();
+        bis.close();
         
         if(rt.isExceptionThrown())
         {
@@ -118,6 +120,7 @@ public class XmlrpcInputStream  extends InputStream {
 
     }
     
+    /** NOTE (COFF) : This is an OutputStream method!? */
     public void flush() throws IOException {
         bos.flush();
         
@@ -135,7 +138,7 @@ public class XmlrpcInputStream  extends InputStream {
             throw new IOException(rt.getThrownException());
         }
         
-        return bos.available();
+        return bis.available();
     }
     
 }

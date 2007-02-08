@@ -1,6 +1,6 @@
 /*
  *  eXist Open Source Native XML Database
- *  Copyright (C) 2001-06 The eXist Project
+ *  Copyright (C) 2001-07 The eXist Project
  *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,10 +24,11 @@ package org.exist.localcopied;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
- * <code>BlockingOutputStream</code> is a combination of an output stream and
- * an input stream, connected through a (circular) buffer in memory.
+ * <code>BlockingInputStream</code> is a combination of an input stream and
+ * an output stream, connected through a (circular) buffer in memory.
  * It is intended for coupling producer threads to consumer threads via a
  * (byte) stream.
  * When the buffer is full producer threads will be blocked until the buffer
@@ -45,6 +46,36 @@ public class BlockingInputStream extends InputStream {
     private int head;  // First full buffer position.
     private int tail;  // First empty buffer position.
     private boolean closed;
+    
+    private OutputStream outputStream = new BlockingOutputStream();
+
+    
+    /* OutputStream adapter class */
+    private class BlockingOutputStream extends OutputStream {
+
+        public void write(int b) throws IOException {
+            writeOutputStream(b);
+        }
+
+        public void write(byte b[], int off, int len) throws IOException {
+            writeOutputStream(b, off, len);
+        }
+
+        public void close() throws IOException {
+            closeOutputStream();
+        }
+
+        public void flush() throws IOException {
+            flushOutputStream();
+        }
+    }
+
+    /**
+     * OutputStream adapter for this BlockingInputStream.
+     */
+    public OutputStream getOutputStream() {
+        return outputStream;
+    }
 
     /* InputStream methods */
 
@@ -109,8 +140,7 @@ public class BlockingInputStream extends InputStream {
                 notifyAll();
             }
         } catch (InterruptedException e) {
-            //throw new DaMaIOException("Read operation interrupted.", e);
-            throw new IOException("Read operation interrupted."+ e);
+            throw new ExistIOException("Read operation interrupted.", e);
         }
         return count;
     }
@@ -123,6 +153,7 @@ public class BlockingInputStream extends InputStream {
      */
     public synchronized void close() throws IOException {
         closed = true;
+        buffer = null;
         notifyAll();
     }
 
@@ -161,9 +192,9 @@ public class BlockingInputStream extends InputStream {
      *             an <code>IOException</code> may be thrown if the 
      *             output stream has been closed.
      */
-    public synchronized void write(int b) throws IOException {
+    private synchronized void writeOutputStream(int b) throws IOException {
         byte bb[] = { (byte) b };
-        write(bb, 0, 1);
+        writeOutputStream(bb, 0, 1);
     }
 
     /**
@@ -182,7 +213,8 @@ public class BlockingInputStream extends InputStream {
      *             an <code>IOException</code> is thrown if the output 
      *             stream is closed.
      */
-    public synchronized void write(byte b[], int off, int len) throws IOException {
+    private synchronized void writeOutputStream(byte b[], int off, int len)
+    throws IOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -204,7 +236,7 @@ public class BlockingInputStream extends InputStream {
                 tail = next(tail, count);
                 notifyAll();
             } catch (InterruptedException e) {
-                throw new IOException("Write operation interrupted."+  e);
+                throw new ExistIOException("Write operation interrupted.", e);
             }
             off += count;
             len -= count;
@@ -224,15 +256,17 @@ public class BlockingInputStream extends InputStream {
      *
      * @throws     IOException  if an I/O error occurs.
      */
-    public synchronized void closeOutputStream() throws IOException {
+    private synchronized void closeOutputStream() throws IOException {
         try {
             while(!empty() && !closed) wait();
-            if (!empty()) throw new IOException("Closing non empty stream.");
+            if (!empty()) throw new IOException(
+                "Closing non empty closed stream.");
             closed = true;
+            buffer = null;
             notifyAll();
         } catch (InterruptedException e) {
-            throw new IOException(
-                "Close OutputStream operation interrupted."+ e);
+            throw new ExistIOException(
+                "Close OutputStream operation interrupted.", e);
         }
     }
 
@@ -245,14 +279,14 @@ public class BlockingInputStream extends InputStream {
      *
      * @throws     IOException  if an I/O error occurs.
      */
-    public synchronized void flush() throws IOException {
+    private synchronized void flushOutputStream() throws IOException {
         try {
             while(!empty() && !closed) wait();
             if (!empty()) throw new IOException(
                 "Flushing non empty closed stream.");
             notifyAll();
         } catch (InterruptedException e) {
-            throw new IOException("Flush operation interrupted."+ e);
+            throw new ExistIOException("Flush operation interrupted.", e);
         }
     }
 
@@ -265,7 +299,7 @@ public class BlockingInputStream extends InputStream {
      *             without blocking.
      * @throws     IOException  if an I/O error occurs.
      */
-    public synchronized int free() {
+    private synchronized int free() {
         int prevhead = prev(head);
         return (prevhead - tail + SIZE) % SIZE;
     }

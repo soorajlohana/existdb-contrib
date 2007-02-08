@@ -98,7 +98,9 @@ public class XmlrpcOutputStream  extends OutputStream {
             logger.error(rt.getThrownException());
             throw new IOException(rt.getThrownException());
         }
+        
         bos.close();
+        bis.close();
     }
 
     public void flush() throws IOException {

@@ -1,13 +1,29 @@
 /*
- * EmbeddedTest.java
- * JUnit based test
+ *  eXist Open Source Native XML Database
+ *  Copyright (C) 2001-07 The eXist Project
+ *  http://exist-db.org
  *
- * Created on February 2, 2007, 8:42 PM
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * $Id$
  */
 
 package org.exist.embedded;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -107,11 +123,13 @@ public class EmbeddedTest extends TestCase {
             pool = startDB();
             broker = pool.get(SecurityManager.SYSTEM_USER);
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
-            OutputStream os = new FileOutputStream("out.xml");
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
             os.flush();
             os.close();
+            
+            assertTrue( os.size()>0 );
             
         } catch (Exception ex) {
             fail(ex.getMessage());
@@ -122,7 +140,7 @@ public class EmbeddedTest extends TestCase {
     }
     
     public void testGetStoredDocument() {
-        System.out.println("testGetDocumentEmbeddedInputStream");
+        System.out.println("testGetStoredDocument");
         BrokerPool pool = null;
         DBBroker broker = null;
         

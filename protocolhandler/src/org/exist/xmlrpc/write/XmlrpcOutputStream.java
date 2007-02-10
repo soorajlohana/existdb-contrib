@@ -1,6 +1,6 @@
 /*
  *  eXist Open Source Native XML Database
- *  Copyright (C) 2001-06 The eXist Project
+ *  Copyright (C) 2001-07 The eXist Project
  *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import org.exist.localcopied.BlockingInputStream;
 import org.exist.localcopied.ExistIOException;
 
 /**
+ * 
  *
  * @author Dannes Wessels
  */
@@ -50,13 +51,12 @@ public class XmlrpcOutputStream  extends OutputStream {
         bos = bis.getOutputStream();
         
         rt = new XmlrpcWriteResourceThread(uri, bis);
-        
         rt.start();
         
         logger.debug("Initializing XmlrpcOutputStream done");
-        
     }
 
+    
     public void write(int b) throws IOException {
         bos.write(b);
         

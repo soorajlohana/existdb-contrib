@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
+import org.exist.localcopied.ExistIOException;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;
@@ -102,16 +103,16 @@ public class XmlrpcUploadChunked {
                 
             } else {
                 LOG.debug("Could not store document.");
-                throw new IOException("Could not store document.");
+                throw new ExistIOException("Could not store document.");
             }
             
         } catch (MalformedURLException ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage());
+            throw new ExistIOException(ex.getMessage(), ex); // need to fill message
             
         } catch (XmlRpcException ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage());
+            throw new ExistIOException(ex.getMessage(), ex); // need to fill message
             
         } finally {
            LOG.debug("Finished document upload");

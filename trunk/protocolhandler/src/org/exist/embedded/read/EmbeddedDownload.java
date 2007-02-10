@@ -41,7 +41,8 @@ import org.exist.xmldb.XmldbURI;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *   Read document from embedded database and write data into a (output)stream.
+ *   Read document from an embedded database and write the data into an 
+ * output stream.
  *
  * @author Dannes Wessels
  */
@@ -54,7 +55,7 @@ public class EmbeddedDownload {
      *
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException Thrown when somethinh goes wrong
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
         LOG.debug("Begin document download");

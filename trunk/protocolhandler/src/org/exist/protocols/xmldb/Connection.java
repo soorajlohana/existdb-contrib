@@ -25,9 +25,9 @@ package org.exist.protocols.xmldb;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownServiceException;
 
 import org.apache.log4j.Logger;
 import org.exist.embedded.read.EmbeddedInputStream;
@@ -42,6 +42,8 @@ import org.exist.xmlrpc.write.XmlrpcOutputStream;
  * @see <A HREF="http://java.sun.com/developer/onlineTraining/protocolhandlers/"
  *                                     >A New Era for Java Protocol Handlers</A>
  *
+ * @see java.net.URLConnection
+ *
  * @author Dannes Wessels
  */
 public class Connection extends URLConnection {
@@ -49,11 +51,11 @@ public class Connection extends URLConnection {
     private final static Logger LOG = Logger.getLogger(Connection.class);
     
     /**
-     * Constructor
-     */
+     * Constructs a URL connection to the specified URL.
+      */
     protected Connection(URL url) {
         super(url);
-        LOG.info("Constructor "+url.toString() );
+        LOG.info(url);
         
         // TODO check is this needed
         setDoInput(true);
@@ -64,29 +66,25 @@ public class Connection extends URLConnection {
      * @see java.net.URLConnection#connect
      */
     public void connect() throws IOException {
-        LOG.info("connect "+url) ;
+        LOG.info(url) ;
     }
     
     /**
      * @see java.net.URLConnection#getInputStream
      */
     public InputStream getInputStream() throws IOException {
-        LOG.debug("getInputStream="+url) ;
+        LOG.debug(url) ;
         
-        InputStream xis=null;
-        XmldbURL xu = new XmldbURL(url);
-        if(xu.isEmbedded()){
-            xis = new EmbeddedInputStream( new XmldbURL(url) );
+        InputStream inputstream=null;
+        XmldbURL xmldbURL = new XmldbURL(url);
+        
+        if(xmldbURL.isEmbedded()){
+            inputstream = new EmbeddedInputStream( new XmldbURL(url) );
         } else {
-//            try {
-            xis = new XmlrpcInputStream( new XmldbURL(url) );
-            
-//            } catch (MalformedURLException ex) {
-//                LOG.error(ex);
-//                throw new IOException(ex.getMessage());
-//            }
+            inputstream = new XmlrpcInputStream( new XmldbURL(url) );
         }
-        return xis;
+        
+        return inputstream;
     }
     
     
@@ -94,15 +92,17 @@ public class Connection extends URLConnection {
      * @see java.net.URLConnection#getOutputStream
      */
     public OutputStream getOutputStream() throws IOException {
-        LOG.debug("getOutputStream="+url) ;
+        LOG.debug(url) ;
         
-        XmlrpcOutputStream xos=null;
-        try {
-            xos = new XmlrpcOutputStream( new XmldbURL(url) );
-        } catch (MalformedURLException ex) {
-            LOG.error(ex);
-            throw new IOException(ex.getMessage());
+        OutputStream outputstream=null;
+        XmldbURL xmldbURL = new XmldbURL(url);
+        
+        if(xmldbURL.isEmbedded()){
+            throw new UnknownServiceException("Not implemented yet: upload to embedded database.");
+        } else {
+            outputstream = new XmlrpcOutputStream( xmldbURL );
         }
-        return xos;
+        
+        return outputstream;
     }
 }

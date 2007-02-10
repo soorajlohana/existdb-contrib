@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
  *
  * @see <A HREF="http://java.sun.com/developer/onlineTraining/protocolhandlers/"
  *                                     >A New Era for Java Protocol Handlers</A>
+ * @see java.net.URLStreamHandler
  */
 public class Handler extends URLStreamHandler {
     
@@ -51,17 +52,13 @@ public class Handler extends URLStreamHandler {
         LOG.debug("Setup \"xmldb:exist:\" handler");
     }
     
-    // TODO: check exist:foobar:// as well !
+    /**
+     * @see java.net.URLStreamHandler#parseURL(java.net.URL,java.lang.String,int,int)
+     */
     protected void parseURL(URL url, String spec, int start, int limit) {
-        LOG.debug("Parsing URL "+spec+" "+ start+" "+limit);
+        LOG.debug(spec);
         
-        
-//        if(spec.startsWith("xmldb:exist:///")){
-//            spec = "xmldb:exist://"
-//            
-//        } else 
-            
-            if(spec.startsWith("xmldb:exist://")){
+        if(spec.startsWith("xmldb:exist://")){
             LOG.debug("Parsing xmldb:exist:// URL.");
             super.parseURL(url, spec, 12, limit);
             
@@ -70,13 +67,15 @@ public class Handler extends URLStreamHandler {
             super.parseURL(url, spec, 6, limit);
             
         } else {
-            LOG.error("Expected xmldb URL, found "+spec);
+            LOG.error("Expected xmldb: URL, found "+spec);
             super.parseURL(url, spec, start, limit);
         }
         
     }
     
-    
+    /**
+     * @see java.net.URLStreamHandler#openConnection(java.net.URL)
+     */
     protected URLConnection openConnection(URL u) throws IOException {
         return new Connection(u);
     }

@@ -46,9 +46,9 @@ import org.exist.xmldb.XmldbURL;
  *
  * @author dizzzz
  */
-public class XmlrpcDownloadChunked {
+public class XmlrpcDownload {
     
-    private final static Logger LOG = Logger.getLogger(XmlrpcDownloadChunked.class);
+    private final static Logger LOG = Logger.getLogger(XmlrpcDownload.class);
     
     public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         LOG.debug("Begin document download");
@@ -116,7 +116,7 @@ public class XmlrpcDownloadChunked {
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
+        XmlrpcDownload xdc = new XmlrpcDownload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);

@@ -39,14 +39,14 @@ import org.exist.xmldb.XmldbURL;
  *
  * @author Dannes Wessels
  */
-public class XmlrpcReadResourceThread extends Thread {
+public class XmlrpcDownloadThread extends Thread {
     
-    private final static Logger logger = Logger.getLogger(XmlrpcReadResourceThread.class);
+    private final static Logger logger = Logger.getLogger(XmlrpcDownloadThread.class);
     private XmldbURL xmldbURL;
     private OutputStream outputStream;
     private Exception exception=null;
     
-    public XmlrpcReadResourceThread(XmldbURL docUri, OutputStream os) {
+    public XmlrpcDownloadThread(XmldbURL docUri, OutputStream os) {
         this.xmldbURL=docUri;
         this.outputStream=os;
     }
@@ -57,7 +57,7 @@ public class XmlrpcReadResourceThread extends Thread {
     public void run() {
         logger.debug("Thread started." );
         try {
-            XmlrpcDownloadChunked xuc = new XmlrpcDownloadChunked();
+            XmlrpcDownload xuc = new XmlrpcDownload();
             xuc.stream(xmldbURL, outputStream);
         } catch (Exception ex) {
             logger.error(ex);

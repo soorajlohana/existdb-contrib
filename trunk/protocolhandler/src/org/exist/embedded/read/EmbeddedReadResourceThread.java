@@ -60,7 +60,7 @@ public class EmbeddedReadResourceThread extends Thread {
     }
     
     /**
-     * Write resource to the (output) stream
+     * Write resource to the (output) stream.
      */
     public void run() {
         logger.debug("Thread started." );

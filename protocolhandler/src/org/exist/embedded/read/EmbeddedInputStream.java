@@ -32,7 +32,7 @@ import org.exist.localcopied.BlockingInputStream;
 import org.exist.xmldb.XmldbURL;
 
 /**
- * Reads a document from an embedded eXist-db server instance as a stream.
+ * Read document from embedded database as a (input)stream.
  *
  * @author Dannes Wessels
  */

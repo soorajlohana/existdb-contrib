@@ -35,7 +35,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  Wrap EmbeddedDownload class into a thread for EmbeddinInputStream.
+ *  Wrap EmbeddedDownload class into a thread for EmbeddedInputStream.
  *
  * @author Dannes Wessels
  */

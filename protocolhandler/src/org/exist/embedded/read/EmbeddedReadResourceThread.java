@@ -35,49 +35,69 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  jUnit tests for XmlrpcReadResource class.
+ *  Wrap EmbeddedDownload class into a thread for EmbeddinInputStream.
  *
  * @author Dannes Wessels
  */
 public class EmbeddedReadResourceThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(EmbeddedReadResourceThread.class);
+    
     private XmldbURL xmldbURL;
     private OutputStream outputStream;
-    private Exception exception=null;
+    private Exception exception;
     
+    
+    /**
+     *  Constructor of EmbeddedReadResourceThread.
+     *
+     * @param docUri Document location in database.
+     * @param os Stream to which the document is written.
+     */
     public EmbeddedReadResourceThread(XmldbURL docUri, OutputStream os) {
         this.xmldbURL=docUri;
         this.outputStream=os;
     }
     
     /**
-     * Start Thread.
+     * Write resource to the (output) stream
      */
     public void run() {
         logger.debug("Thread started." );
         try {
-            EmbeddedDownload xuc = new EmbeddedDownload();
-            xuc.stream(xmldbURL, outputStream);
+            EmbeddedDownload ed = new EmbeddedDownload();
+            ed.stream(xmldbURL, outputStream);
+            
         } catch (Exception ex) {
             logger.error(ex);
             exception=new Exception(ex.getMessage());
+            
         } finally {
             try { // NEEDED!
                 outputStream.close();
             } catch (IOException ex) {
                 logger.debug(ex);
             }
+            logger.debug("Thread stopped." );
         }
-        logger.debug("Thread stopped." );
     }
     
+    /**
+     *  Check if an exception is thrown during processing.
+     *
+     * @return TRUE when exception is thown in thread
+     */
     public boolean isExceptionThrown(){
         return (exception!=null);
     }
     
+    /**
+     *  Get thrown processing exception.
+     *
+     * @return Exception that is thrown during processing, NULL if not available.
+     */
     public Exception getThrownException(){
-        return this.exception;
+        return exception;
     }
     
 }

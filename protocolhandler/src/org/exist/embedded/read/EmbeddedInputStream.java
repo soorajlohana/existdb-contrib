@@ -28,113 +28,104 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
-import org.exist.xmldb.XmldbURL;
 import org.exist.localcopied.BlockingInputStream;
+import org.exist.xmldb.XmldbURL;
 
 /**
+ * Reads a document from an embedded eXist-db server instance as a stream.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
-public class EmbeddedInputStream  extends InputStream {
+public class EmbeddedInputStream extends InputStream {
     
     private final static Logger logger = Logger.getLogger(EmbeddedInputStream.class);
+    
     private BlockingInputStream  bis;
     private OutputStream bos;
     private EmbeddedReadResourceThread rt;
     
-    
+    /**
+     *  Constructor of EmbeddedInputStream. 
+     *
+     * @param uri Location of document in database.
+     * @throws MalformedURLException Thrown for illegalillegal URLs.
+     */
     public EmbeddedInputStream(XmldbURL uri) throws MalformedURLException {
         
-        logger.debug("Initializing ResourceInputStream");
+        logger.debug("Initializing EmbeddedInputStream");
         
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new EmbeddedReadResourceThread( uri , bos); 
+        rt = new EmbeddedReadResourceThread( uri , bos);
         
         rt.start();
         
-        logger.debug("Initializing ResourceInputStream done");
+        logger.debug("Initializing EmbeddedInputStream done");
         
     }
     
     public int read(byte[] b, int off, int len) throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
+        if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
         
         return bis.read(b, off, len);
     }
-
+    
     public int read(byte[] b) throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
+        if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
         
         return bis.read(b, 0, b.length);
     }
-
+    
 //    public void mark(int readlimit) {
 //
 //        bos.mark(readlimit);
 //    }
-
+    
     public long skip(long n) throws IOException {
         return super.skip(n);
     }
-
+    
     public void reset() throws IOException {
         super.reset();
     }
-
+    
     public int read() throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
+        if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
         
         return bis.read();
     }
-
+    
 //    public boolean markSupported() {
 //
 //        boolean retValue;
-//        
+//
 //        retValue = bos.markSupported();
 //        return retValue;
 //    }
-
+    
     public void close() throws IOException {
- 
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
-        bos.close();
-         bis.close();
-
-    }
- 
-    /** NOTE (COFF) : This is an OutputStream method!? */
-    public void flush() throws IOException {
-        bos.flush();
         
-        if(rt.isExceptionThrown())
-        {
+        if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
+        bos.close(); // DWES which one?
+        bis.close();
+        
     }
-       
-
+    
     public int available() throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
+        if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
         

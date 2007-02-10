@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
+import org.exist.localcopied.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -38,17 +39,24 @@ import org.exist.storage.lock.Lock;
 import org.exist.storage.serializers.Serializer;
 import org.exist.xmldb.XmldbURI;
 import org.exist.xmldb.XmldbURL;
-import org.xml.sax.SAXException;
 
 /**
+ *   Writes a document from an embedded eXist-db server instance to a stream.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class EmbeddedDownload {
     
     private final static Logger LOG = Logger.getLogger(EmbeddedDownload.class);
     
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+    /**
+     *   Write data referred by an embedded URL to (output)stream.
+     *
+     * @param xmldbURL Document location in database.
+     * @param os Stream to which the document is written.
+     * @throws IOException Thrown when somethinh goes wrong
+     */
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
         LOG.debug("Begin document download");
         
         DocumentImpl resource = null;
@@ -62,31 +70,27 @@ public class EmbeddedDownload {
             resource = broker.getXMLResource(path, Lock.READ_LOCK);
             
             if(resource == null) {
-                // Directory
+                // Test for collection
                 collection = broker.openCollection(path, Lock.READ_LOCK);
                 if(collection == null){
-                    // not found
-                    throw new IOException("Resource "+xmldbURL.getPath()+" not found.");
+                    // No collection, no document
+                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" not found.");
                     
                 } else {
-                    //collection
-                    throw new IOException("Resource "+xmldbURL.getPath()+" is a collection.");
+                    // Collection
+                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" is a collection.");
                 }
+                
             } else {
                 if(resource.getResourceType() == DocumentImpl.XML_FILE) {
                     Serializer serializer = broker.getSerializer();
                     serializer.reset();
-                    try {
-                        // TODO set properties?
-                        //serializer.setProperties(WebDAV.OUTPUT_PROPERTIES);
-                        Writer w = new OutputStreamWriter(os,"UTF-8");
-                        serializer.serialize(resource,w);
-                        w.flush();
-                        w.close();
-                        
-                    } catch (SAXException e) {
-                        LOG.error(e);
-                    }
+                    
+                    // TODO set properties? serializer.setProperties(WebDAV.OUTPUT_PROPERTIES);
+                    Writer w = new OutputStreamWriter(os,"UTF-8");
+                    serializer.serialize(resource,w);
+                    w.flush();
+                    w.close();
                     
                 } else {
                     broker.readBinaryResource((BinaryDocument) resource, os);
@@ -95,7 +99,8 @@ public class EmbeddedDownload {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage());
+            throw new ExistIOException(ex.getMessage(), ex);
+            
         } finally {
             if(resource != null)
                 resource.getUpdateLock().release(Lock.READ_LOCK);

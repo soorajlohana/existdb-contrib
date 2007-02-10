@@ -1,6 +1,6 @@
 /*
  *  eXist Open Source Native XML Database
- *  Copyright (C) 2001-06 The eXist Project
+ *  Copyright (C) 2001-07 The eXist Project
  *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
@@ -43,17 +43,25 @@ import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *  Example code for demonstrating XMLRPC methods upload
- * and parseLocal. Please run 'admin-examples setup' first, this will
- * download the required mondial.xml document.
+ *  Sends a document to an eXist-db server using XMLRPC. The document can be
+ * either XML or non-XML (binary). Chunked means that the document is send 
+ * as smaller parts to the server, the servler glues the parts together. There
+ * is no limitation on the size of the documents that can be transported.
  *
- * @author dizzzz
+ * @author Dannes Wessels
  */
 public class XmlrpcUploadChunked {
     
     private final static Logger LOG = Logger.getLogger(XmlrpcUploadChunked.class);
     
-    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+    /**
+     *  Write data from a (input)stream to the specified XMLRPC url.
+     * 
+     * @param xmldbURL URL pointing to location on eXist-db server.
+     * @param is Document stream
+     * @throws org.exist.localcopied.ExistIOException When something is wrong.
+     */
+    public void stream(XmldbURL xmldbURL, InputStream is) throws ExistIOException {
         LOG.debug("Begin document upload");
         try {
             // Setup xmlrpc client
@@ -87,9 +95,9 @@ public class XmlrpcUploadChunked {
                 params.addElement(new Integer(len));
                 handle = (String)xmlrpc.execute("upload", params);
             }
-            is.close();
+            is.close(); // DWES is this needed there
             
-            // All data transported, parse data on server
+            // All data transported, now parse data on server
             params.clear();
             params.addElement(handle);
             params.addElement( xmldbURL.getCollectionPath() );
@@ -97,7 +105,7 @@ public class XmlrpcUploadChunked {
             params.addElement(contentType);
             Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // TODO which exceptions
             
-            // Check result
+            // Check XMLRPC result
             if(result.booleanValue()){
                 LOG.debug("Document stored.");
                 
@@ -106,14 +114,10 @@ public class XmlrpcUploadChunked {
                 throw new ExistIOException("Could not store document.");
             }
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
             LOG.error(ex);
             throw new ExistIOException(ex.getMessage(), ex); // need to fill message
-            
-        } catch (XmlRpcException ex) {
-            LOG.error(ex);
-            throw new ExistIOException(ex.getMessage(), ex); // need to fill message
-            
+                        
         } finally {
            LOG.debug("Finished document upload");
         }

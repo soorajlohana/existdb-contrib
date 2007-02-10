@@ -41,7 +41,7 @@ import org.exist.xmldb.XmldbURI;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *   Read a document from an database and write it into a (output)stream.
+ *   Read document from embedded database and write data into a (output)stream.
  *
  * @author Dannes Wessels
  */

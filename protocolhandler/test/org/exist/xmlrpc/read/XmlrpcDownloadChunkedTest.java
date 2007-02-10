@@ -62,7 +62,10 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
     /**
      * Test download of file.
      */
-    public void testDownloadFile1() {
+    public void testDownloadExistingFile() {
+        
+        System.out.println("testDownloadExistingFile");
+            
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
         
@@ -86,7 +89,10 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
     /**
      * Test download of file from not existing collection.
      */
-    public void testDownloadFile2() {
+    public void testDownloadFileFromNotExistingCollection() {
+        
+        System.out.println("testDownloadFileFromNotExistingCollection");
+        
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
         
@@ -112,7 +118,10 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
     /**
      * Test download of file as non existing user.
      */
-    public void testDownloadFile3() {
+    public void testDownloadAsNotExistingUser() {
+        
+        System.out.println("testDownloadAsNotExistingUser");
+        
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
         
@@ -137,7 +146,10 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
     /**
      * Test download of file to a forbidden collection
      */
-    public void testDownloadFile4() {
+    public void testDownloadForbiddenFile() {
+        
+        System.out.println("testDownloadForbiddenFile");
+        
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/users.xml";
         

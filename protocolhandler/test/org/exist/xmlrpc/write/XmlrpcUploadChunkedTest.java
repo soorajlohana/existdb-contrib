@@ -64,7 +64,10 @@ public class XmlrpcUploadChunkedTest extends TestCase {
     /**
      * Test upload of file
      */
-    public void testUploadFile1()  {
+    public void testUploadFile()  {
+        
+        System.out.println("testUploadFile");
+         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
         File src = new File("build.xml");
@@ -87,7 +90,9 @@ public class XmlrpcUploadChunkedTest extends TestCase {
     /**
      * Test upload of file to non existing collection
      */
-    public void testUploadFile2() {
+    public void testUploadFileToNotExistingCollection() {
+        System.out.println("testUploadFileToNotExistingCollection");
+        
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
         File src = new File("build.xml");
@@ -116,7 +121,9 @@ public class XmlrpcUploadChunkedTest extends TestCase {
     /**
      * Test upload of file as non existing user
      */
-    public void testUploadFile3() {
+    public void testUploadFileAsNotExistingUser() {
+        System.out.println("testUploadFileAsNotExistingUser");
+        
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
         File src = new File("build.xml");
@@ -142,7 +149,9 @@ public class XmlrpcUploadChunkedTest extends TestCase {
     /**
      * Test upload of file to a forbidden collection
      */
-    public void testUploadFile4() {
+    public void testUploadFileToForbiddenCollection() {
+        System.out.println("testUploadFileToForbiddenCollection");
+        
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/build.xml";
         File src = new File("build.xml");

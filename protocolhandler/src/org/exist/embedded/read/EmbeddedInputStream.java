@@ -46,18 +46,18 @@ public class EmbeddedInputStream extends InputStream {
     
     /**
      *  Constructor of EmbeddedInputStream. 
-     *
-     * @param uri Location of document in database.
+     * 
+     * @param xmldbURL Location of document in database.
      * @throws MalformedURLException Thrown for illegalillegal URLs.
      */
-    public EmbeddedInputStream(XmldbURL uri) throws MalformedURLException {
+    public EmbeddedInputStream(XmldbURL xmldbURL) throws MalformedURLException {
         
         logger.debug("Initializing EmbeddedInputStream");
         
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new EmbeddedDownloadThread( uri , bos);
+        rt = new EmbeddedDownloadThread( xmldbURL , bos);
         
         rt.start();
         

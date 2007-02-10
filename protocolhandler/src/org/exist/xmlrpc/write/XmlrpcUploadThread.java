@@ -33,15 +33,15 @@ import org.exist.xmldb.XmldbURL;
  *
  * @author Dannes Wessels
  */
-public class XmlrpcWriteResourceThread extends Thread {
+public class XmlrpcUploadThread extends Thread {
     
-    private final static Logger logger = Logger.getLogger(XmlrpcWriteResourceThread.class);
+    private final static Logger logger = Logger.getLogger(XmlrpcUploadThread.class);
     private XmldbURL xmldbURL;
     private InputStream inputStream;
     private Exception exception;
     
     
-    public XmlrpcWriteResourceThread(XmldbURL url, InputStream is) {
+    public XmlrpcUploadThread(XmldbURL url, InputStream is) {
         this.xmldbURL=url;
         this.inputStream=is;
     }
@@ -52,7 +52,7 @@ public class XmlrpcWriteResourceThread extends Thread {
     public void run() {
         logger.debug("Thread started." );
         try {
-            XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+            XmlrpcUpload xuc = new XmlrpcUpload();
             xuc.stream(xmldbURL, inputStream);
         } catch (Exception ex) {
             logger.error(ex);

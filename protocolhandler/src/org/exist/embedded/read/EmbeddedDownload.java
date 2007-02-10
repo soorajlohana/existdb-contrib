@@ -41,7 +41,7 @@ import org.exist.xmldb.XmldbURI;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *   Writes a document from an embedded eXist-db server instance to a stream.
+ *   Read a document from an database and write it into a (output)stream.
  *
  * @author Dannes Wessels
  */
@@ -50,7 +50,7 @@ public class EmbeddedDownload {
     private final static Logger LOG = Logger.getLogger(EmbeddedDownload.class);
     
     /**
-     *   Write data referred by an embedded URL to (output)stream.
+     *   Write document referred by URL to an (output)stream.
      *
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
@@ -109,6 +109,8 @@ public class EmbeddedDownload {
                 collection.release();
             
             pool.release(broker);
+            
+            LOG.debug("End document download");
         }
     }
 }

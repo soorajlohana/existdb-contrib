@@ -30,16 +30,16 @@ import java.io.IOException;
  * a cause to the IOException class (missing in IOException until Java 6).
  */
 public class ExistIOException extends IOException {
-
+    
     /**
      * Constructs an <code>ExistIOException</code> with <code>null</code>
      * as its error detail message.  No underlying cause is set;
      * <code>getCause</code> will return <code>null</code>.
      */
     public ExistIOException() {
-	super();
+        super();
     }
-
+    
     /**
      * Constructs an <code>ExistIOException</code> with a given message
      * <code>String</code>.  No underlying cause is set;
@@ -62,10 +62,10 @@ public class ExistIOException extends IOException {
      * @see #getCause
      */
     public ExistIOException(Throwable cause) {
-	super();
+        super();
         initCause(cause);
     }
-
+    
     /**
      * Constructs an <code>ExistIOException</code> with a given message
      * <code>String</code> and a <code>Throwable</code> that was its

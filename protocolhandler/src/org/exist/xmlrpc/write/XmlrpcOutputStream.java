@@ -28,10 +28,11 @@ import java.io.OutputStream;
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
 import org.exist.localcopied.BlockingInputStream;
+import org.exist.localcopied.ExistIOException;
 
 /**
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcOutputStream  extends OutputStream {
     
@@ -57,61 +58,57 @@ public class XmlrpcOutputStream  extends OutputStream {
     }
 
     public void write(int b) throws IOException {
+        bos.write(b);
+        
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
-            throw new IOException(rt.getThrownException());
+            throw new ExistIOException(rt.getThrownException());
         }
-                
-        bos.write(b);
     }
 
     public void write(byte[] b) throws IOException {
+        bos.write(b,0,b.length);
+        
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
-            throw new IOException(rt.getThrownException());
+            throw new ExistIOException(rt.getThrownException());
         }
-
-        bos.write(b,0,b.length);
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
+        bos.write(b,off,len);
+        
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
-            throw new IOException(rt.getThrownException());
+            throw new ExistIOException(rt.getThrownException());
         }
-
-        bos.write(b,off,len);
     }
 
     public void close() throws IOException {
        
 //        joinThread();
-        
 //        bos.close(); // to extend?
 //        bis.close();  // NOTE (COFF): Probably wrong to close both sides here!
         
+        bos.close();
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
-            throw new IOException(rt.getThrownException());
+            throw new ExistIOException(rt.getThrownException());
         }
-        
-        bos.close();
-        bis.close();
     }
 
     public void flush() throws IOException {
-        
+        bos.flush();
 
         if(rt.isExceptionThrown())
         {
             logger.error(rt.getThrownException());
-            throw new IOException(rt.getThrownException());
+            throw new ExistIOException(rt.getThrownException());
         }
-        bos.flush();
     }
     
     /**
@@ -127,7 +124,4 @@ public class XmlrpcOutputStream  extends OutputStream {
             // Ignore.
         }
     }
-    
-
-    
 }

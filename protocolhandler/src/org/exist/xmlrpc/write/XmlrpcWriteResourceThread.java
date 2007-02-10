@@ -56,12 +56,13 @@ public class XmlrpcWriteResourceThread extends Thread {
             xuc.stream(xmldbURL, inputStream);
         } catch (Exception ex) {
             logger.error(ex);
-            exception=new Exception(ex.getMessage());
+            exception=ex;
         } finally {
             try { // not needed?
                 inputStream.close();
             } catch (IOException ex) {
                 logger.debug(ex);
+                exception=ex;
             }
             logger.debug("Thread stopped." );
         }

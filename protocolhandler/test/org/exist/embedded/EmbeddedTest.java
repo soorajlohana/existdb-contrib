@@ -25,7 +25,6 @@ package org.exist.embedded;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,6 +89,8 @@ public class EmbeddedTest extends TestCase {
         return null;
     }
     
+    // Actual tests
+    
     public void testStreamDocumentToDB() {
         System.out.println("testStreamDocumentToDB");
         BrokerPool pool = null;
@@ -119,14 +120,16 @@ public class EmbeddedTest extends TestCase {
         System.out.println("testStreamDocumentFromDB");
         BrokerPool pool = null;
         DBBroker broker = null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
         
         try {
             pool = startDB();
             broker = pool.get(SecurityManager.SYSTEM_USER);
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
+            
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
+            
             os.flush();
             os.close();
             
@@ -140,32 +143,39 @@ public class EmbeddedTest extends TestCase {
         }
     }
     
-    public void testGetStoredDocument() {
-        System.out.println("testGetStoredDocument");
+    public void testGetStoredDocumentUsingEmbeddedInputStream() {
+        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
         BrokerPool pool = null;
         DBBroker broker = null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
         
         try {
             pool = startDB();
             broker = pool.get(SecurityManager.SYSTEM_USER);
             
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
-            OutputStream os = new FileOutputStream("out2.xml");
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
             
             getDocument(xmldbURL,os);
             
-            
             os.flush();
             os.close();
+            
+            assertTrue( os.size()>0 );
+            
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
+            
         } finally {
             pool.release(broker);
         }
     }
     
-    // Copy document from URL to outputstream
+     public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
+         //TODO : testWriteDocumentUsingEmbeddedOutputStream
+     }
+    
+    // Copy document from URL-inputstream to outputstream
     private void getDocument(XmldbURL xmldbUrl, OutputStream os) throws IOException{
         
         EmbeddedInputStream is = new EmbeddedInputStream(xmldbUrl);
@@ -179,5 +189,20 @@ public class EmbeddedTest extends TestCase {
         
         is.close();
     }
+    
+//    // Copy document from inputstream to URL-outputstream
+//    private void putDocument(XmldbURL xmldbUrl, InputStream is) throws IOException{
+//        
+//        EmbeddedOutputStream os = new EmbeddedOutputStream(xmldbUrl);
+//        
+//        // Transfer bytes from in to out
+//        byte[] buf = new byte[4096];
+//        int len;
+//        while ((len = is.read(buf)) > 0) {
+//            os.write(buf, 0, len);
+//        }
+//        
+//        os.close();
+//    }
     
 }

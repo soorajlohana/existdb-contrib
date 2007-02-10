@@ -110,28 +110,4 @@ public class XmlrpcDownload {
         }
     }
     
-    public static void main(String[] args) {
-        
-        String url = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/mondial/mondial.xml";
-        
-        // Setup
-        URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
-        BasicConfigurator.configure();
-        XmlrpcDownload xdc = new XmlrpcDownload();
-        
-        try {
-            XmldbURL xmldbURL = new XmldbURL(url);
-            xdc.stream(xmldbURL, System.out);
-            
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception", ex);
-            
-        } catch (IOException ex) {
-            LOG.error("Caught exception", ex);
-        }
-        
-    }
-    
-    
 }

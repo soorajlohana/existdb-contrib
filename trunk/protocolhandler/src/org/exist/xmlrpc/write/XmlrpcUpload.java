@@ -126,27 +126,4 @@ public class XmlrpcUpload {
         }
     }
     
-    public static void main(String[] args) {
-        
-        String url = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/foobar/build.xml";
-        
-        // Setup
-        URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
-        BasicConfigurator.configure();
-        XmlrpcUpload xuc = new XmlrpcUpload();
-        
-        try {
-            XmldbURL xmldbURL = new XmldbURL(url);
-            xuc.stream(xmldbURL, new FileInputStream("build.xml"));
-            
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception"+url, ex);
-            
-        } catch (IOException ex) {
-            LOG.error("Caught exception", ex);
-            
-        }
-        
-    }
 }

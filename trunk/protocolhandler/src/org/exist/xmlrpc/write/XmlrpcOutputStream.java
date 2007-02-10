@@ -41,7 +41,7 @@ public class XmlrpcOutputStream  extends OutputStream {
     private final static Logger logger = Logger.getLogger(XmlrpcOutputStream.class);
     private BlockingInputStream bis;
     private OutputStream bos;
-    private XmlrpcWriteResourceThread rt; 
+    private XmlrpcUploadThread rt; 
     
     public XmlrpcOutputStream(XmldbURL uri) {
         
@@ -50,7 +50,7 @@ public class XmlrpcOutputStream  extends OutputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcWriteResourceThread(uri, bis);
+        rt = new XmlrpcUploadThread(uri, bis);
         rt.start();
         
         logger.debug("Initializing XmlrpcOutputStream done");

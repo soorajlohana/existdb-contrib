@@ -50,9 +50,9 @@ import org.exist.xmldb.XmldbURLStreamHandlerFactory;
  *
  * @author Dannes Wessels
  */
-public class XmlrpcUploadChunked {
+public class XmlrpcUpload {
     
-    private final static Logger LOG = Logger.getLogger(XmlrpcUploadChunked.class);
+    private final static Logger LOG = Logger.getLogger(XmlrpcUpload.class);
     
     /**
      *  Write data from a (input)stream to the specified XMLRPC url.
@@ -131,7 +131,7 @@ public class XmlrpcUploadChunked {
         // Setup
         URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
         BasicConfigurator.configure();
-        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+        XmlrpcUpload xuc = new XmlrpcUpload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);

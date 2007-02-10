@@ -36,8 +36,9 @@ import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *  jUnit tests for XmlrpcUploadChunked class
+ *  jUnit tests for XmlrpcUpload class
  * .
+ * 
  * @author Dannes Wessels
  */
 public class XmlrpcUploadChunkedTest extends TestCase {
@@ -73,7 +74,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/build.xml";
         File src = new File("build.xml");
         
-        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+        XmlrpcUpload xuc = new XmlrpcUpload();
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xuc.stream(xmldbURL, new FileInputStream(src));
@@ -98,7 +99,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/foobar/build.xml";
         File src = new File("build.xml");
         
-        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+        XmlrpcUpload xuc = new XmlrpcUpload();
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xuc.stream(xmldbURL, new FileInputStream(src));
@@ -129,7 +130,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/build.xml";
         File src = new File("build.xml");
         
-        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+        XmlrpcUpload xuc = new XmlrpcUpload();
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xuc.stream(xmldbURL, new FileInputStream(src));
@@ -157,7 +158,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/system/build.xml";
         File src = new File("build.xml");
         
-        XmlrpcUploadChunked xuc = new XmlrpcUploadChunked();
+        XmlrpcUpload xuc = new XmlrpcUpload();
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xuc.stream(xmldbURL, new FileInputStream(src));

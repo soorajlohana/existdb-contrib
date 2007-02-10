@@ -29,23 +29,35 @@ import org.apache.log4j.Logger;
 import org.exist.protocols.xmldb.Handler;
 
 /**
+ * Factory class for creating custom stream handlers for the 'xmldb' protocol.
  *
- * @author wessels
+ * @see java.net.URLStreamHandler
+ * @see java.net.URLStreamHandlerFactory
+ *
+ * @author Dannes Wessels
  */
 public class XmldbURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
     private final static Logger LOG = Logger.getLogger(XmldbURLStreamHandlerFactory.class);
     
+    /**
+     *  Create Custom URL streamhandler for the <B>xmldb</B> protocol.
+     *
+     * @param protocol Protocol
+     * @return Custom Xmldb stream handler.
+     */
     public URLStreamHandler createURLStreamHandler(String protocol) {
         
+        URLStreamHandler handler=null;
+        
         if("xmldb".equals(protocol)){
-            LOG.debug("createURLStreamHandler for '"+protocol+"'.");
-            return new Handler();
+            LOG.debug(protocol);
+            handler=new Handler();
         } else {
             //LOG.error("Protocol should be xmldb, not "+protocol);
         }
         
-        return null;
+        return handler;
     }
     
 }

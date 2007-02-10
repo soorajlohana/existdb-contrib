@@ -40,7 +40,7 @@ public class XmlrpcInputStream  extends InputStream {
     private final static Logger logger = Logger.getLogger(XmlrpcInputStream.class);
     private BlockingInputStream bis;
     private OutputStream bos;
-    private XmlrpcReadResourceThread rt;
+    private XmlrpcDownloadThread rt;
     
     
     public XmlrpcInputStream(XmldbURL uri) throws MalformedURLException {
@@ -50,7 +50,7 @@ public class XmlrpcInputStream  extends InputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcReadResourceThread( uri , bos); 
+        rt = new XmlrpcDownloadThread( uri , bos); 
         
         rt.start();
         

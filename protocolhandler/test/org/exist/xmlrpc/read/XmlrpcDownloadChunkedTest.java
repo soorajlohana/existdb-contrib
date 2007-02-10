@@ -34,8 +34,9 @@ import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *  jUnit tests for XmlrpcDownloadChunked class.
- *
+ *  jUnit tests for XmlrpcDownload class.
+ * 
+ * 
  * @author Dannes Wessels
  */
 public class XmlrpcDownloadChunkedTest extends TestCase {
@@ -70,7 +71,7 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/build.xml";
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
+        XmlrpcDownload xdc = new XmlrpcDownload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
@@ -97,7 +98,7 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/foobar/build.xml";
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
+        XmlrpcDownload xdc = new XmlrpcDownload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
@@ -126,7 +127,7 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/build.xml";
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
+        XmlrpcDownload xdc = new XmlrpcDownload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
@@ -154,7 +155,7 @@ public class XmlrpcDownloadChunkedTest extends TestCase {
                 +"/exist/xmlrpc/db/system/users.xml";
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XmlrpcDownloadChunked xdc = new XmlrpcDownloadChunked();
+        XmlrpcDownload xdc = new XmlrpcDownload();
         
         try {
             XmldbURL xmldbURL = new XmldbURL(url);

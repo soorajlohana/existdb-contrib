@@ -39,9 +39,9 @@ import org.exist.xmldb.XmldbURL;
  *
  * @author Dannes Wessels
  */
-public class EmbeddedReadResourceThread extends Thread {
+public class EmbeddedDownloadThread extends Thread {
     
-    private final static Logger logger = Logger.getLogger(EmbeddedReadResourceThread.class);
+    private final static Logger logger = Logger.getLogger(EmbeddedDownloadThread.class);
     
     private XmldbURL xmldbURL;
     private OutputStream outputStream;
@@ -49,12 +49,13 @@ public class EmbeddedReadResourceThread extends Thread {
     
     
     /**
-     *  Constructor of EmbeddedReadResourceThread.
-     *
+     *  Constructor of EmbeddedDownloadThread.
+     * 
+     * 
      * @param docUri Document location in database.
      * @param os Stream to which the document is written.
      */
-    public EmbeddedReadResourceThread(XmldbURL docUri, OutputStream os) {
+    public EmbeddedDownloadThread(XmldbURL docUri, OutputStream os) {
         this.xmldbURL=docUri;
         this.outputStream=os;
     }

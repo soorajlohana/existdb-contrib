@@ -42,7 +42,7 @@ public class EmbeddedInputStream extends InputStream {
     
     private BlockingInputStream  bis;
     private OutputStream bos;
-    private EmbeddedReadResourceThread rt;
+    private EmbeddedDownloadThread rt;
     
     /**
      *  Constructor of EmbeddedInputStream. 
@@ -57,7 +57,7 @@ public class EmbeddedInputStream extends InputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new EmbeddedReadResourceThread( uri , bos);
+        rt = new EmbeddedDownloadThread( uri , bos);
         
         rt.start();
         

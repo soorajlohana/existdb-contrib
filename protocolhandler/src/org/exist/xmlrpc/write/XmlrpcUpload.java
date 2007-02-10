@@ -43,7 +43,10 @@ import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *  Sends a document to an eXist-db server using XMLRPC. The document can be
+ *  Write document using XMLRPC to remote database and read the data 
+ * from an input stream.
+ * 
+ * Sends a document to an eXist-db server using XMLRPC. The document can be
  * either XML or non-XML (binary). Chunked means that the document is send 
  * as smaller parts to the server, the servler glues the parts together. There
  * is no limitation on the size of the documents that can be transported.

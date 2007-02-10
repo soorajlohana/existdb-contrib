@@ -34,23 +34,29 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
+import org.exist.localcopied.ExistIOException;
 
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  Example code for demonstrating XMLRPC methods getDocumentData
- * and getNextChunk. Please run 'admin-examples setup' first, this will
- * download the required mondial.xml document.
+ *  Read document from using XMLRPC from remote database and write the data 
+ * into an output stream.
  *
- * @author dizzzz
+ * @author Dannes Wessels
  */
 public class XmlrpcDownload {
     
     private final static Logger LOG = Logger.getLogger(XmlrpcDownload.class);
     
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+    /**
+     *  Write document referred by the URL to the output stream.
+     *
+     * @param xmldbURL Document location in database.
+     * @param os Stream to which the document is written.
+     * @throws IOException
+     */
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
         LOG.debug("Begin document download");
         try {
             // Setup client client
@@ -95,14 +101,10 @@ public class XmlrpcDownload {
             // Finish transport
             os.close();
             
-        } catch (XmlRpcException ex) {
+        } catch (Exception ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage());
-            
-        } catch (MalformedURLException ex){
-            LOG.error(ex);
-            throw new IOException(ex.getMessage());
-            
+            throw new ExistIOException(ex.getMessage());
+                       
         } finally {
             LOG.debug("Finished document download"); 
         }

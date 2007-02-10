@@ -51,8 +51,6 @@ public class EmbeddedDownloadThread extends Thread {
     /**
      *  Constructor of EmbeddedDownloadThread.
      * 
-     * 
-     * 
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
      */
@@ -62,7 +60,7 @@ public class EmbeddedDownloadThread extends Thread {
     }
     
     /**
-     * Write resource to the (output) stream.
+     * Write resource to the output stream.
      */
     public void run() {
         logger.debug("Thread started." );

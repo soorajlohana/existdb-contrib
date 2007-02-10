@@ -32,8 +32,9 @@ import org.exist.xmldb.XmldbURL;
 import org.exist.localcopied.BlockingInputStream;
 
 /**
+ * Read document from remote database (using xmlrpc) as a input stream.
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcInputStream  extends InputStream {
     
@@ -42,15 +43,20 @@ public class XmlrpcInputStream  extends InputStream {
     private OutputStream bos;
     private XmlrpcDownloadThread rt;
     
-    
-    public XmlrpcInputStream(XmldbURL uri) throws MalformedURLException {
+    /**
+     *  Constructor of XmlrpcInputStream. 
+     * 
+     * @param xmldbURL Location of document in database.
+     * @throws MalformedURLException Thrown for illegalillegal URLs.
+     */
+    public XmlrpcInputStream(XmldbURL xmldbURL) {
         
         logger.debug("Initializing ResourceInputStream");
         
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcDownloadThread( uri , bos); 
+        rt = new XmlrpcDownloadThread( xmldbURL , bos); 
         
         rt.start();
         

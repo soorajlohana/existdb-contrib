@@ -35,7 +35,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  jUnit tests for XmlrpcReadResource class.
+ *   Wrap XmlrpcDownload class into a thread for XmlrpcInputStream.
  *
  * @author Dannes Wessels
  */
@@ -46,13 +46,19 @@ public class XmlrpcDownloadThread extends Thread {
     private OutputStream outputStream;
     private Exception exception=null;
     
-    public XmlrpcDownloadThread(XmldbURL docUri, OutputStream os) {
-        this.xmldbURL=docUri;
+    /**
+     *  Constructor of XmlrpcDownloadThread.
+     * 
+     * @param xmldbURL Document location in database.
+     * @param os Stream to which the document is written.
+     */
+    public XmlrpcDownloadThread(XmldbURL xmldbURL, OutputStream os) {
+        this.xmldbURL=xmldbURL;
         this.outputStream=os;
     }
     
     /**
-     * Start Thread.
+     * Write resource to the output stream.
      */
     public void run() {
         logger.debug("Thread started." );
@@ -72,10 +78,20 @@ public class XmlrpcDownloadThread extends Thread {
         }
     }
     
+    /**
+     *  Check if an exception is thrown during processing.
+     *
+     * @return TRUE when exception is thown in thread
+     */
     public boolean isExceptionThrown(){
         return (exception!=null);
     }
     
+    /**
+     *  Get thrown processing exception.
+     *
+     * @return Exception that is thrown during processing, NULL if not available.
+     */
     public Exception getThrownException(){
         return this.exception;
     }

@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  Writes data from an inputstream to a specified URL.
+ *  Wrap XmlrpcUpload class into a thread for XmlrpcOutputStream.
  *
  * @author Dannes Wessels
  */

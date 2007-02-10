@@ -31,7 +31,7 @@ import org.exist.localcopied.BlockingInputStream;
 import org.exist.localcopied.ExistIOException;
 
 /**
- * 
+ * Write document to remote database (using xmlrpc) using output stream.
  *
  * @author Dannes Wessels
  */
@@ -43,14 +43,20 @@ public class XmlrpcOutputStream  extends OutputStream {
     private OutputStream bos;
     private XmlrpcUploadThread rt; 
     
-    public XmlrpcOutputStream(XmldbURL uri) {
+    /**
+     *  Constructor of XmlrpcOutputStream. 
+     * 
+     * @param xmldbURL Location of document in database.
+     * @throws MalformedURLException Thrown for illegalillegal URLs.
+     */
+    public XmlrpcOutputStream(XmldbURL xmldbURL) {
         
         logger.debug("Initializing XmlrpcOutputStream");
         
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcUploadThread(uri, bis);
+        rt = new XmlrpcUploadThread(xmldbURL, bis);
         rt.start();
         
         logger.debug("Initializing XmlrpcOutputStream done");

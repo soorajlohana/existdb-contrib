@@ -87,7 +87,6 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            // TODO check message
             if(!ex.getCause().getMessage().contains("Collection /db/notexisting not found")){
                 fail(ex.getCause().getMessage());
             }
@@ -125,8 +124,8 @@ public class XmlrpcOutputStreamTest extends TestCase {
         } catch (Exception ex) {
             
             // TODO check message
-            if(!ex.getMessage().contains("Collection db/notexisting not found")){
-                //@@@fail(ex.getMessage());
+            if(!ex.getCause().getMessage().contains("Collection /db/notexisting not found")){
+                fail(ex.getMessage());
             }
         }
     }

@@ -32,7 +32,6 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
-import org.exist.localcopied.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -91,7 +90,7 @@ public class EmbeddedUpload {
      * @param tmp Document that is inserted.
      * @throws org.exist.localcopied.ExistIOException Thrown when something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, File tmp) throws ExistIOException {
+    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
         LOG.debug("Begin document upload");
         
         DocumentImpl resource = null;
@@ -118,12 +117,12 @@ public class EmbeddedUpload {
             
             if(collection == null) {
                 transact.abort(txn);
-                throw new ExistIOException("Resource "+collectionUri.toString()+" is not a collection.");
+                throw new IOException("Resource "+collectionUri.toString()+" is not a collection.");
             }
             
             if(collection.hasChildCollection(documentUri)) {
                 transact.abort(txn);
-                throw new ExistIOException("Resource "+documentUri.toString()+" is a collection.");
+                throw new IOException("Resource "+documentUri.toString()+" is a collection.");
             }
             
             MimeType mime = MimeTable.getInstance().getContentTypeFor(documentUri);
@@ -161,7 +160,7 @@ public class EmbeddedUpload {
         } catch (Exception e) {
             transact.abort(txn);
             LOG.debug(e);
-            throw new ExistIOException(e.getMessage(), e);
+            throw new IOException(e.getMessage(), e);
             
         } finally {
             LOG.debug("Done.");

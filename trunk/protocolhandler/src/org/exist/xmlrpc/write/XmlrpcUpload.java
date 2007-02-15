@@ -22,25 +22,16 @@
 
 package org.exist.xmlrpc.write;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Vector;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
-import org.exist.localcopied.ExistIOException;
+import org.exist.localcopied.BlockingInputStream;
+import org.exist.localcopied.IOException;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;
-
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  *  Write document using XMLRPC to remote database and read the data 
@@ -64,8 +55,9 @@ public class XmlrpcUpload {
      * @param is Document stream
      * @throws org.exist.localcopied.ExistIOException When something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, InputStream is) throws ExistIOException {
+    public void stream(XmldbURL xmldbURL, BlockingInputStream is) {
         LOG.debug("Begin document upload");
+        Exception exception = null;
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
@@ -97,8 +89,8 @@ public class XmlrpcUpload {
                 params.addElement(buf);
                 params.addElement(new Integer(len));
                 handle = (String)xmlrpc.execute("upload", params);
+        LOG.debug("Uploaded" + len + "bytes.");
             }
-            is.close(); // DWES is this needed there
             
             // All data transported, now parse data on server
             params.clear();
@@ -111,17 +103,17 @@ public class XmlrpcUpload {
             // Check XMLRPC result
             if(result.booleanValue()){
                 LOG.debug("Document stored.");
-                
             } else {
                 LOG.debug("Could not store document.");
-                throw new ExistIOException("Could not store document.");
+                throw new IOException("Could not store document.");
             }
             
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new ExistIOException(ex.getMessage(), ex); // need to fill message
+            exception = ex; // Save the exception.
                         
         } finally {
+           is.close(exception); // Pass the exception through the stream. 
            LOG.debug("Finished document upload");
         }
     }

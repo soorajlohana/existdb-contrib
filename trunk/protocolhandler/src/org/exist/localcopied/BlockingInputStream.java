@@ -22,7 +22,6 @@
 
 package org.exist.localcopied;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -34,7 +33,10 @@ import java.io.OutputStream;
  * When the buffer is full producer threads will be blocked until the buffer
  * has some free space again. When the buffer is empty the consumer threads will
  * be blocked until some bytes are available again.
- * 
+ * Closing of the output stream will block until the inputstream is closed.
+ * A special version of the close function enables the consumer threads to
+ * specify that an exception has occurred. This will cause producer calls to
+ * be unblocked and throw an IOException containing this exception as cause.
  */
 public class BlockingInputStream extends InputStream {
 
@@ -45,12 +47,14 @@ public class BlockingInputStream extends InputStream {
     private byte[] buffer = new byte[SIZE];  // Circular queue.
     private int head;  // First full buffer position.
     private int tail;  // First empty buffer position.
-    private boolean closed;
+    private boolean inClosed;     // Is the input  stream closed?
+    private boolean outClosed;    // Is the output stream closed?
+    private Exception exception;  // Exception specified when closing input.
     
     private OutputStream outputStream = new BlockingOutputStream();
 
     
-    /* OutputStream adapter class */
+    /** OutputStream adapter class */
     private class BlockingOutputStream extends OutputStream {
 
         public void write(int b) throws IOException {
@@ -75,6 +79,11 @@ public class BlockingInputStream extends InputStream {
      */
     public OutputStream getOutputStream() {
         return outputStream;
+    }
+
+    /** Is a stream closed? */
+    private boolean closed() {
+        return inClosed || outClosed;
     }
 
     /* InputStream methods */
@@ -126,8 +135,8 @@ public class BlockingInputStream extends InputStream {
         }
         int count = EOS;
         try {
-            while (empty() && !closed) wait();
-            if (!closed) {
+            while (empty() && !closed()) wait();
+            if (!closed()) {
                 count = Math.min(len, available());
                 int count1 = Math.min(count, availablePart1());
                 System.arraycopy(buffer, head, b, off, count1);
@@ -137,24 +146,35 @@ public class BlockingInputStream extends InputStream {
                 }
                 head = next(head, count);
                 if (empty()) head = tail = 0; // Reset to optimal situation.
-                notifyAll();
             }
         } catch (InterruptedException e) {
-            throw new ExistIOException("Read operation interrupted.", e);
+            throw new IOException("Read operation interrupted.", e);
+        } finally {
+            notifyAll();
         }
         return count;
     }
 
     /**
-     * Closes this input stream and releases any system resources associated
-     * with the stream.
-     *
-     * @throws     IOException  if an I/O error occurs.
+     * Closes this input stream and releases the buffer associated
+     * with this stream.
      */
-    public synchronized void close() throws IOException {
-        closed = true;
+    public synchronized void close() {
+        inClosed = true;
         buffer = null;
         notifyAll();
+    }
+
+    /**
+     * Closes this input stream, specifying that an exception has occurred.
+     * This will cause all producer calls to be unblocked and throw an
+     * IOException with this exception as its cause.
+     * Releases the buffer associated with this stream.
+     * <code>BlockingInputStream</code> specific method.
+     */
+    public synchronized void close(Exception ex) {
+        exception = ex;
+        close();
     }
 
     /**
@@ -224,8 +244,9 @@ public class BlockingInputStream extends InputStream {
         while (len > 0) {
             int count;
             try {
-                while (full() && !closed) wait();
-                if (closed) throw new IOException("Writing to closed stream");
+                while (full() && !closed()) wait();
+                if (closed()) throw new IOException(
+                    "Writing to closed stream", exception);
                 count = Math.min(len, free());
                 int count1 = Math.min(count, freePart1());
                 System.arraycopy(b, off, buffer, tail, count1);
@@ -234,9 +255,10 @@ public class BlockingInputStream extends InputStream {
                     System.arraycopy(b, off + count1, buffer, 0, count2);                    
                 }
                 tail = next(tail, count);
-                notifyAll();
             } catch (InterruptedException e) {
-                throw new ExistIOException("Write operation interrupted.", e);
+                throw new IOException("Write operation interrupted.", e);
+            } finally {
+                notifyAll();
             }
             off += count;
             len -= count;
@@ -247,25 +269,25 @@ public class BlockingInputStream extends InputStream {
      * Equivalent of the <code>close()</code> method of an output stream.
      * Renamed to solve the name clash with the <code>close()</code> method
      * of the input stream also implemented by this class.
-     * Closes this output stream and releases any system resources 
-     * associated with this stream. A closed stream cannot perform 
-     * output operations and cannot be reopened.
+     * Closes this output stream and releases the associated buffer.
+     * A closed stream cannot perform output operations and cannot be reopened.
      * <p>
-     * This method blocks its caller until all bytes remaining in the buffer
-     * are read from the buffer by the receiving threads or an exception occurs.
+     * This method blocks its caller until the corresponding input stream is
+     * closed or an exception occurs.
      *
      * @throws     IOException  if an I/O error occurs.
      */
     private synchronized void closeOutputStream() throws IOException {
+        outClosed = true;
+        notifyAll();
         try {
-            while(!empty() && !closed) wait();
-            if (!empty()) throw new IOException(
-                "Closing non empty closed stream.");
-            closed = true;
-            buffer = null;
-            notifyAll();
+            while(!inClosed) wait();
+            if (exception != null) throw new IOException(
+                "BlockingInputStream closed with an exception.", exception);
+            else if (!empty()) throw new IOException(
+                "Closing non empty closed stream.", exception);
         } catch (InterruptedException e) {
-            throw new ExistIOException(
+            throw new IOException(
                 "Close OutputStream operation interrupted.", e);
         }
     }
@@ -281,12 +303,15 @@ public class BlockingInputStream extends InputStream {
      */
     private synchronized void flushOutputStream() throws IOException {
         try {
-            while(!empty() && !closed) wait();
-            if (!empty()) throw new IOException(
-                "Flushing non empty closed stream.");
-            notifyAll();
+            while(!empty() && !closed()) wait();
+            if (exception != null) throw new IOException(
+                "BlockingInputStream closed with an exception.", exception);
+            else if (!empty()) throw new IOException(
+                "Flushing non empty closed stream.", exception);
         } catch (InterruptedException e) {
-            throw new ExistIOException("Flush operation interrupted.", e);
+            throw new IOException("Flush operation interrupted.", e);
+        } finally {
+            notifyAll();
         }
     }
 

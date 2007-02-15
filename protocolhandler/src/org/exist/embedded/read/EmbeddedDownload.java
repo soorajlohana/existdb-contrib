@@ -22,7 +22,6 @@
 
 package org.exist.embedded.read;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -31,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
-import org.exist.localcopied.ExistIOException;
+import org.exist.localcopied.IOException;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -57,7 +56,7 @@ public class EmbeddedDownload {
      * @param os Stream to which the document is written.
      * @throws IOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         LOG.debug("Begin document download");
         
         DocumentImpl resource = null;
@@ -75,11 +74,11 @@ public class EmbeddedDownload {
                 collection = broker.openCollection(path, Lock.READ_LOCK);
                 if(collection == null){
                     // No collection, no document
-                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" not found.");
+                    throw new IOException("Resource "+xmldbURL.getPath()+" not found.");
                     
                 } else {
                     // Collection
-                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" is a collection.");
+                    throw new IOException("Resource "+xmldbURL.getPath()+" is a collection.");
                 }
                 
             } else {
@@ -100,7 +99,7 @@ public class EmbeddedDownload {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new ExistIOException(ex.getMessage(), ex);
+            throw new IOException(ex.getMessage(), ex);
             
         } finally {
             if(resource != null)

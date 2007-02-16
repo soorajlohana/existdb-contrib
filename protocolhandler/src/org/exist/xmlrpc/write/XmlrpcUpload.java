@@ -133,7 +133,7 @@ public class XmlrpcUpload {
         } catch (IOException ioex) {
             throw ioex;
         } catch (Exception ex) {
-            throw new ExistIOException(ex);
+            throw new ExistIOException(ex.getMessage(), ex); //TODO
         } finally {
             is.close();
         }

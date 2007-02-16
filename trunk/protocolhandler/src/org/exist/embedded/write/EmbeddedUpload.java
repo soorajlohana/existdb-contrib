@@ -142,7 +142,7 @@ public class EmbeddedUpload {
                 IndexInfo info = collection.validateXMLResource(txn, broker, documentUri, inputsource);
                 doc = info.getDocument();
                 doc.getMetadata().setMimeType(contentType);
-                collection.release(Lock.READ_LOCK);
+                collection.release();
                 collectionLocked = false;
                 collection.store(txn, broker, info, inputsource, false);
                 LOG.debug("done");
@@ -165,7 +165,7 @@ public class EmbeddedUpload {
         } finally {
             LOG.debug("Done.");
             if(collectionLocked && collection != null)
-                collection.release(Lock.READ_LOCK);
+                collection.release();
             pool.release(broker);
             
         }

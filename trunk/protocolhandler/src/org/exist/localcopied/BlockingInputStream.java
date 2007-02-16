@@ -36,7 +36,7 @@ import java.io.OutputStream;
  * Closing of the output stream will block until the inputstream is closed.
  * A special version of the close function enables the consumer threads to
  * specify that an exception has occurred. This will cause producer calls to
- * be unblocked and throw an IOException containing this exception as cause.
+ * be unblocked and throw an ExistIOException containing this exception as cause.
  */
 public class BlockingInputStream extends InputStream {
 
@@ -57,19 +57,19 @@ public class BlockingInputStream extends InputStream {
     /** OutputStream adapter class */
     private class BlockingOutputStream extends OutputStream {
 
-        public void write(int b) throws IOException {
+        public void write(int b) throws ExistIOException {
             writeOutputStream(b);
         }
 
-        public void write(byte b[], int off, int len) throws IOException {
+        public void write(byte b[], int off, int len) throws ExistIOException {
             writeOutputStream(b, off, len);
         }
 
-        public void close() throws IOException {
+        public void close() throws ExistIOException {
             closeOutputStream();
         }
 
-        public void flush() throws IOException {
+        public void flush() throws ExistIOException {
             flushOutputStream();
         }
     }
@@ -95,12 +95,13 @@ public class BlockingInputStream extends InputStream {
      * has been reached, the value <code>-1</code> is returned. This method
      * blocks until input data is available, the end of the stream is detected,
      * or an exception is thrown.
-     *
-     * @return     the next byte of data, or <code>-1</code> if the end of the
+     * 
+     * 
+     * @return the next byte of data, or <code>-1</code> if the end of the
      *             stream is reached.
-     * @throws     IOException  if an I/O error occurs.
+     * @throws ExistIOException  if an I/O error occurs.
      */
-    public synchronized int read() throws IOException {
+    public synchronized int read() throws ExistIOException {
         byte bb[] = new byte[1];
         return (read(bb, 0, 1) == EOS) ? EOS : bb[0];
     }
@@ -110,21 +111,22 @@ public class BlockingInputStream extends InputStream {
      * an array of bytes.  An attempt is made to read as many as
      * <code>len</code> bytes, but a smaller number may be read.
      * The number of bytes actually read is returned as an integer.
-     *
+     * 
      * <p> This method blocks until input data is available, end of file is
      * detected, or an exception is thrown.
-     *
-     * @param      b     the buffer into which the data is read.
-     * @param      off   the start offset in array <code>b</code>
+     * 
+     * 
+     * @param b     the buffer into which the data is read.
+     * @param off   the start offset in array <code>b</code>
      *                   at which the data is written.
-     * @param      len   the maximum number of bytes to read.
-     * @return     the total number of bytes read into the buffer, or
+     * @param len   the maximum number of bytes to read.
+     * @return the total number of bytes read into the buffer, or
      *             <code>-1</code> if there is no more data because the end of
      *             the stream has been reached.
-     * @throws     IOException  if an I/O error occurs.
-     * @throws     NullPointerException  if <code>b</code> is <code>null</code>.
+     * @throws ExistIOException  if an I/O error occurs.
+     * @throws NullPointerException  if <code>b</code> is <code>null</code>.
      */
-    public synchronized int read(byte b[], int off, int len) throws IOException {
+    public synchronized int read(byte b[], int off, int len) throws ExistIOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -148,7 +150,7 @@ public class BlockingInputStream extends InputStream {
                 if (empty()) head = tail = 0; // Reset to optimal situation.
             }
         } catch (InterruptedException e) {
-            throw new IOException("Read operation interrupted.", e);
+            throw new ExistIOException("Read operation interrupted.", e);
         } finally {
             notifyAll();
         }
@@ -168,7 +170,7 @@ public class BlockingInputStream extends InputStream {
     /**
      * Closes this input stream, specifying that an exception has occurred.
      * This will cause all producer calls to be unblocked and throw an
-     * IOException with this exception as its cause.
+     * ExistIOException with this exception as its cause.
      * Releases the buffer associated with this stream.
      * <code>BlockingInputStream</code> specific method.
      */
@@ -181,10 +183,11 @@ public class BlockingInputStream extends InputStream {
      * The number of bytes that can be read (or skipped over) from
      * this input stream without blocking by the next caller of a method for
      * this input stream.
-     *
-     * @return     the number of bytes that can be read from this input stream
+     * 
+     * 
+     * @return the number of bytes that can be read from this input stream
      *             without blocking.
-     * @throws     IOException  if an I/O error occurs.
+     * @throws ExistIOException  if an I/O error occurs.
      */
     public synchronized int available() {
         return (tail - head + SIZE) % SIZE;
@@ -206,13 +209,14 @@ public class BlockingInputStream extends InputStream {
      * to the output stream. The byte to be written is the eight 
      * low-order bits of the argument <code>b</code>. The 24 
      * high-order bits of <code>b</code> are ignored.
-     *
-     * @param      b   the <code>byte</code>.
-     * @throws     IOException  if an I/O error occurs. In particular, 
-     *             an <code>IOException</code> may be thrown if the 
+     * 
+     * 
+     * @param b   the <code>byte</code>.
+     * @throws ExistIOException  if an I/O error occurs. In particular, 
+     *             an <code>ExistIOException</code> may be thrown if the 
      *             output stream has been closed.
      */
-    private synchronized void writeOutputStream(int b) throws IOException {
+    private synchronized void writeOutputStream(int b) throws ExistIOException {
         byte bb[] = { (byte) b };
         writeOutputStream(bb, 0, 1);
     }
@@ -225,16 +229,17 @@ public class BlockingInputStream extends InputStream {
      * output stream in order; element <code>b[off]</code> is the first 
      * byte written and <code>b[off+len-1]</code> is the last byte written 
      * by this operation.
-     *
-     * @param      b     the data.
-     * @param      off   the start offset in the data.
-     * @param      len   the number of bytes to write.
-     * @throws     IOException  if an I/O error occurs. In particular, 
-     *             an <code>IOException</code> is thrown if the output 
+     * 
+     * 
+     * @param b     the data.
+     * @param off   the start offset in the data.
+     * @param len   the number of bytes to write.
+     * @throws ExistIOException  if an I/O error occurs. In particular, 
+     *             an <code>ExistIOException</code> is thrown if the output 
      *             stream is closed.
      */
     private synchronized void writeOutputStream(byte b[], int off, int len)
-    throws IOException {
+    throws ExistIOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -245,7 +250,7 @@ public class BlockingInputStream extends InputStream {
             int count;
             try {
                 while (full() && !closed()) wait();
-                if (closed()) throw new IOException(
+                if (closed()) throw new ExistIOException(
                     "Writing to closed stream", exception);
                 count = Math.min(len, free());
                 int count1 = Math.min(count, freePart1());
@@ -256,7 +261,7 @@ public class BlockingInputStream extends InputStream {
                 }
                 tail = next(tail, count);
             } catch (InterruptedException e) {
-                throw new IOException("Write operation interrupted.", e);
+                throw new ExistIOException("Write operation interrupted.", e);
             } finally {
                 notifyAll();
             }
@@ -274,20 +279,21 @@ public class BlockingInputStream extends InputStream {
      * <p>
      * This method blocks its caller until the corresponding input stream is
      * closed or an exception occurs.
-     *
-     * @throws     IOException  if an I/O error occurs.
+     * 
+     * 
+     * @throws ExistIOException  if an I/O error occurs.
      */
-    private synchronized void closeOutputStream() throws IOException {
+    private synchronized void closeOutputStream() throws ExistIOException {
         outClosed = true;
         notifyAll();
         try {
             while(!inClosed) wait();
-            if (exception != null) throw new IOException(
+            if (exception != null) throw new ExistIOException(
                 "BlockingInputStream closed with an exception.", exception);
-            else if (!empty()) throw new IOException(
+            else if (!empty()) throw new ExistIOException(
                 "Closing non empty closed stream.", exception);
         } catch (InterruptedException e) {
-            throw new IOException(
+            throw new ExistIOException(
                 "Close OutputStream operation interrupted.", e);
         }
     }
@@ -298,18 +304,19 @@ public class BlockingInputStream extends InputStream {
      * <p>
      * This methods blocks its caller until all buffered bytes are actually
      * read by the consuming threads.
-     *
-     * @throws     IOException  if an I/O error occurs.
+     * 
+     * 
+     * @throws ExistIOException  if an I/O error occurs.
      */
-    private synchronized void flushOutputStream() throws IOException {
+    private synchronized void flushOutputStream() throws ExistIOException {
         try {
             while(!empty() && !closed()) wait();
-            if (exception != null) throw new IOException(
+            if (exception != null) throw new ExistIOException(
                 "BlockingInputStream closed with an exception.", exception);
-            else if (!empty()) throw new IOException(
+            else if (!empty()) throw new ExistIOException(
                 "Flushing non empty closed stream.", exception);
         } catch (InterruptedException e) {
-            throw new IOException("Flush operation interrupted.", e);
+            throw new ExistIOException("Flush operation interrupted.", e);
         } finally {
             notifyAll();
         }
@@ -319,10 +326,11 @@ public class BlockingInputStream extends InputStream {
      * The number of bytes that can be written to
      * this output stream without blocking by the next caller of a method for
      * this output stream.
-     *
-     * @return     the number of bytes that can be written to this output stream
+     * 
+     * 
+     * @return the number of bytes that can be written to this output stream
      *             without blocking.
-     * @throws     IOException  if an I/O error occurs.
+     * @throws ExistIOException  if an I/O error occurs.
      */
     private synchronized int free() {
         int prevhead = prev(head);

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.exist.localcopied.IOException;
+import org.exist.localcopied.ExistIOException;
 
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
@@ -50,12 +50,13 @@ public class XmlrpcDownload {
     
     /**
      *  Write document referred by the URL to the output stream.
-     *
+     * 
+     * 
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException
+     * @throws ExistIOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
         LOG.debug("Begin document download");
         try {
             // Setup client client
@@ -102,7 +103,7 @@ public class XmlrpcDownload {
             
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage());
+            throw new ExistIOException(ex.getMessage());
                        
         } finally {
             LOG.debug("Finished document download"); 

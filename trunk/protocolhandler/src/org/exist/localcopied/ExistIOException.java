@@ -22,14 +22,12 @@
 
 package org.exist.localcopied;
 
-import java.io.IOException;
-
 
 /**
- * A subclass of IOException that adds the constructors for specifying
- * a cause to the IOException class (missing in IOException until Java 6).
+ * A subclass of ExistIOException that adds the constructors for specifying
+ * a cause to the ExistIOException class (missing in ExistIOException until Java 6).
  */
-public class ExistIOException extends IOException {
+public class ExistIOException extends java.io.IOException {
     
     /**
      * Constructs an <code>ExistIOException</code> with <code>null</code>
@@ -44,7 +42,8 @@ public class ExistIOException extends IOException {
      * Constructs an <code>ExistIOException</code> with a given message
      * <code>String</code>.  No underlying cause is set;
      * <code>getCause</code> will return <code>null</code>.
-     *
+     * 
+     * 
      * @param message the error message.
      * @see #getMessage
      */
@@ -56,7 +55,8 @@ public class ExistIOException extends IOException {
      * Constructs an <code>ExistIOException</code> with <code>null</code>
      * as its error detail message and a <code>Throwable</code> that was its
      * underlying cause.
-     *
+     * 
+     * 
      * @param cause the <code>Throwable</code> (<code>Error</code> or
      * <code>Exception</code>) that caused this exception to occur.
      * @see #getCause
@@ -70,11 +70,11 @@ public class ExistIOException extends IOException {
      * Constructs an <code>ExistIOException</code> with a given message
      * <code>String</code> and a <code>Throwable</code> that was its
      * underlying cause.
-     *
+     * 
+     * 
      * @param message the error message.
      * @param cause the <code>Throwable</code> (<code>Error</code> or
      * <code>Exception</code>) that caused this exception to occur.
-     *
      * @see #getCause
      * @see #getMessage
      */

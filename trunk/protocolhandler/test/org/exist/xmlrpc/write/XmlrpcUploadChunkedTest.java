@@ -24,13 +24,14 @@ package org.exist.xmlrpc.write;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.localcopied.IOException;
+import org.exist.localcopied.ExistIOException;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
@@ -82,7 +83,7 @@ public class XmlrpcUploadChunkedTest extends TestCase {
             LOG.error("Caught exception"+url, ex);
             fail(ex.getMessage());
             
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOG.error("Caught exception", ex);
             fail(ex.getMessage());
         }
@@ -109,11 +110,14 @@ public class XmlrpcUploadChunkedTest extends TestCase {
             LOG.error("Caught exception"+url, ex);
             fail(ex.getMessage());
             
-        } catch (IOException ex) {
+        } catch (ExistIOException ex) {
             
-            if(!ex.getMessage().contains("Collection /db/foobar not found")){
+            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
                 fail(ex.getMessage());
             }
+        } catch (Exception ex) {
+            LOG.error("Caught exception", ex);
+            fail(ex.getMessage());
             
         }
     }
@@ -140,11 +144,15 @@ public class XmlrpcUploadChunkedTest extends TestCase {
             LOG.error("Caught exception"+url, ex);
             fail(ex.getMessage());
             
-        } catch (IOException ex) {
-            if(!ex.getMessage().contains("User foo unknown")){
+        } catch (ExistIOException ex) {
+            if(!ex.getCause().getMessage().contains("User foo unknown")){
                 fail(ex.getMessage());
             }
+        } catch (Exception ex) {
+            LOG.error("Caught exception", ex);
+            fail(ex.getMessage());
         }
+            
     }
     
     /**
@@ -168,10 +176,13 @@ public class XmlrpcUploadChunkedTest extends TestCase {
             LOG.error("Caught exception"+url, ex);
             fail(ex.getMessage());
             
-        } catch (IOException ex) {
+        } catch (ExistIOException ex) {
             if(!ex.getMessage().contains("User 'guest' not allowed to write to collection '/db/system'")){
                 fail(ex.getMessage());
             }
+        } catch (Exception ex) {
+            LOG.error("Caught exception", ex);
+            fail(ex.getMessage());
         }
     }
 }

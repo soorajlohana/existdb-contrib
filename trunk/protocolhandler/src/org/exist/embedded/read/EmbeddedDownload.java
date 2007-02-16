@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
-import org.exist.localcopied.IOException;
+import org.exist.localcopied.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -51,12 +51,13 @@ public class EmbeddedDownload {
     
     /**
      *   Write document referred by URL to an (output)stream.
-     *
+     * 
+     * 
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException
+     * @throws ExistIOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
         LOG.debug("Begin document download");
         
         DocumentImpl resource = null;
@@ -74,11 +75,11 @@ public class EmbeddedDownload {
                 collection = broker.openCollection(path, Lock.READ_LOCK);
                 if(collection == null){
                     // No collection, no document
-                    throw new IOException("Resource "+xmldbURL.getPath()+" not found.");
+                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" not found.");
                     
                 } else {
                     // Collection
-                    throw new IOException("Resource "+xmldbURL.getPath()+" is a collection.");
+                    throw new ExistIOException("Resource "+xmldbURL.getPath()+" is a collection.");
                 }
                 
             } else {
@@ -99,14 +100,14 @@ public class EmbeddedDownload {
             }
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new IOException(ex.getMessage(), ex);
+            throw new ExistIOException(ex.getMessage(), ex);
             
         } finally {
             if(resource != null)
                 resource.getUpdateLock().release(Lock.READ_LOCK);
             
             if(collection != null)
-                collection.release(Lock.READ_LOCK);
+                collection.release();
             
             pool.release(broker);
             

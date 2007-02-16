@@ -22,19 +22,21 @@
 
 package org.exist.xmlrpc.write;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.exist.localcopied.BlockingInputStream;
-import org.exist.localcopied.IOException;
+import org.exist.localcopied.ExistIOException;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *  Write document using XMLRPC to remote database and read the data 
+ * Write document using XMLRPC to remote database and read the data 
  * from an input stream.
  * 
  * Sends a document to an eXist-db server using XMLRPC. The document can be
@@ -49,15 +51,16 @@ public class XmlrpcUpload {
     private final static Logger LOG = Logger.getLogger(XmlrpcUpload.class);
     
     /**
-     *  Write data from a (input)stream to the specified XMLRPC url.
+     * Write data from a (input)stream to the specified XMLRPC url and leave
+     * the input stream open.
      * 
      * @param xmldbURL URL pointing to location on eXist-db server.
      * @param is Document stream
-     * @throws org.exist.localcopied.ExistIOException When something is wrong.
+     * @throws Exception When something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, BlockingInputStream is) {
+    private void streamDocument(XmldbURL xmldbURL, InputStream is)
+    throws Exception {
         LOG.debug("Begin document upload");
-        Exception exception = null;
         try {
             // Setup xmlrpc client
             XmlRpc.setEncoding("UTF-8");
@@ -89,7 +92,6 @@ public class XmlrpcUpload {
                 params.addElement(buf);
                 params.addElement(new Integer(len));
                 handle = (String)xmlrpc.execute("upload", params);
-        LOG.debug("Uploaded" + len + "bytes.");
             }
             
             // All data transported, now parse data on server
@@ -105,17 +107,53 @@ public class XmlrpcUpload {
                 LOG.debug("Document stored.");
             } else {
                 LOG.debug("Could not store document.");
-                throw new IOException("Could not store document.");
+                throw new ExistIOException("Could not store document.");
             }
             
         } catch (Exception ex) {
             LOG.error(ex);
-            exception = ex; // Save the exception.
-                        
+            throw ex;
         } finally {
-           is.close(exception); // Pass the exception through the stream. 
            LOG.debug("Finished document upload");
         }
     }
-    
+
+    /**
+     * Write data from an input stream to the specified XMLRPC url.
+     * 
+     * 
+     * @param xmldbURL URL pointing to location on eXist-db server.
+     * @param is Document input stream
+     * @throws ExistIOException When something is wrong.
+     */
+
+    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+        try {
+           streamDocument(xmldbURL, is); 
+        } catch (IOException ioex) {
+            throw ioex;
+        } catch (Exception ex) {
+            throw new ExistIOException(ex);
+        } finally {
+            is.close();
+        }
+    }
+
+    /**
+     * Write data from a <code>BlockingInputStream</code> to the specified
+     * XMLRPC url.
+     * 
+     * @param xmldbURL URL pointing to location on eXist-db server.
+     * @param bis Document stream
+     */
+    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
+        Exception exception = null; 
+        try {
+            streamDocument(xmldbURL, bis); 
+        } catch (Exception ex) {
+            exception = ex;
+        } finally {
+            bis.close(exception); // Pass the exception through the stream.
+        }
+    }    
 }

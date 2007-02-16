@@ -115,12 +115,22 @@ public class EmbeddedInputStream extends InputStream {
     
     public void close() throws IOException {
         
+        bis.close();
         if(rt.isExceptionThrown()) {
             throw new IOException(rt.getThrownException());
         }
-        bos.close(); // DWES which one?
-        bis.close();
         
+    }
+    
+    
+    /** NOTE (COFF) : This is an OutputStream method!? */
+    public void flush() throws IOException {
+        bos.flush();
+        
+        if(rt.isExceptionThrown())
+        {
+            throw new IOException(rt.getThrownException());
+        }
     }
     
     public int available() throws IOException {

@@ -91,5 +91,6 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             os.write(buf, 0, len);
         }
         os.flush();
+        os.close();
     }
 }

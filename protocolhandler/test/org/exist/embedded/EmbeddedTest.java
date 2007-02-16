@@ -143,7 +143,7 @@ public class EmbeddedTest extends TestCase {
         }
     }
     
-    public void bugtestGetStoredDocumentUsingEmbeddedInputStream() {
+    public void testGetStoredDocumentUsingEmbeddedInputStream() {
         System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
         BrokerPool pool = null;
         DBBroker broker = null;
@@ -186,7 +186,7 @@ public class EmbeddedTest extends TestCase {
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        
+        os.close();
         is.close();
     }
     

@@ -75,7 +75,7 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             copyDocument(is, baos);
             is.close();
             
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             fail(ex.toString());
             LOG.error(ex);
         }
@@ -91,6 +91,5 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             os.write(buf, 0, len);
         }
         os.flush();
-        os.close();
     }
 }

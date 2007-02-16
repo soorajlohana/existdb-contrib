@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -62,12 +61,12 @@ public class ConnectionTest extends TestCase {
      * Test of writing data to eXist server. Data will be reused by
      * subsequent tests.
      */
-    public void testPutDocumentToExistingCollection() throws Exception {
+    public void testPutDocumentToExistingCollection() {
         System.out.println("testPutDocumentToExistingCollection");
         try {
             URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/build.xml");
-
+            
             OutputStream os = url.openConnection().getOutputStream();
             FileInputStream is = new FileInputStream("build.xml");
             copyDocument(is, os);
@@ -80,6 +79,26 @@ public class ConnectionTest extends TestCase {
         }
     }
     
+    public void testPutDocumentToExistingNotExistingCollection() {
+        System.out.println("testPutDocumentToExistingNotExistingCollection");
+        try {
+            URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/foobar/build.xml");
+            
+            OutputStream os = url.openConnection().getOutputStream();
+            FileInputStream is = new FileInputStream("build.xml");
+            copyDocument(is, os);
+            is.close();
+            os.close();
+            
+        } catch (Exception ex) {
+            
+            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
+                fail(ex.getCause().getMessage());
+            }
+        }
+    }
+    
     /**
      * Test reading an existing document from eXist.
      */
@@ -88,15 +107,14 @@ public class ConnectionTest extends TestCase {
         try {
             ByteArrayOutputStream baos =  new ByteArrayOutputStream();
             URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
-
+                    +"/exist/xmlrpc/db/build.xml");
+            
             InputStream is = url.openStream();
             copyDocument(is, baos);
             is.close();
             
         } catch (Exception ex) {
             fail(ex.getMessage());
-            
         }
     }
     
@@ -108,49 +126,41 @@ public class ConnectionTest extends TestCase {
         try {
             ByteArrayOutputStream baos =  new ByteArrayOutputStream();
             URL url = new URL("xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/foobar/macbeth.xml");
-
+                    +"/exist/xmlrpc/db/foobar/build.xml");
+            
             InputStream is = url.openStream();
             copyDocument(is, baos);
             is.close();
             
             fail("Document should not exist");
             
-
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             if(!ex.getMessage().contains("Collection /db/foobar not found!")){
                 fail(ex.getMessage());
             }
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-
         }
     }
-
+    
     /**
      * Test reading an existing document from eXist as a non-existing user.
      */
-    public void testGetDocumentForNonExistingUser() {
-        System.out.println("testGetDocumentForNonExistingUser");
+    public void testGetDocumentNonExistingUser() {
+        System.out.println("testGetDocumentNonExistingUser");
         ByteArrayOutputStream baos =  new ByteArrayOutputStream();
         try {
             URL url = new URL("xmldb:exist://foo:bar@localhost:8080"
-                    +"/exist/xmlrpc/db/shakespeare/plays/macbeth.xml");
-
+                    +"/exist/xmlrpc/db/build.xml");
+            
             InputStream is = url.openStream();
             copyDocument(is, baos);
             is.close();
             
             fail("user should not exist");
             
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             if(!ex.getMessage().contains("User foo unknown")){
                 fail(ex.getMessage());
             }
-        }  catch (Exception ex) {
-            fail(ex.getMessage());
-            
         }
     }
     
@@ -161,6 +171,6 @@ public class ConnectionTest extends TestCase {
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        os.flush();        
+        os.flush();
     }
 }

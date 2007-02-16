@@ -23,14 +23,12 @@
 package org.exist.xmldb;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -45,15 +43,7 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
-            +"/db/build_streamhandler.xml";
-    
-    private static String XMLDB_URL_2=
-            "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
-            +"/db/system/build_streamhandler.xml";
-    
-    private static String XMLDB_URL_3=
-            "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
-            +"/db/foobar/build_streamhandler.xml";
+            +"/db/shakespeare/plays/macbeth.xml";
     
     private static boolean firstTime=true;
     
@@ -62,7 +52,6 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        // Nothing to do yet
     }
     
     protected void setUp() throws Exception {
@@ -74,30 +63,10 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     }
     
     /**
-     * Test of XmldbURLStreamHandlerFactory (testWrite).
+     * Test of XmldbURLStreamHandlerFactory.
      */
-    public void testWriteToURL() {
-        System.out.println("testWriteToURL");
-        
-        try {
-            InputStream is = new FileInputStream("build.xml");
-            URL url = new URL(XMLDB_URL_1);
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is, os);
-            is.close();
-            os.close();
-            
-        } catch (Exception ex) {
-            fail(ex.toString());
-            LOG.error(ex);
-        }
-    }
-    
-    /**
-     * Test of XmldbURLStreamHandlerFactory (testRead).
-     */
-    public void testReadFromURL() {
-        System.out.println("testRead");
+    public void testXMLDBURLStreamHandler() {
+        System.out.println("testXMLDBURLStreamHandler");
         
         ByteArrayOutputStream baos=new ByteArrayOutputStream();
         try {
@@ -106,93 +75,11 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             copyDocument(is, baos);
             is.close();
             
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             fail(ex.toString());
             LOG.error(ex);
         }
-    }
-    
-    /**
-     * Test of XmldbURLStreamHandlerFactory (testWrite).
-     */
-    public void testWriteToURL_PermissionDenied() {
-        System.out.println("testWriteToURL_PermissionDenied");
         
-        try {
-            InputStream is = new FileInputStream("build.xml");
-            URL url = new URL(XMLDB_URL_2);
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is, os);
-            is.close();
-            os.close();
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("User 'guest' not allowed to write to collection '/db/system'")){
-                fail(ex.getCause().getMessage());
-            }
-        }
-    }
-    
-    /**
-     * Test of XmldbURLStreamHandlerFactory (testRead).
-     */
-    public void testReadFromURL_PermissionDenied() {
-        System.out.println("testReadFromURL_PermissionDenied");
-        
-        ByteArrayOutputStream baos=new ByteArrayOutputStream();
-        try {
-            URL url = new URL(XMLDB_URL_2);
-            InputStream is = url.openStream();
-            copyDocument(is, baos);
-            is.close();
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Insufficient privileges to read resource")){
-                fail(ex.getCause().getMessage());
-            }
-        }
-    }
-    
-    
-    /**
-     * Test of XmldbURLStreamHandlerFactory (testWrite).
-     */
-    public void testWriteToURL_NotExisting() {
-        System.out.println("testWriteToURL_NotExisting");
-        
-        try {
-            InputStream is = new FileInputStream("build.xml");
-            URL url = new URL(XMLDB_URL_3);
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is, os);
-            is.close();
-            os.close();
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
-                fail(ex.getCause().getMessage());
-            }
-        }
-    }
-    
-    /**
-     * Test of XmldbURLStreamHandlerFactory (testRead).
-     */
-    public void testReadFromURL__NotExisting() {
-        System.out.println("testReadFromURL__NotExistings");
-        
-        ByteArrayOutputStream baos=new ByteArrayOutputStream();
-        try {
-            URL url = new URL(XMLDB_URL_3);
-            InputStream is = url.openStream();
-            copyDocument(is, baos);
-            is.close();
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
-                fail(ex.getCause().getMessage());
-            }
-        }
     }
     
     // Transfer bytes from inputstream to outputstream

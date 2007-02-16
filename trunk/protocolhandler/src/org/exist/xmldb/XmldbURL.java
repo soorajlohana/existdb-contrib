@@ -159,10 +159,14 @@ public class XmldbURL {
         
         if(serverPath.startsWith("/db")){
             if(serverPath.endsWith("/")){
-                collectionName=serverPath;
+                collectionName=serverPath.substring(0,serverPath.length()-1);
             } else {
                 int lastSep=serverPath.lastIndexOf('/'); // TODO extra checks
-                collectionName=serverPath.substring(0, lastSep);
+                if(lastSep==0){
+                   collectionName=null;
+                } else {
+                   collectionName=serverPath.substring(0, lastSep);
+                }
             }
         } else {
             if(serverPath.endsWith("/")){

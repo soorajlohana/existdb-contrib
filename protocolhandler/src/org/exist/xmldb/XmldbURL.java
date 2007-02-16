@@ -157,6 +157,10 @@ public class XmldbURL {
         String serverPath=myUrl.getFile();
         String collectionName=null;
         
+        // TODO seperate check /exist/xmlrpc or /.*/xmlrpc/, check this first
+        // then /db check can be removed
+        // TODO add seperate xmlrpc style URL tests
+        
         if(serverPath.startsWith("/db")){
             if(serverPath.endsWith("/")){
                 collectionName=serverPath.substring(0,serverPath.length()-1);

@@ -46,9 +46,12 @@ public class EmbeddedXmldbURLTest extends TestCase {
             "xmldb:exist:///db/shakespeare/plays/";
     
     private static String XMLDB_URL_3=
-            "xmldb:exist:///db/foobar.txt";
+            "xmldb:exist:///db/macbeth.xml";
     
     private static String XMLDB_URL_4=
+            "xmldb:exist:///db/";
+    
+    private static String XMLDB_URL_5=
             "xmldb:exist:///db";
     
     public EmbeddedXmldbURLTest(String testName) {
@@ -66,18 +69,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     protected void tearDown() throws Exception {
         //
     }
-    
-    public void testHostname() {
-        System.out.println("testHostname");
-        try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_1);
-            assertNull(xmldbUrl.getHost());
-            
-        } catch (MalformedURLException ex) {
-            fail(ex.getMessage());
-        }
-    }
-    
+       
     public void testURL1() {
         System.out.println("testURL1");
         try {
@@ -91,5 +83,56 @@ public class EmbeddedXmldbURLTest extends TestCase {
         }
     }
     
+    public void testURL2() {
+        System.out.println("testURL2");
+        try {
+            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_2);
+            assertNull(xmldbUrl.getHost());
+            assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
+            assertNull( xmldbUrl.getDocumentName() );
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+        }
+    }
+    
+    public void testURL3() {
+        System.out.println("testURL3");
+        try {
+            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_3);
+            assertNull(xmldbUrl.getHost());
+            assertEquals("/db", xmldbUrl.getCollection());
+            assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+        }
+    }
+    
+    public void testURL4() {
+        System.out.println("testURL4");
+        try {
+            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_4);
+            assertNull(xmldbUrl.getHost());
+            assertEquals("/db", xmldbUrl.getCollection());
+            assertNull(xmldbUrl.getDocumentName());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+        }
+    }
+    
+    public void testURL5() {
+        System.out.println("testURL5");
+        try {
+            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_5);
+            assertNull(xmldbUrl.getHost());
+            assertNull(xmldbUrl.getCollection());
+            assertEquals("db", xmldbUrl.getDocumentName());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+        }
+    }
     
 }

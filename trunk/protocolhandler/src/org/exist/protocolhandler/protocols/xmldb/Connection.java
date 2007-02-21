@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.protocols.xmldb;
+package org.exist.protocolhandler.protocols.xmldb;
 
 import java.io.IOException;
 import java.io.InputStream;

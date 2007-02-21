@@ -26,7 +26,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 
 import org.apache.log4j.Logger;
-import org.exist.protocols.xmldb.Handler;
+import org.exist.protocolhandler.protocols.xmldb.Handler;
 
 /**
  * Factory class for creating custom stream handlers for the 'xmldb' protocol.

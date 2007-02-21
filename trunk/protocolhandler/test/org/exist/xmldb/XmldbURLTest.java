@@ -96,7 +96,7 @@ public class XmldbURLTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstRun){
             PropertyConfigurator.configure("log4j.conf");
-            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocols" );
+            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocolhandler.protocols" );
             firstRun=false;
         }
     }
@@ -106,7 +106,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     /**
-     * Test of getUserInfo method, of class org.exist.protocols.util.XmldbURL.
+     * Test of getUserInfo method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetUserInfo() {
         System.out.println("testGetUserInfo");
@@ -119,7 +119,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     /**
-     * Test of getUsername method, of class org.exist.protocols.util.XmldbURL.
+     * Test of getUsername method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetUsername() {
         System.out.println("testGetUsername");
@@ -132,7 +132,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     /**
-     * Test of getPassword method, of class org.exist.protocols.util.XmldbURL.
+     * Test of getPassword method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetPassword() {
         System.out.println("testGetPassword");
@@ -145,7 +145,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     /**
-     * Test of getCollection method, of class org.exist.protocols.util.XmldbURL.
+     * Test of getCollection method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetCollection() {
         System.out.println("testGetCollection");
@@ -158,7 +158,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     /**
-     * Test of getDocumentName method, of class org.exist.protocols.util.XmldbURL.
+     * Test of getDocumentName method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetDocumentName() {
         System.out.println("testGetDocumentName");

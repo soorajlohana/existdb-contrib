@@ -48,7 +48,7 @@ public class ConnectionTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             PropertyConfigurator.configure("log4j.conf");
-            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocols" );
+            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocolhandler.protocols" );
             firstTime=false;
         }
     }

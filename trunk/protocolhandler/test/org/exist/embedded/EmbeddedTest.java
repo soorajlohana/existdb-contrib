@@ -34,9 +34,9 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.embedded.read.EmbeddedDownload;
-import org.exist.embedded.read.EmbeddedInputStream;
-import org.exist.embedded.write.EmbeddedUpload;
+import org.exist.protocolhandler.embedded.read.EmbeddedDownload;
+import org.exist.protocolhandler.embedded.read.EmbeddedInputStream;
+import org.exist.protocolhandler.embedded.write.EmbeddedUpload;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;

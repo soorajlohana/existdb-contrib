@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.xmlrpc.read;
+package org.exist.protocolhandler.embedded.read;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,24 +35,26 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *   Wrap XmlrpcDownload class into a thread for XmlrpcInputStream.
+ *  Wrap EmbeddedDownload class into a thread for EmbeddedInputStream.
  *
  * @author Dannes Wessels
  */
-public class XmlrpcDownloadThread extends Thread {
+public class EmbeddedDownloadThread extends Thread {
     
-    private final static Logger logger = Logger.getLogger(XmlrpcDownloadThread.class);
+    private final static Logger logger = Logger.getLogger(EmbeddedDownloadThread.class);
+    
     private XmldbURL xmldbURL;
     private OutputStream outputStream;
-    private Exception exception=null;
+    private Exception exception;
+    
     
     /**
-     *  Constructor of XmlrpcDownloadThread.
+     *  Constructor of EmbeddedDownloadThread.
      * 
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
      */
-    public XmlrpcDownloadThread(XmldbURL xmldbURL, OutputStream os) {
+    public EmbeddedDownloadThread(XmldbURL xmldbURL, OutputStream os) {
         this.xmldbURL=xmldbURL;
         this.outputStream=os;
     }
@@ -63,11 +65,13 @@ public class XmlrpcDownloadThread extends Thread {
     public void run() {
         logger.debug("Thread started." );
         try {
-            XmlrpcDownload xuc = new XmlrpcDownload();
-            xuc.stream(xmldbURL, outputStream);
+            EmbeddedDownload ed = new EmbeddedDownload();
+            ed.stream(xmldbURL, outputStream);
+            
         } catch (Exception ex) {
             logger.error(ex);
             exception=new Exception(ex.getMessage());
+            
         } finally {
             try { // NEEDED!
                 outputStream.close();
@@ -93,7 +97,7 @@ public class XmlrpcDownloadThread extends Thread {
      * @return Exception that is thrown during processing, NULL if not available.
      */
     public Exception getThrownException(){
-        return this.exception;
+        return exception;
     }
     
 }

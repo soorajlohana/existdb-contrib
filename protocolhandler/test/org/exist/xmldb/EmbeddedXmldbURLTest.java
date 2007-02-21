@@ -61,7 +61,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstRun){
             PropertyConfigurator.configure("log4j.conf");
-            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocols" );
+            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocolhandler.protocols" );
             firstRun=false;
         }
     }

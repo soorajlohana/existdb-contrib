@@ -24,7 +24,7 @@ package org.exist.xmlrpc.write;
 
 
 import org.apache.log4j.Logger;
-import org.exist.localcopied.BlockingInputStream;
+import org.exist.io.BlockingInputStream;
 import org.exist.xmldb.XmldbURL;
 
 /**

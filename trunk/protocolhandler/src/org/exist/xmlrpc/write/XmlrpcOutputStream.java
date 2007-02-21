@@ -27,7 +27,7 @@ import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
-import org.exist.localcopied.BlockingInputStream;
+import org.exist.io.BlockingInputStream;
 
 /**
  * Write document to remote database (using xmlrpc) using output stream.

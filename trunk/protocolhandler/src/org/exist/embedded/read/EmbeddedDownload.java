@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
-import org.exist.localcopied.ExistIOException;
+import org.exist.io.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;

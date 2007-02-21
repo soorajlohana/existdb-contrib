@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.embedded.write;
+package org.exist.protocolhandler.embedded.write;
 
 import java.io.File;
 import java.io.FileInputStream;

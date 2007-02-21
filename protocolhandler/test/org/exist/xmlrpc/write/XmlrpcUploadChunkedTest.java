@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.io.ExistIOException;
+import org.exist.protocolhandler.xmlrpc.write.XmlrpcUpload;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 

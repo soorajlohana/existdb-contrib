@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.exist.localcopied.ExistIOException;
+import org.exist.io.ExistIOException;
 
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;

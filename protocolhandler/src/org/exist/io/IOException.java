@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.localcopied;
+package org.exist.io;
 
 
 /**

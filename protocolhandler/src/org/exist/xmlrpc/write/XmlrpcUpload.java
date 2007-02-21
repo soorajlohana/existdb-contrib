@@ -29,8 +29,8 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.exist.localcopied.BlockingInputStream;
-import org.exist.localcopied.ExistIOException;
+import org.exist.io.BlockingInputStream;
+import org.exist.io.ExistIOException;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURL;

@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
-import org.exist.localcopied.BlockingInputStream;
+import org.exist.io.BlockingInputStream;
 
 /**
  * Read document from remote database (using xmlrpc) as a input stream.

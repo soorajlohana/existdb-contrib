@@ -50,8 +50,6 @@ import org.xml.sax.InputSource;
 /**
  *   Read a document from a (input)stream and write it into database.
  *
- *
- *
  * @author Dannes Wessels
  */
 public class EmbeddedUpload {
@@ -79,13 +77,11 @@ public class EmbeddedUpload {
     /**
      *  Read document from stream and write data to database.
      *
-     *
-     *
      * @param xmldbURL Location in database.
      * @param is  Stream containing document.
      * @throws IOException Thrown when something is wrong.
      */
-    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws IOException {
+    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws Exception {
         // DWES: no existIOException?
         File tmp =null;
         try{
@@ -102,6 +98,9 @@ public class EmbeddedUpload {
             fos.close();
             
             streamDocument(xmldbURL, tmp);
+        } catch(Exception ex){
+            throw ex;
+            
         } finally {
             if(tmp!=null){
                 tmp.delete();
@@ -115,7 +114,7 @@ public class EmbeddedUpload {
      * @param tmp Document that is inserted.
      * @throws org.exist.localcopied.ExistIOException Thrown when something is wrong.
      */
-    private void streamDocument(XmldbURL xmldbURL, File tmp) throws IOException {
+    private void streamDocument(XmldbURL xmldbURL, File tmp) throws Exception {
         LOG.debug("Begin document upload");
         
         DocumentImpl resource = null;
@@ -148,12 +147,12 @@ public class EmbeddedUpload {
             
             if(collection == null) {
                 transact.abort(txn);
-                throw new IOException("Resource "+collectionUri.toString()+" is not a collection.");
+                throw new ExistIOException("Resource "+collectionUri.toString()+" is not a collection.");
             }
             
             if(collection.hasChildCollection(documentUri)) {
                 transact.abort(txn);
-                throw new IOException("Resource "+documentUri.toString()+" is a collection.");
+                throw new ExistIOException("Resource "+documentUri.toString()+" is a collection.");
             }
             
             MimeType mime = MimeTable.getInstance().getContentTypeFor(documentUri);
@@ -190,8 +189,8 @@ public class EmbeddedUpload {
             
         } catch (Exception e) {
             transact.abort(txn);
-            LOG.debug(e);
-            throw new IOException(e.getMessage(), e);
+            LOG.debug(e); // NPE
+            throw e;
             
         } finally {
             LOG.debug("Done.");

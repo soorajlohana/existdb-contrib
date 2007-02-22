@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.read;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.OutputStream;
 import java.net.MalformedURLException;

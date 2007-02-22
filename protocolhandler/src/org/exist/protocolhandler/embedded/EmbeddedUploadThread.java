@@ -50,8 +50,8 @@ public class EmbeddedUploadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        EmbeddedUpload xuc = new EmbeddedUpload();
-        xuc.stream(xmldbURL, inputStream);
+        EmbeddedUpload uploader = new EmbeddedUpload();
+        uploader.stream(xmldbURL, inputStream);
         logger.debug("Thread stopped." );
     }
 }

@@ -100,9 +100,7 @@ public class EmbeddedTest extends TestCase {
             URL url = new URL("xmldb:exist:///db/build_testURLToDB.xml");
             InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
             OutputStream os = url.openConnection().getOutputStream();
-            
             copyDocument(is,os);
-            
             is.close();
             os.close();
             
@@ -124,6 +122,29 @@ public class EmbeddedTest extends TestCase {
             URL url = new URL("xmldb:exist:///db/build_testURLToDB.xml");
             InputStream is = url.openConnection().getInputStream();
             OutputStream os = new ByteArrayOutputStream();
+            copyDocument(is,os);
+            is.close();
+            os.close();
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        } finally {
+            pool.release(broker);
+        }
+    }
+    
+    // must fail
+    public void bugtestURLToDB_notExistingCollection() {
+        System.out.println("testURLToDB_notExistingCollection");
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        
+        try {
+            pool = startDB();
+            URL url = new URL("xmldb:exist:///db/foobar/testURLToDB_notExistingCollection.xml");
+            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            OutputStream os = url.openConnection().getOutputStream();
             copyDocument(is,os);
             is.close();
             os.close();

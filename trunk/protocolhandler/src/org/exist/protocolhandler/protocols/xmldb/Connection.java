@@ -30,10 +30,10 @@ import java.net.URLConnection;
 import java.net.UnknownServiceException;
 
 import org.apache.log4j.Logger;
-import org.exist.protocolhandler.embedded.read.EmbeddedInputStream;
+import org.exist.protocolhandler.embedded.EmbeddedInputStream;
 import org.exist.xmldb.XmldbURL;
-import org.exist.protocolhandler.xmlrpc.read.XmlrpcInputStream;
-import org.exist.protocolhandler.xmlrpc.write.XmlrpcOutputStream;
+import org.exist.protocolhandler.xmlrpc.XmlrpcInputStream;
+import org.exist.protocolhandler.xmlrpc.XmlrpcOutputStream;
 
 /**
  *  A URLConnection object manages the translation of a URL object into a

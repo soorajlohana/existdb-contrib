@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.write;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.IOException;
 import java.io.OutputStream;

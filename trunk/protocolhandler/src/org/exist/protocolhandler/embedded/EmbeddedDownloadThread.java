@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.embedded.read;
+package org.exist.protocolhandler.embedded;
 
 import java.io.IOException;
 import java.io.OutputStream;

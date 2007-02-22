@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.write;
+package org.exist.protocolhandler.xmlrpc;
 
 
 import org.apache.log4j.Logger;

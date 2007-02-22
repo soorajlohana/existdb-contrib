@@ -27,11 +27,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.apache.log4j.Logger;
+
 import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
 import org.exist.io.ExistIOException;
 import org.exist.security.SecurityManager;
+import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
@@ -40,7 +42,7 @@ import org.exist.xmldb.XmldbURI;
 import org.exist.xmldb.XmldbURL;
 
 /**
- *   Read document from an embedded database and write the data into an 
+ *   Read document from an embedded database and write the data into an
  * output stream.
  *
  * @author Dannes Wessels
@@ -49,10 +51,30 @@ public class EmbeddedDownload {
     
     private final static Logger LOG = Logger.getLogger(EmbeddedDownload.class);
     
+    private User authenticate(XmldbURL xmldbURL, BrokerPool pool){
+        
+        if(!xmldbURL.hasUserInfo()){
+            return null;
+        }
+        
+        SecurityManager secman = pool.getSecurityManager();
+        User user = secman.getUser(xmldbURL.getUsername());
+        if(user == null) {
+            return null;
+        }
+        if (!user.validate(xmldbURL.getPassword())) {
+            return null;
+        }
+        
+        return user;
+    }
+    
+    
+    
     /**
      *   Write document referred by URL to an (output)stream.
-     * 
-     * 
+     *
+     *
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
      * @throws ExistIOException
@@ -62,12 +84,18 @@ public class EmbeddedDownload {
         
         DocumentImpl resource = null;
         Collection collection = null;
-        BrokerPool pool =null;
-        DBBroker broker =null;
+        BrokerPool pool = null;
+        DBBroker broker = null;
         try {
             XmldbURI path = XmldbURI.create(xmldbURL.getPath());
             pool = BrokerPool.getInstance();
-            broker = pool.get(SecurityManager.SYSTEM_USER);
+            
+            User user=authenticate(xmldbURL, pool);
+            if(user==null){
+                broker = pool.get(pool.getSecurityManager().getUser(SecurityManager.GUEST_USER));
+            } else {
+                broker = pool.get(user);
+            }
             resource = broker.getXMLResource(path, Lock.READ_LOCK);
             
             if(resource == null) {

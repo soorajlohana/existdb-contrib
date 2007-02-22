@@ -54,6 +54,9 @@ public class EmbeddedXmldbURLTest extends TestCase {
     private static String XMLDB_URL_5=
             "xmldb:exist:///db";
     
+    private static String XMLDB_URL_6=
+            "xmldb:exist://foo:bar@/db/shakespeare/plays/macbeth.xml";
+    
     public EmbeddedXmldbURLTest(String testName) {
         super(testName);
     }
@@ -129,6 +132,24 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertNull(xmldbUrl.getHost());
             assertNull(xmldbUrl.getCollection());
             assertEquals("db", xmldbUrl.getDocumentName());
+            
+        } catch (MalformedURLException ex) {
+            fail(ex.getMessage());
+        }
+    }
+    
+    public void testURL6() {
+        System.out.println("testURL6");
+        try {
+            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_6);
+            assertNull(xmldbUrl.getHost());
+            assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
+            assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
+            
+            // new compared to URL_1
+            assertTrue( xmldbUrl.hasUserInfo() );
+            assertEquals("foo", xmldbUrl.getUsername());
+            assertEquals("bar", xmldbUrl.getPassword());
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());

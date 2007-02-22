@@ -27,10 +27,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownServiceException;
 
 import org.apache.log4j.Logger;
+
 import org.exist.protocolhandler.embedded.EmbeddedInputStream;
+import org.exist.protocolhandler.embedded.EmbeddedOutputStream;
 import org.exist.xmldb.XmldbURL;
 import org.exist.protocolhandler.xmlrpc.XmlrpcInputStream;
 import org.exist.protocolhandler.xmlrpc.XmlrpcOutputStream;
@@ -98,7 +99,7 @@ public class Connection extends URLConnection {
         XmldbURL xmldbURL = new XmldbURL(url);
         
         if(xmldbURL.isEmbedded()){
-            throw new UnknownServiceException("Not implemented yet: upload to embedded database.");
+            outputstream = new EmbeddedOutputStream( xmldbURL );
         } else {
             outputstream = new XmlrpcOutputStream( xmldbURL );
         }

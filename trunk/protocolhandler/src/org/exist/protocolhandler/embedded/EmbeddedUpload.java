@@ -32,6 +32,8 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
+import org.exist.io.BlockingInputStream;
+import org.exist.io.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
@@ -47,6 +49,8 @@ import org.xml.sax.InputSource;
 
 /**
  *   Read a document from a (input)stream and write it into database.
+ *
+ *
  *
  * @author Dannes Wessels
  */
@@ -75,11 +79,13 @@ public class EmbeddedUpload {
     /**
      *  Read document from stream and write data to database.
      *
+     *
+     *
      * @param xmldbURL Location in database.
      * @param is  Stream containing document.
      * @throws IOException Thrown when something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws IOException {
         // DWES: no existIOException?
         File tmp =null;
         try{
@@ -95,7 +101,7 @@ public class EmbeddedUpload {
             is.close();
             fos.close();
             
-            stream(xmldbURL, tmp);
+            streamDocument(xmldbURL, tmp);
         } finally {
             if(tmp!=null){
                 tmp.delete();
@@ -109,7 +115,7 @@ public class EmbeddedUpload {
      * @param tmp Document that is inserted.
      * @throws org.exist.localcopied.ExistIOException Thrown when something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
+    private void streamDocument(XmldbURL xmldbURL, File tmp) throws IOException {
         LOG.debug("Begin document upload");
         
         DocumentImpl resource = null;
@@ -195,6 +201,45 @@ public class EmbeddedUpload {
             
         }
         
+    }
+    
+    /**
+     * Write data from an input stream to the specified XMLRPC url.
+     *
+     *
+     * @param xmldbURL URL pointing to location on eXist-db server.
+     * @param is Document input stream
+     * @throws ExistIOException When something is wrong.
+     */
+    
+    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+        try {
+            streamDocument(xmldbURL, is);
+        } catch (IOException ioex) {
+            throw ioex;
+        } catch (Exception ex) {
+            throw new ExistIOException(ex.getMessage(), ex); //TODO
+        } finally {
+            is.close();
+        }
+    }
+    
+    /**
+     * Write data from a <code>BlockingInputStream</code> to the specified
+     * XMLRPC url.
+     *
+     * @param xmldbURL URL pointing to location on eXist-db server.
+     * @param bis Document stream
+     */
+    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
+        Exception exception = null;
+        try {
+            streamDocument(xmldbURL, bis);
+        } catch (Exception ex) {
+            exception = ex;
+        } finally {
+            bis.close(exception); // Pass the exception through the stream.
+        }
     }
     
 }

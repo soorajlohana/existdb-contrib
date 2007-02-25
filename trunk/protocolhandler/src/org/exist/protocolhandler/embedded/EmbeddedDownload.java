@@ -92,10 +92,10 @@ public class EmbeddedDownload {
             
             User user=authenticate(xmldbURL, pool);
             if(user==null){
-                broker = pool.get(pool.getSecurityManager().getUser(SecurityManager.GUEST_USER));
-            } else {
-                broker = pool.get(user);
-            }
+                user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+            } 
+            broker = pool.get(user);
+            
             resource = broker.getXMLResource(path, Lock.READ_LOCK);
             
             if(resource == null) {

@@ -119,7 +119,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-            //broker = pool.get(SecurityManager.SYSTEM_USER);
+
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testEmbeddedUploadToDB.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
@@ -138,18 +138,19 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         }
     }
     
-    public void testGetStoredDocumentUsingEmbeddedInputStream() {
-        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
+    public void testEmbeddedDownloadFromDB_NotExistingDocument() {
+        System.out.println("testEmbeddedDownloadFromDB_NotExistingDocument");
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         
         try {
             pool = startDB();
+
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/testEmbeddedDownloadFromDB_NotExistingDocument.xml");
             
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
-            
-            getDocument(xmldbURL,os);
+            EmbeddedDownload instance = new EmbeddedDownload();
+            instance.stream(xmldbURL, os);
             
             os.flush();
             os.close();
@@ -159,25 +160,24 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
-            
         } finally {
             pool.release(broker);
         }
     }
     
-    public void testGetStoredDocumentUsingEmbeddedInputStream_notexisting() {
-        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
+    public void testEmbeddedDownloadFromDB_NotExistingCollection() {
+        System.out.println("testEmbeddedDownloadFromDB_NotExistingCollection");
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         
         try {
             pool = startDB();
-            broker = pool.get(SecurityManager.SYSTEM_USER);
+
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/testEmbeddedDownloadFromDB_NotExistingCollection.xml");
             
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_foobar.xml");
-            
-            getDocument(xmldbURL,os);
+            EmbeddedDownload instance = new EmbeddedDownload();
+            instance.stream(xmldbURL, os);
             
             os.flush();
             os.close();
@@ -187,15 +187,70 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
-            
         } finally {
             pool.release(broker);
         }
     }
     
-    public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
-        //TODO : testWriteDocumentUsingEmbeddedOutputStream
-    }
+//    public void testGetStoredDocumentUsingEmbeddedInputStream() {
+//        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
+//        BrokerPool pool = null;
+//        DBBroker broker = null;
+//        ByteArrayOutputStream os = new ByteArrayOutputStream();
+//        
+//        try {
+//            pool = startDB();
+//            
+//            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
+//            
+//            getDocument(xmldbURL,os);
+//            
+//            os.flush();
+//            os.close();
+//            
+//            assertTrue( os.size()>0 );
+//            
+//        } catch (Exception ex) {
+//            fail(ex.getMessage());
+//            LOG.error(ex);
+//            
+//        } finally {
+//            pool.release(broker);
+//        }
+//    }
+    
+//    
+//    public void testGetStoredDocumentUsingEmbeddedInputStream_notexisting() {
+//        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
+//        BrokerPool pool = null;
+//        DBBroker broker = null;
+//        ByteArrayOutputStream os = new ByteArrayOutputStream();
+//        
+//        try {
+//            pool = startDB();
+//            broker = pool.get(SecurityManager.SYSTEM_USER);
+//            
+//            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_foobar.xml");
+//            
+//            getDocument(xmldbURL,os);
+//            
+//            os.flush();
+//            os.close();
+//            
+//            assertTrue( os.size()>0 );
+//            
+//        } catch (Exception ex) {
+//            fail(ex.getMessage());
+//            LOG.error(ex);
+//            
+//        } finally {
+//            pool.release(broker);
+//        }
+//    }
+//    
+//    public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
+//        //TODO : testWriteDocumentUsingEmbeddedOutputStream
+//    }
     
     public void testCleanUp(){
         try {
@@ -206,20 +261,20 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         }
     }
     
-    // Copy document from URL-inputstream to outputstream
-    private void getDocument(XmldbURL xmldbUrl, OutputStream os) throws IOException{
-        
-        EmbeddedInputStream is = new EmbeddedInputStream(xmldbUrl);
-        
-        // Transfer bytes from in to out
-        byte[] buf = new byte[4096];
-        int len;
-        while ((len = is.read(buf)) > 0) {
-            os.write(buf, 0, len);
-        }
-        os.close();
-        is.close();
-    }
+//    // Copy document from URL-inputstream to outputstream
+//    private void getDocument(XmldbURL xmldbUrl, OutputStream os) throws IOException{
+//        
+//        EmbeddedInputStream is = new EmbeddedInputStream(xmldbUrl);
+//        
+//        // Transfer bytes from in to out
+//        byte[] buf = new byte[4096];
+//        int len;
+//        while ((len = is.read(buf)) > 0) {
+//            os.write(buf, 0, len);
+//        }
+//        os.close();
+//        is.close();
+//    }
     
 //    // Copy document from inputstream to URL-outputstream
 //    private void putDocument(XmldbURL xmldbUrl, InputStream is) throws IOException{

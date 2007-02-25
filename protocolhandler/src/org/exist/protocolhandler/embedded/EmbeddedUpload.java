@@ -103,7 +103,7 @@ public class EmbeddedUpload {
             
             streamDocument(xmldbURL, tmp);
         } catch(Exception ex){
-            throw ex;
+            throw new ExistIOException(ex.getMessage(), ex);
             
         } finally {
             if(tmp!=null){
@@ -116,12 +116,11 @@ public class EmbeddedUpload {
      *  Read document and write data to database.
      * @param xmldbURL Location in database.
      * @param tmp Document that is inserted.
-     * @throws org.exist.localcopied.ExistIOException Thrown when something is wrong.
+     * @throws ExistIOException
      */
     private void streamDocument(XmldbURL xmldbURL, File tmp) throws Exception {
         LOG.debug("Begin document upload");
         
-//        DocumentImpl resource = null;
         Collection collection = null;
         BrokerPool pool =null;
         DBBroker broker =null;
@@ -138,7 +137,6 @@ public class EmbeddedUpload {
             if(xmldbURL.hasUserInfo()){
                 user=authenticate(xmldbURL, pool);
                 if(user==null){
-                    //user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
                     throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
                 } 
             } else {
@@ -198,11 +196,11 @@ public class EmbeddedUpload {
             LOG.debug("commit");
             transact.commit(txn);
             
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
             transact.abort(txn);
-            LOG.debug(e); // NPE
-            throw e;
+            LOG.debug(ex); // NPE
+            throw new ExistIOException(ex.getMessage(), ex);
             
         } finally {
             LOG.debug("Done.");

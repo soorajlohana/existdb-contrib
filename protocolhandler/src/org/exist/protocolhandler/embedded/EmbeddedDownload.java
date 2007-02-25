@@ -94,7 +94,6 @@ public class EmbeddedDownload {
             if(xmldbURL.hasUserInfo()){
                 user=authenticate(xmldbURL, pool);
                 if(user==null){
-                   //user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
                     throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
                 } 
             } else {
@@ -133,6 +132,7 @@ public class EmbeddedDownload {
                 }
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             LOG.error(ex);
             throw new ExistIOException(ex.getMessage(), ex);
             

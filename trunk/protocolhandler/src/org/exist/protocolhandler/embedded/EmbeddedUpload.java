@@ -136,10 +136,9 @@ public class EmbeddedUpload {
             
             User user=authenticate(xmldbURL, pool);
             if(user==null){
-                broker = pool.get(pool.getSecurityManager().getUser(SecurityManager.GUEST_USER));
-            } else {
-                broker = pool.get(user);
-            }
+                user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+            } 
+            broker = pool.get(user);
             
             LOG.debug("Effective user="+user.toString());
             

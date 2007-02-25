@@ -59,18 +59,22 @@ public class EmbeddedUpload {
     private User authenticate(XmldbURL xmldbURL, BrokerPool pool){
         
         if(!xmldbURL.hasUserInfo()){
+            LOG.debug("No UserInfo in URL.");
             return null;
         }
         
         SecurityManager secman = pool.getSecurityManager();
         User user = secman.getUser(xmldbURL.getUsername());
         if(user == null) {
+            LOG.debug("user is null.");
             return null;
         }
         if (!user.validate(xmldbURL.getPassword())) {
+            LOG.debug("no validated password.");
             return null;
         }
         
+        LOG.debug("Return user:"+user.toString());
         return user;
     }
     
@@ -117,7 +121,7 @@ public class EmbeddedUpload {
     private void streamDocument(XmldbURL xmldbURL, File tmp) throws Exception {
         LOG.debug("Begin document upload");
         
-        DocumentImpl resource = null;
+//        DocumentImpl resource = null;
         Collection collection = null;
         BrokerPool pool =null;
         DBBroker broker =null;
@@ -136,7 +140,7 @@ public class EmbeddedUpload {
             } else {
                 broker = pool.get(user);
             }
-            
+            System.out.println("aa");
             transact = pool.getTransactionManager();
             txn = transact.beginTransaction();
             
@@ -188,14 +192,16 @@ public class EmbeddedUpload {
             transact.commit(txn);
             
         } catch (Exception e) {
+            e.printStackTrace();
             transact.abort(txn);
             LOG.debug(e); // NPE
             throw e;
             
         } finally {
             LOG.debug("Done.");
-            if(collectionLocked && collection != null)
+            if(collectionLocked && collection != null){
                 collection.release(Lock.READ_LOCK);
+            }
             pool.release(broker);
             
         }

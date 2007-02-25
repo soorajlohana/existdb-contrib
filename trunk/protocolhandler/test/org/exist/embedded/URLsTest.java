@@ -103,7 +103,7 @@ public class URLsTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     
@@ -126,7 +126,7 @@ public class URLsTest extends TestCase {
             LOG.error(ex);
             
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     
@@ -151,7 +151,7 @@ public class URLsTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     

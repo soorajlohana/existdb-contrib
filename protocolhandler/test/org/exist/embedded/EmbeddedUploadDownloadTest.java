@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.exist.EXistException;
 import org.exist.protocolhandler.embedded.EmbeddedDownload;
 import org.exist.protocolhandler.embedded.EmbeddedInputStream;
 import org.exist.protocolhandler.embedded.EmbeddedUpload;
@@ -69,7 +70,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        BrokerPool.stop();
+//        BrokerPool.stop();
     }
     
     protected BrokerPool startDB() {
@@ -106,13 +107,10 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     
-    /**
-     * Test of stream method, of class org.exist.embedded.read.EmbeddedDownload.
-     */
     public void testEmbeddedDownloadFromDB() {
         System.out.println("testEmbeddedDownloadFromDB");
         BrokerPool pool = null;
@@ -136,7 +134,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     
@@ -164,7 +162,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             LOG.error(ex);
             
         } finally {
-//            pool.release(broker);
+            pool.release(broker);
         }
     }
     
@@ -172,9 +170,13 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         //TODO : testWriteDocumentUsingEmbeddedOutputStream
     }
     
-    
     public void testCleanUp(){
-         BrokerPool.stopAll(true);
+        try {
+             //BrokerPool.stopAll(true);
+            BrokerPool.stop();
+        } catch (EXistException ex) {
+            ex.printStackTrace();
+        }
     }
     
     // Copy document from URL-inputstream to outputstream
@@ -206,6 +208,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
 //
 //        os.close();
 //    }
+    
     // Transfer bytes from inputstream to outputstream
     private void copyDocument(InputStream is, OutputStream os) throws IOException{
         byte[] buf = new byte[4096];

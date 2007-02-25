@@ -90,10 +90,16 @@ public class EmbeddedDownload {
             XmldbURI path = XmldbURI.create(xmldbURL.getPath());
             pool = BrokerPool.getInstance();
             
-            User user=authenticate(xmldbURL, pool);
-            if(user==null){
+            User user=null;
+            if(xmldbURL.hasUserInfo()){
+                user=authenticate(xmldbURL, pool);
+                if(user==null){
+                   //user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+                    throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
+                } 
+            } else {
                 user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
-            } 
+            }
             broker = pool.get(user);
             
             resource = broker.getXMLResource(path, Lock.READ_LOCK);

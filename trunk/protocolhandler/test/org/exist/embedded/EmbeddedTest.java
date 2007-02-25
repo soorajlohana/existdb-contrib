@@ -161,7 +161,7 @@ public class EmbeddedTest extends TestCase {
     
     // must fail
     public void testURLFromDB_NotExistingUser() {
-        System.out.println("testURLFromDB");
+        System.out.println("testURLFromDB_NotExistingUser");
         BrokerPool pool = null;
         DBBroker broker = null;
         

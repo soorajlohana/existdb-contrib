@@ -34,14 +34,9 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.embedded.EmbeddedDownload;
-import org.exist.protocolhandler.embedded.EmbeddedInputStream;
-import org.exist.protocolhandler.embedded.EmbeddedUpload;
-import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.util.Configuration;
-import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
@@ -50,13 +45,13 @@ import org.xmldb.api.base.Database;
  *
  * @author Dannes Wessels
  */
-public class EmbeddedTest extends TestCase {
+public class URLsTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(EmbeddedTest.class);
+    private static Logger LOG = Logger.getLogger(URLsTest.class);
     
     private static boolean firstTime=true;
     
-    public EmbeddedTest(String testName) {
+    public URLsTest(String testName) {
         super(testName);
     }
     
@@ -69,7 +64,7 @@ public class EmbeddedTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        BrokerPool.stopAll(false);
+        BrokerPool.stop();
     }
     
     protected BrokerPool startDB() {
@@ -108,7 +103,7 @@ public class EmbeddedTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-            pool.release(broker);
+//            pool.release(broker);
         }
     }
     
@@ -129,8 +124,9 @@ public class EmbeddedTest extends TestCase {
         } catch (Exception ex) {
             fail(ex.getMessage());
             LOG.error(ex);
+            
         } finally {
-            pool.release(broker);
+//            pool.release(broker);
         }
     }
     
@@ -155,7 +151,7 @@ public class EmbeddedTest extends TestCase {
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
-            pool.release(broker);
+//            pool.release(broker);
         }
     }
     
@@ -184,118 +180,6 @@ public class EmbeddedTest extends TestCase {
         }
     }
     
-    public void testStreamDocumentToDB() {
-        System.out.println("testStreamDocumentToDB");
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
-        try {
-            pool = startDB();
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testStreamDocumentToDB.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
-            EmbeddedUpload instance = new EmbeddedUpload();
-            instance.stream(xmldbURL, is);
-            is.close();
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-        } finally {
-            pool.release(broker);
-        }
-    }
-    
-    /**
-     * Test of stream method, of class org.exist.embedded.read.EmbeddedDownload.
-     */
-    public void testStreamDocumentFromDB() {
-        System.out.println("testStreamDocumentFromDB");
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
-        try {
-            pool = startDB();
-            //broker = pool.get(SecurityManager.SYSTEM_USER);
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testStreamDocumentToDB.xml");
-            
-            EmbeddedDownload instance = new EmbeddedDownload();
-            instance.stream(xmldbURL, os);
-            
-            os.flush();
-            os.close();
-            
-            assertTrue( os.size()>0 );
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-        } finally {
-            pool.release(broker);
-        }
-    }
-    
-    public void testGetStoredDocumentUsingEmbeddedInputStream() {
-        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
-        try {
-            pool = startDB();
-            broker = pool.get(SecurityManager.SYSTEM_USER);
-            
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
-            
-            getDocument(xmldbURL,os);
-            
-            os.flush();
-            os.close();
-            
-            assertTrue( os.size()>0 );
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-            
-        } finally {
-            pool.release(broker);
-        }
-    }
-    
-    public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
-        //TODO : testWriteDocumentUsingEmbeddedOutputStream
-    }
-    
-    // Copy document from URL-inputstream to outputstream
-    private void getDocument(XmldbURL xmldbUrl, OutputStream os) throws IOException{
-        
-        EmbeddedInputStream is = new EmbeddedInputStream(xmldbUrl);
-        
-        // Transfer bytes from in to out
-        byte[] buf = new byte[4096];
-        int len;
-        while ((len = is.read(buf)) > 0) {
-            os.write(buf, 0, len);
-        }
-        os.close();
-        is.close();
-    }
-    
-//    // Copy document from inputstream to URL-outputstream
-//    private void putDocument(XmldbURL xmldbUrl, InputStream is) throws IOException{
-//
-//        EmbeddedOutputStream os = new EmbeddedOutputStream(xmldbUrl);
-//
-//        // Transfer bytes from in to out
-//        byte[] buf = new byte[4096];
-//        int len;
-//        while ((len = is.read(buf)) > 0) {
-//            os.write(buf, 0, len);
-//        }
-//
-//        os.close();
-//    }
     // Transfer bytes from inputstream to outputstream
     private void copyDocument(InputStream is, OutputStream os) throws IOException{
         byte[] buf = new byte[4096];

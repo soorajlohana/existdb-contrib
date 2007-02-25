@@ -163,7 +163,7 @@ public class URLsTest extends TestCase {
         
         try {
             pool = startDB();
-            URL url = new URL("xmldb:exist://foo:bar@/db/build_testURLToDB.xml");
+            URL url = new URL("xmldb:exist://foo:bar@/db/testURLFromDB_NotExistingUser.xml");
             InputStream is = url.openConnection().getInputStream();
             OutputStream os = new ByteArrayOutputStream();
             copyDocument(is,os);

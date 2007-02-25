@@ -146,9 +146,36 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-            broker = pool.get(SecurityManager.SYSTEM_USER);
             
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build.xml");
+            
+            getDocument(xmldbURL,os);
+            
+            os.flush();
+            os.close();
+            
+            assertTrue( os.size()>0 );
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+            
+        } finally {
+            pool.release(broker);
+        }
+    }
+    
+    public void testGetStoredDocumentUsingEmbeddedInputStream_notexisting() {
+        System.out.println("testGetStoredDocumentUsingEmbeddedInputStream");
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        
+        try {
+            pool = startDB();
+            broker = pool.get(SecurityManager.SYSTEM_USER);
+            
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_foobar.xml");
             
             getDocument(xmldbURL,os);
             

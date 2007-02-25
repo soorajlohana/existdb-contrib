@@ -140,7 +140,9 @@ public class EmbeddedUpload {
             } else {
                 broker = pool.get(user);
             }
-            System.out.println("aa");
+            
+            LOG.debug("Effective user="+user.toString());
+            
             transact = pool.getTransactionManager();
             txn = transact.beginTransaction();
             
@@ -166,7 +168,6 @@ public class EmbeddedUpload {
             } else {
                 mime = MimeType.BINARY_TYPE;
             }
-            LOG.debug(mime.toString());
             
             DocumentImpl doc = null;
             if(mime.isXMLType()) {

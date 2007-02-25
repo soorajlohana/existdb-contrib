@@ -135,7 +135,7 @@ public class EmbeddedTest extends TestCase {
     }
     
     // must fail
-    public void bugtestURLToDB_notExistingCollection() {
+    public void testURLToDB_notExistingCollection() {
         System.out.println("testURLToDB_notExistingCollection");
         BrokerPool pool = null;
         DBBroker broker = null;
@@ -148,6 +148,33 @@ public class EmbeddedTest extends TestCase {
             copyDocument(is,os);
             is.close();
             os.close();
+            
+            fail("Execption expected");
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        } finally {
+            pool.release(broker);
+        }
+    }
+    
+    // must fail
+    public void testURLFromDB_NotExistingUser() {
+        System.out.println("testURLFromDB");
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        
+        try {
+            pool = startDB();
+            URL url = new URL("xmldb:exist://foo:bar@/db/build_testURLToDB.xml");
+            InputStream is = url.openConnection().getInputStream();
+            OutputStream os = new ByteArrayOutputStream();
+            copyDocument(is,os);
+            is.close();
+            os.close();
+            
+            fail("Exception expected");
             
         } catch (Exception ex) {
             fail(ex.getMessage());
@@ -236,9 +263,9 @@ public class EmbeddedTest extends TestCase {
         }
     }
     
-     public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
-         //TODO : testWriteDocumentUsingEmbeddedOutputStream
-     }
+    public void bugtestWriteDocumentUsingEmbeddedOutputStream() {
+        //TODO : testWriteDocumentUsingEmbeddedOutputStream
+    }
     
     // Copy document from URL-inputstream to outputstream
     private void getDocument(XmldbURL xmldbUrl, OutputStream os) throws IOException{
@@ -257,16 +284,16 @@ public class EmbeddedTest extends TestCase {
     
 //    // Copy document from inputstream to URL-outputstream
 //    private void putDocument(XmldbURL xmldbUrl, InputStream is) throws IOException{
-//        
+//
 //        EmbeddedOutputStream os = new EmbeddedOutputStream(xmldbUrl);
-//        
+//
 //        // Transfer bytes from in to out
 //        byte[] buf = new byte[4096];
 //        int len;
 //        while ((len = is.read(buf)) > 0) {
 //            os.write(buf, 0, len);
 //        }
-//        
+//
 //        os.close();
 //    }
     // Transfer bytes from inputstream to outputstream

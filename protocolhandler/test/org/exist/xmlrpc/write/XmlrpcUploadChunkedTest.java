@@ -112,7 +112,6 @@ public class XmlrpcUploadChunkedTest extends TestCase {
             fail(ex.getMessage());
             
         } catch (ExistIOException ex) {
-            
             if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
                 fail(ex.getMessage());
             }

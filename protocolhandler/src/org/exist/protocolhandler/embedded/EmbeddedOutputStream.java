@@ -45,7 +45,6 @@ public class EmbeddedOutputStream  extends OutputStream {
     /**
      *  Constructor of EmbeddedOutputStream. 
      * 
-     * 
      * @param xmldbURL Location of document in database.
      * @throws MalformedURLException Thrown for illegalillegal URLs.
      */

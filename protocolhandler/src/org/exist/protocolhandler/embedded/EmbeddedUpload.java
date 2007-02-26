@@ -199,7 +199,7 @@ public class EmbeddedUpload {
         } catch (Exception ex) {
             ex.printStackTrace();
             transact.abort(txn);
-            LOG.debug(ex); // NPE
+//            LOG.debug(ex); // NPE
             throw new ExistIOException(ex.getMessage(), ex);
             
         } finally {

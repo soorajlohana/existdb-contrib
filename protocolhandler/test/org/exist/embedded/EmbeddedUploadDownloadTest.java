@@ -53,7 +53,7 @@ import org.xmldb.api.base.Database;
  */
 public class EmbeddedUploadDownloadTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(URLsTest.class);
+    private static Logger LOG = Logger.getLogger(EmbeddedURLsTest.class);
     
     private static boolean firstTime=true;
     

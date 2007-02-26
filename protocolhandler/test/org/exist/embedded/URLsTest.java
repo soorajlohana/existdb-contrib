@@ -89,8 +89,6 @@ public class URLsTest extends TestCase {
         
         boolean retVal=false;
         
-//        DBBroker broker = null;
-        
         try {
             pool = startDB();
             URL url = new URL(URL);
@@ -179,7 +177,7 @@ public class URLsTest extends TestCase {
         try {
             boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
-            assertFalse(retVal);
+//            assertFalse(retVal);
             fail("Execption expected");
 
         } catch (Exception ex) {
@@ -237,6 +235,5 @@ public class URLsTest extends TestCase {
             }
         }
     }
-    
     
 }

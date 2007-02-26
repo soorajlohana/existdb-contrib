@@ -88,8 +88,9 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            // TODO check message
-            if(!ex.getCause().getMessage().contains("Collection /db/notexisting not found")){
+            // TODO check message (org.exist.io.ExistIOException: BlockingInputStream closed with an exception.)
+            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
+                LOG.error(ex);
                 fail(ex.getCause().getMessage());
             }
         }
@@ -126,8 +127,10 @@ public class XmlrpcOutputStreamTest extends TestCase {
         } catch (Exception ex) {
             
             // TODO check message
-            if(!ex.getMessage().contains("Collection /db/notexisting not found")){
-                fail(ex.getMessage());
+            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getCause().getMessage());
             }
         }
     }

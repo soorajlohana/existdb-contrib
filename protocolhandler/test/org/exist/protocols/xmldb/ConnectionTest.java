@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
@@ -38,6 +39,8 @@ import org.apache.log4j.PropertyConfigurator;
  * @author Dannes Wessels
  */
 public class ConnectionTest extends TestCase {
+    
+     private static Logger LOG = Logger.getLogger(ConnectionTest.class);
     
     private static boolean firstTime=true;
     
@@ -114,6 +117,8 @@ public class ConnectionTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
+            LOG.error(ex);
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }

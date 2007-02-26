@@ -44,15 +44,15 @@ import org.xmldb.api.base.Database;
  *
  * @author Dannes Wessels
  */
-public class URLsTest extends TestCase {
+public class EmbeddedURLsTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(URLsTest.class);
+    private static Logger LOG = Logger.getLogger(EmbeddedURLsTest.class);
     
     private static BrokerPool pool;
     
     private static boolean firstTime=true;
     
-    public URLsTest(String testName) {
+    public EmbeddedURLsTest(String testName) {
         super(testName);
     }
     

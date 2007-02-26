@@ -118,8 +118,10 @@ public class URLsTest extends TestCase {
             InputStream is = url.openConnection().getInputStream();
             copyDocument(is,os);
             
-            os.close();
             is.close();
+            os.flush();
+            os.close();
+            
             retVal=true; // no problems!
             
         } catch (Exception ex) {
@@ -157,7 +159,7 @@ public class URLsTest extends TestCase {
             LOG.error(ex);
         }
     }
-
+    
     public void testURLFromDB() {
         System.out.println("testURLFromDB");
         
@@ -167,11 +169,12 @@ public class URLsTest extends TestCase {
             os.flush();
             os.close();
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
             LOG.error(ex);
         }
     }
-
+    
     public void testURLToDB_notExistingCollection() {
         System.out.println("testURLToDB_notExistingCollection");
         try {
@@ -179,13 +182,13 @@ public class URLsTest extends TestCase {
                     "build.xml");
 //            assertFalse(retVal);
             fail("Execption expected");
-
+            
         } catch (Exception ex) {
             fail("Need to change this text"+ex.getMessage());
             LOG.error(ex);
         }
     }
-
+    
     public void testURLFromDB_notExistingCollection() {
         System.out.println("testURLFromDB_notExistingCollection");
         try {
@@ -200,22 +203,21 @@ public class URLsTest extends TestCase {
             }
         }
     }
-
+    
     public void testURLToDB_NotExistingUser() {
         System.out.println("testURLToDB_NotExistingUser");
         try {
-            boolean retVal = sendToURL("xmldb:exist:///db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist:///db/testURLToDB_NotExistingUser.xml",
                     "build.xml");
             
-            fail("Execption expected");
-            assertFalse(retVal);
-
+            fail("Not existing user: Exception expected");
+            
         } catch (Exception ex) {
             fail("Need to change this text"+ex.getMessage());
             LOG.error(ex);
         }
     }
-
+    
     public void testURLFromDB_NotExistingUser() {
         System.out.println("testURLFromDB_NotExistingUser");
         
@@ -226,7 +228,7 @@ public class URLsTest extends TestCase {
             os.flush();
             os.close();
             
-            fail("Exception expected");
+            fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("Unauthorized user")){

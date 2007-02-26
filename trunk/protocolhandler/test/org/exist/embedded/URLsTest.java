@@ -64,7 +64,7 @@ public class URLsTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        BrokerPool.stop();
+        BrokerPool.stopAll(false);
     }
     
     protected BrokerPool startDB() {

@@ -1,26 +1,11 @@
 /*
- *  eXist Open Source Native XML Database
- *  Copyright (C) 2001-07 The eXist Project
- *  http://exist-db.org
+ * XmlrpcURLsTest.java
+ * JUnit based test
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * $Id$
+ * Created on February 26, 2007, 9:20 PM
  */
 
-package org.exist.embedded;
+package org.exist.xmlrpc;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,25 +19,19 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.storage.BrokerPool;
-import org.exist.util.Configuration;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
-import org.xmldb.api.DatabaseManager;
-import org.xmldb.api.base.Database;
 
 /**
  *
- * @author Dannes Wessels
+ * @author wessels
  */
-public class URLsTest extends TestCase {
+public class XmlrpcURLsTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(URLsTest.class);
-    
-    private static BrokerPool pool;
-    
+    private static Logger LOG = Logger.getLogger(XmlrpcURLsTest.class);
     private static boolean firstTime=true;
     
-    public URLsTest(String testName) {
+    
+    public XmlrpcURLsTest(String testName) {
         super(testName);
     }
     
@@ -65,24 +44,6 @@ public class URLsTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-        BrokerPool.stopAll(false);
-    }
-    
-    protected BrokerPool startDB() {
-        try {
-            Configuration config = new Configuration();
-            BrokerPool.configure(1, 5, config);
-            
-            // initialize driver
-            Database database = (Database) Class.forName("org.exist.xmldb.DatabaseImpl").newInstance();
-            database.setProperty("create-database", "true");
-            DatabaseManager.registerDatabase(database);
-            
-            return BrokerPool.getInstance();
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-        return null;
     }
     
     private boolean sendToURL(String URL, String file) throws Exception {
@@ -90,7 +51,6 @@ public class URLsTest extends TestCase {
         boolean retVal=false;
         
         try {
-            pool = startDB();
             URL url = new URL(URL);
             InputStream is = new BufferedInputStream( new FileInputStream(file) );
             OutputStream os = url.openConnection().getOutputStream();
@@ -113,7 +73,6 @@ public class URLsTest extends TestCase {
         boolean retVal=false;
         
         try {
-            pool = startDB();
             URL url = new URL(URL);
             InputStream is = url.openConnection().getInputStream();
             copyDocument(is,os);
@@ -142,14 +101,14 @@ public class URLsTest extends TestCase {
         os.flush();
     }
     
-    // ======================================================================
+    // =====================================
     
     public void testURLToDB() {
         System.out.println("testURLToDB");
         
         try {
             boolean retVal = sendToURL(
-                    "xmldb:exist:///db/build_testURLToDB.xml",
+                    "xmldb:exist://localhost:8080/db/build_testURLToDB.xml",
                     "build.xml" );
             
             assertTrue(retVal);
@@ -165,7 +124,7 @@ public class URLsTest extends TestCase {
         
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist:///db/build_testURLToDB.xml", os);
+            getFromURL("xmldb:exist://localhost:8080/db/build_testURLToDB.xml", os);
             os.flush();
             os.close();
         } catch (Exception ex) {
@@ -178,10 +137,10 @@ public class URLsTest extends TestCase {
     public void testURLToDB_notExistingCollection() {
         System.out.println("testURLToDB_notExistingCollection");
         try {
-            boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
+            boolean retVal = sendToURL("xmldb:exist://localhost:8080/db/foo/bar.xml",
                     "build.xml");
 
-            fail("Execption expected");
+            fail("Not existing collection: Execption expected");
             
         } catch (Exception ex) {
             fail("Need to change this text"+ex.getMessage());
@@ -193,11 +152,11 @@ public class URLsTest extends TestCase {
         System.out.println("testURLFromDB_notExistingCollection");
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist:///db/foo.bar", os);
+            getFromURL("xmldb:exist://localhost:8080/db/foo.bar", os);
             os.flush();
             os.close();
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches("Resource .* not found.")){
+            if(!ex.getMessage().matches("Resource .* not found.")){
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -207,7 +166,7 @@ public class URLsTest extends TestCase {
     public void testURLToDB_NotExistingUser() {
         System.out.println("testURLToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist:///db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist://localhost:8080/db/testURLToDB_NotExistingUser.xml",
                     "build.xml");
             
             fail("Not existing user: Exception expected");
@@ -223,7 +182,7 @@ public class URLsTest extends TestCase {
         
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://foo:bar@/db/testURLFromDB_NotExistingUser.xml", os);
+            getFromURL("xmldb:exist://foo:bar@localhost:8080/db/testURLFromDB_NotExistingUser.xml", os);
             
             os.flush();
             os.close();
@@ -231,11 +190,12 @@ public class URLsTest extends TestCase {
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Unauthorized user")){
+            if(!ex.getCause().getMessage().matches(".*User .* unknown.*")){
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
         }
     }
+
     
 }

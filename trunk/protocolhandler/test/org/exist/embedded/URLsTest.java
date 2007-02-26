@@ -35,7 +35,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.storage.BrokerPool;
-import org.exist.storage.DBBroker;
 import org.exist.util.Configuration;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
@@ -48,6 +47,8 @@ import org.xmldb.api.base.Database;
 public class URLsTest extends TestCase {
     
     private static Logger LOG = Logger.getLogger(URLsTest.class);
+    
+    private static BrokerPool pool;
     
     private static boolean firstTime=true;
     
@@ -84,100 +85,51 @@ public class URLsTest extends TestCase {
         return null;
     }
     
-    // Actual tests
-    public void testURLToDB() {
-        System.out.println("testURLToDB");
-        BrokerPool pool = null;
-        DBBroker broker = null;
+    private boolean sendToURL(String URL, String file) throws Exception {
+        
+        boolean retVal=false;
+        
+//        DBBroker broker = null;
         
         try {
             pool = startDB();
-            URL url = new URL("xmldb:exist:///db/build_testURLToDB.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            URL url = new URL(URL);
+            InputStream is = new BufferedInputStream( new FileInputStream(file) );
             OutputStream os = url.openConnection().getOutputStream();
             copyDocument(is,os);
             is.close();
+            os.flush();
             os.close();
             
+            retVal=true; // no problems!
+            
         } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-        } finally {
-            pool.release(broker);
+            throw ex;
         }
+        
+        return retVal;
     }
     
-    public void testURLFromDB() {
-        System.out.println("testURLFromDB");
-        BrokerPool pool = null;
-        DBBroker broker = null;
+    private boolean getFromURL(String URL, OutputStream os) throws Exception {
+        
+        boolean retVal=false;
         
         try {
             pool = startDB();
-            URL url = new URL("xmldb:exist:///db/build_testURLToDB.xml");
+            URL url = new URL(URL);
             InputStream is = url.openConnection().getInputStream();
-            OutputStream os = new ByteArrayOutputStream();
             copyDocument(is,os);
-            is.close();
+            
             os.close();
+            is.close();
+            retVal=true; // no problems!
             
         } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
+            throw ex;
             
-        } finally {
-            pool.release(broker);
         }
-    }
-    
-    // must fail
-    public void testURLToDB_notExistingCollection() {
-        System.out.println("testURLToDB_notExistingCollection");
-        BrokerPool pool = null;
-        DBBroker broker = null;
         
-        try {
-            pool = startDB();
-            URL url = new URL("xmldb:exist:///db/foobar/testURLToDB_notExistingCollection.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is,os);
-            is.close();
-            os.close();
-            
-            fail("Execption expected");
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-        } finally {
-            pool.release(broker);
-        }
-    }
-    
-    // must fail
-    public void testURLFromDB_NotExistingUser() {
-        System.out.println("testURLFromDB_NotExistingUser");
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
-        try {
-            pool = startDB();
-            URL url = new URL("xmldb:exist://foo:bar@/db/testURLFromDB_NotExistingUser.xml");
-            InputStream is = url.openConnection().getInputStream();
-            OutputStream os = new ByteArrayOutputStream();
-            copyDocument(is,os);
-            is.close();
-            os.close();
-            
-            fail("Exception expected");
-            
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-            LOG.error(ex);
-        } finally {
-            pool.release(broker);
-        }
+        return retVal;
     }
     
     // Transfer bytes from inputstream to outputstream
@@ -189,4 +141,102 @@ public class URLsTest extends TestCase {
         }
         os.flush();
     }
+    
+    // ======================================================================
+    
+    public void testURLToDB() {
+        System.out.println("testURLToDB");
+        
+        try {
+            boolean retVal = sendToURL(
+                    "xmldb:exist:///db/build_testURLToDB.xml",
+                    "build.xml" );
+            
+            assertTrue(retVal);
+            
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        }
+    }
+
+    public void testURLFromDB() {
+        System.out.println("testURLFromDB");
+        
+        try {
+            OutputStream os = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist:///db/build_testURLToDB.xml", os);
+            os.flush();
+            os.close();
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+            LOG.error(ex);
+        }
+    }
+
+    public void testURLToDB_notExistingCollection() {
+        System.out.println("testURLToDB_notExistingCollection");
+        try {
+            boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
+                    "build.xml");
+            assertFalse(retVal);
+            fail("Execption expected");
+
+        } catch (Exception ex) {
+            fail("Need to change this text"+ex.getMessage());
+            LOG.error(ex);
+        }
+    }
+
+    public void testURLFromDB_notExistingCollection() {
+        System.out.println("testURLFromDB_notExistingCollection");
+        try {
+            OutputStream os = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist:///db/foo.bar", os);
+            os.flush();
+            os.close();
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches("Resource .* not found.")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
+        }
+    }
+
+    public void testURLToDB_NotExistingUser() {
+        System.out.println("testURLToDB_NotExistingUser");
+        try {
+            boolean retVal = sendToURL("xmldb:exist:///db/testURLToDB_NotExistingUser.xml",
+                    "build.xml");
+            
+            fail("Execption expected");
+            assertFalse(retVal);
+
+        } catch (Exception ex) {
+            fail("Need to change this text"+ex.getMessage());
+            LOG.error(ex);
+        }
+    }
+
+    public void testURLFromDB_NotExistingUser() {
+        System.out.println("testURLFromDB_NotExistingUser");
+        
+        try {
+            OutputStream os = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist://foo:bar@/db/testURLFromDB_NotExistingUser.xml", os);
+            
+            os.flush();
+            os.close();
+            
+            fail("Exception expected");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().contains("Unauthorized user")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
+        }
+    }
+    
+    
 }

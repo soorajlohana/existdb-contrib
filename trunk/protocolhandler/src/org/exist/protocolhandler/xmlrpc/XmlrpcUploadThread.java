@@ -50,8 +50,8 @@ public class XmlrpcUploadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        XmlrpcUpload xuc = new XmlrpcUpload();
-        xuc.stream(xmldbURL, inputStream);
+        XmlrpcUpload uploader = new XmlrpcUpload();
+        uploader.stream(xmldbURL, inputStream);
         logger.debug("Thread stopped." );
     }
 }

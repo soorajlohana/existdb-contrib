@@ -80,9 +80,9 @@ public class Connection extends URLConnection {
         XmldbURL xmldbURL = new XmldbURL(url);
         
         if(xmldbURL.isEmbedded()){
-            inputstream = new EmbeddedInputStream( new XmldbURL(url) );
+            inputstream = new EmbeddedInputStream( xmldbURL );
         } else {
-            inputstream = new XmlrpcInputStream( new XmldbURL(url) );
+            inputstream = new XmlrpcInputStream( xmldbURL );
         }
         
         return inputstream;

@@ -102,6 +102,7 @@ public class EmbeddedURLsTest extends TestCase {
             retVal=true; // no problems!
             
         } catch (Exception ex) {
+            LOG.error(ex);
             throw ex;
         }
         
@@ -125,8 +126,8 @@ public class EmbeddedURLsTest extends TestCase {
             retVal=true; // no problems!
             
         } catch (Exception ex) {
+            LOG.error(ex);
             throw ex;
-            
         }
         
         return retVal;
@@ -144,12 +145,12 @@ public class EmbeddedURLsTest extends TestCase {
     
     // ======================================================================
     
-    public void testURLToDB() {
-        System.out.println("testURLToDB");
+    public void testToDB() {
+        System.out.println("testToDB");
         
         try {
             boolean retVal = sendToURL(
-                    "xmldb:exist:///db/build_testURLToDB.xml",
+                    "xmldb:exist:///db/build_testToDB.xml",
                     "build.xml" );
             
             assertTrue(retVal);
@@ -160,12 +161,12 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
-    public void testURLFromDB() {
-        System.out.println("testURLFromDB");
+    public void testFromDB() {
+        System.out.println("testFromDB");
         
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist:///db/build_testURLToDB.xml", os);
+            getFromURL("xmldb:exist:///db/build_testToDB.xml", os);
             os.flush();
             os.close();
         } catch (Exception ex) {
@@ -175,12 +176,12 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
-    public void testURLToDB_notExistingCollection() {
-        System.out.println("testURLToDB_notExistingCollection");
+    public void testToDB_NotExistingCollection() {
+        System.out.println("testToDB_NotExistingCollection");
         try {
             boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
-
+            
             fail("Execption expected");
             
         } catch (Exception ex) {
@@ -189,8 +190,8 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
-    public void testURLFromDB_notExistingCollection() {
-        System.out.println("testURLFromDB_notExistingCollection");
+    public void testFromDB_NotExistingCollection() {
+        System.out.println("testFromDB_NotExistingCollection");
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/foo.bar", os);
@@ -204,10 +205,10 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
-    public void testURLToDB_NotExistingUser() {
-        System.out.println("testURLToDB_NotExistingUser");
+    public void testToDB_NotExistingUser() {
+        System.out.println("testToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist:///db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist:///db/testToDB_NotExistingUser.xml",
                     "build.xml");
             
             fail("Not existing user: Exception expected");
@@ -218,12 +219,12 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
-    public void testURLFromDB_NotExistingUser() {
-        System.out.println("testURLFromDB_NotExistingUser");
+    public void testFromDB_NotExistingUser() {
+        System.out.println("testFromDB_NotExistingUser");
         
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://foo:bar@/db/testURLFromDB_NotExistingUser.xml", os);
+            getFromURL("xmldb:exist://foo:bar@/db/testFromDB_NotExistingUser.xml", os);
             
             os.flush();
             os.close();
@@ -232,6 +233,43 @@ public class EmbeddedURLsTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("Unauthorized user")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
+        }
+    }
+    
+    
+    public void testToDB_NotAuthorized() {
+        System.out.println("testToDB_NotAuthorized");
+        try {
+            sendToURL("xmldb:exist://guest:guest@/db/system/testToDB_NotAuthorized.xml",
+                    "build.xml");
+            
+            fail("Not authorized: Exception expected");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Permission denied to write collection.*")){
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
+        }
+    }
+    
+    public void testFromDB_NotAuthorized() {
+        System.out.println("testFromDB_NotAuthorized");
+        
+        try {
+            OutputStream os = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist://guest:guest@/db/system/testToDB_NotAuthorized.xml", os);
+            
+            os.flush();
+            os.close();
+            
+            fail("Not authorized: Exception expected");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Permission denied to read collection.*")){
                 fail(ex.getMessage());
                 LOG.error(ex);
             }

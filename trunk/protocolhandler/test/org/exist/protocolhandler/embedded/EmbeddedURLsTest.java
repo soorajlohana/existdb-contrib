@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.embedded;
+package org.exist.protocolhandler.embedded;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

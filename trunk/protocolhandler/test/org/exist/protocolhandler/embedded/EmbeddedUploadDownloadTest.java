@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.embedded;
+package org.exist.protocolhandler.embedded;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,9 +35,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.EXistException;
-import org.exist.protocolhandler.embedded.EmbeddedDownload;
-import org.exist.protocolhandler.embedded.EmbeddedInputStream;
-import org.exist.protocolhandler.embedded.EmbeddedUpload;
 import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;

@@ -5,7 +5,7 @@
  * Created on February 26, 2007, 9:20 PM
  */
 
-package org.exist.xmlrpc;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

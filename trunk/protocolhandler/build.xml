@@ -67,8 +67,13 @@
 
     -->
     <target name="-pre-compile-test">
+        <echo message="Removing data...."/>
         <delete>
             <fileset dir="webapp/WEB-INF/data" includes="*.dbx *.log "/>
         </delete>
     </target>
+    
+    <target name="-pre-compile-test-single">
+        <antcall target="-pre-compile-test"/>
+    </target>    
 </project>

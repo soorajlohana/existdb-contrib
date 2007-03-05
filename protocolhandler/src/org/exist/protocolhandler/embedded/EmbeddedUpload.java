@@ -137,6 +137,7 @@ public class EmbeddedUpload {
             if(xmldbURL.hasUserInfo()){
                 user=authenticate(xmldbURL, pool);
                 if(user==null){
+                    LOG.debug("Unauthorized user "+xmldbURL.getUsername());
                     throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
                 } 
             } else {

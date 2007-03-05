@@ -185,6 +185,7 @@ public class EmbeddedURLsTest extends TestCase {
             fail("Execption expected");
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail("Need to change this text"+ex.getMessage());
             LOG.error(ex);
         }
@@ -199,6 +200,7 @@ public class EmbeddedURLsTest extends TestCase {
             os.close();
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches("Resource .* not found.")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -214,6 +216,7 @@ public class EmbeddedURLsTest extends TestCase {
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail("Need to change this text"+ex.getMessage());
             LOG.error(ex);
         }
@@ -233,6 +236,7 @@ public class EmbeddedURLsTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("Unauthorized user")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -250,6 +254,7 @@ public class EmbeddedURLsTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Permission denied to write collection.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -270,6 +275,7 @@ public class EmbeddedURLsTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Permission denied to read collection.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }

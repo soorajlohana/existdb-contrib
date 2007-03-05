@@ -157,6 +157,7 @@ public class XmlrpcURLsTest extends TestCase {
             os.close();
         } catch (Exception ex) {
             if(!ex.getMessage().matches("Resource .* not found.")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }

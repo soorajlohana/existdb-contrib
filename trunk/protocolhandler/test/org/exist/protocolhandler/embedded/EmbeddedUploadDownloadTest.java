@@ -68,6 +68,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     protected void tearDown() throws Exception {
 //        BrokerPool.stop();
+        BrokerPool.stopAll(false);
     }
     
     protected BrokerPool startDB() {
@@ -82,12 +83,13 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
             return BrokerPool.getInstance();
         } catch (Exception e) {
+            e.printStackTrace();
             fail(e.getMessage());
         }
         return null;
     }
     
-        
+    
     public void testToDB() {
         System.out.println("testToDB");
         BrokerPool pool = null;
@@ -102,6 +104,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
@@ -117,7 +120,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-
+            
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testEmbeddedUploadToDB.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
@@ -129,6 +132,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             assertTrue( os.size()>0 );
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
             LOG.error(ex);
         } finally {
@@ -152,6 +156,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Resource /db/foobar is not a collection.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -169,7 +174,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-
+            
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/testToDB_NotExistingCollection.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
@@ -182,6 +187,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Resource .* not found.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -207,6 +213,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             ex.printStackTrace();
             if(!ex.getCause().getMessage().matches(".*Unauthorized .* foo.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -224,7 +231,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-
+            
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist://foo:bar@/db/foobar/testFromDB_NotExistingUser.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
@@ -237,6 +244,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Unauthorized .* foo.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -260,8 +268,9 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
-            ex.printStackTrace();
+            
             if(!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
@@ -279,7 +288,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         
         try {
             pool = startDB();
-
+            
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
@@ -304,7 +313,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     public void testCleanUp(){
         BrokerPool.stopAll(false);
     }
-
+    
     // Transfer bytes from inputstream to outputstream
     private void copyDocument(InputStream is, OutputStream os) throws IOException{
         byte[] buf = new byte[4096];

@@ -104,7 +104,9 @@ public class EmbeddedUpload {
             streamDocument(xmldbURL, tmp);
         } catch(Exception ex){
             //throw new ExistIOException(ex.getMessage(), ex);
-            throw new Exception(ex);
+            ex.printStackTrace();
+            //throw new Exception(ex);
+            throw ex;
             
         } finally {
             if(tmp!=null){
@@ -202,8 +204,8 @@ public class EmbeddedUpload {
             transact.abort(txn);
             ex.printStackTrace();
             LOG.debug(ex); // NPE
-            //throw new ExistIOException(ex.getMessage(), ex);
-            throw ex;
+            throw new ExistIOException(ex);
+            
             
         } finally {
             LOG.debug("Done.");
@@ -231,7 +233,8 @@ public class EmbeddedUpload {
         } catch (IOException ioex) {
             throw ioex;
         } catch (Exception ex) {
-            throw new ExistIOException(ex.getMessage(), ex); //TODO
+            //throw new ExistIOException(ex.getMessage(), ex); //TODO
+            throw new ExistIOException(ex); //TODO
         } finally {
             is.close();
         }

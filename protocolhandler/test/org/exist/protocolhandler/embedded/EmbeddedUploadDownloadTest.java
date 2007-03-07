@@ -59,6 +59,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
+        LOG.debug("setUp");
         if(firstTime){
             URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
             PropertyConfigurator.configure("log4j.conf");
@@ -67,8 +68,9 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
-//        BrokerPool.stop();
-        BrokerPool.stopAll(false);
+        LOG.debug("tearDown");
+//        Thread.sleep(1500);
+//        BrokerPool.stopAll(false);
     }
     
     protected BrokerPool startDB() {
@@ -186,7 +188,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             assertTrue( os.size()>0 );
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Resource .* not found.*")){
+            if(!ex.getMessage().matches(".*Resource .* not found.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -214,7 +216,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             ex.printStackTrace();
             if(!ex.getCause().getMessage().matches(".*Unauthorized .* foo.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
+                fail("the text is "+ex.getCause().getMessage());
                 LOG.error(ex);
             }
         } finally {
@@ -243,7 +245,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             assertTrue( os.size()>0 );
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Unauthorized .* foo.*")){
+            if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -269,7 +271,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             
-            if(!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")){
+            if(!ex.getMessage().matches(".*User .* not allowed to write to collection.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -300,7 +302,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             assertTrue( os.size()>0 );
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Permission denied to read collection .*")){
+            if(!ex.getMessage().matches(".*Permission denied to read collection .*")){
                 fail(ex.getMessage());
                 LOG.error(ex);
             }

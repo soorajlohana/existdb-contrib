@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.write;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +32,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.io.ExistIOException;
-import org.exist.protocolhandler.xmlrpc.XmlrpcUpload;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
@@ -63,13 +62,13 @@ public class XmlrpcUploadTest extends TestCase {
     protected void tearDown() throws Exception {
         // -/-
     }
-    
+
     /**
      * Test upload of file
      */
-    public void testUploadFile()  {
+    public void testToDB()  {
         
-        System.out.println("testUploadFile");
+        System.out.println("testToDB");
          
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -79,13 +78,10 @@ public class XmlrpcUploadTest extends TestCase {
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xuc.stream(xmldbURL, new FileInputStream(src));
-            
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception"+url, ex);
-            fail(ex.getMessage());
-            
+
         } catch (Exception ex) {
-            LOG.error("Caught exception", ex);
+            LOG.error(ex);
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -93,8 +89,8 @@ public class XmlrpcUploadTest extends TestCase {
     /**
      * Test upload of file to non existing collection
      */
-    public void testUploadFileToNotExistingCollection() {
-        System.out.println("testUploadFileToNotExistingCollection");
+    public void testToDB_NotExistingCollection() {
+        System.out.println("testToDB_NotExistingCollection");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
@@ -107,27 +103,21 @@ public class XmlrpcUploadTest extends TestCase {
             
             fail("Upload to non existing collection must fail.");
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception"+url, ex);
-            fail(ex.getMessage());
-            
-        } catch (ExistIOException ex) {
+        } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } catch (Exception ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-            
-        }
+        } 
     }
     
     
     /**
      * Test upload of file as non existing user
      */
-    public void testUploadFileAsNotExistingUser() {
-        System.out.println("testUploadFileAsNotExistingUser");
+    public void testToDB_NotExistingUser() {
+        System.out.println("testToDB_NotExistingUser");
         
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -140,26 +130,20 @@ public class XmlrpcUploadTest extends TestCase {
             
             fail("Upload as non existing user must fail.");
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception"+url, ex);
-            fail(ex.getMessage());
-            
-        } catch (ExistIOException ex) {
+        } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("User foo unknown")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } catch (Exception ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-        }
-            
+        } 
     }
     
     /**
      * Test upload of file to a forbidden collection
      */
-    public void testUploadFileToForbiddenCollection() {
-        System.out.println("testUploadFileToForbiddenCollection");
+    public void testToDB_NotAuthorized() {
+        System.out.println("testToDB_NotAuthorized");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/build.xml";
@@ -171,18 +155,13 @@ public class XmlrpcUploadTest extends TestCase {
             xuc.stream(xmldbURL, new FileInputStream(src));
             
             fail("Upload to collection /db/system/ must fail.");
-            
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception"+url, ex);
-            fail(ex.getMessage());
-            
-        } catch (ExistIOException ex) {
+
+        } catch (Exception ex) {
             if(!ex.getMessage().contains("User 'guest' not allowed to write to collection '/db/system'")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } catch (Exception ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-        }
+        } 
     }
 }

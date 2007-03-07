@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.read;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,7 +31,6 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.xmlrpc.XmlrpcInputStream;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
@@ -64,26 +63,29 @@ public class XmlrpcInputStreamTest extends TestCase {
     /**
      * Test retrieve document from db.
      */
-    public void testGetXmlDoc1() {
-        System.out.println("testGetXmlDoc1");
+    public void testFromDB_XmlDoc() {
+        System.out.println("testFromDB_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
+            
+            assertTrue(baos.size()>0);
 
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            ex.printStackTrace();
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
     /**
      * Test try retrieve non existing document from db.
      */
-    public void testGetXmlDoc2() {
-        System.out.println("testGetXmlDoc2");
+    public void testFromDB_NotExistingDoc_XmlDoc() {
+        System.out.println("testFromDB_NotExistingDoc_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foobar.xml";
         try {
@@ -93,9 +95,10 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().contains("document not found")){
-                fail(ex.getMessage());
+            if(!ex.getMessage().matches(".*document not found.*")){
+                ex.printStackTrace();
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -103,26 +106,28 @@ public class XmlrpcInputStreamTest extends TestCase {
     /**
      * Test retrieve binary document from db.
      */
-    public void testGetBinaryDoc1() throws Exception {
-        System.out.println("testGetBinaryDoc1");
+    public void testFromDB_BinaryDoc() throws Exception {
+        System.out.println("testFromDB_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/shakes.css";
-        
-        
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
+            
+            assertTrue(baos.size()>0);
 
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            ex.printStackTrace();
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
     /**
      * Test retrieve non existing binary document from db.
      */
-    public void testGetBinaryDoc2() throws Exception {
+    public void testFromDB_NotExistingDoc_BinaryDoc() throws Exception {
+        System.out.println("testFromDB_NotExistingDoc_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foo.css";
         
@@ -133,8 +138,69 @@ public class XmlrpcInputStreamTest extends TestCase {
 
         } catch (Exception ex) {
             if(!ex.getMessage().contains("document not found")){
-                fail(ex.getMessage());
+                ex.printStackTrace();
                 LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        }
+    }
+    
+//FromDB_NotExistingCollection
+    public void testFromDB_NotExistingCollection() {
+        System.out.println("FromDB_NotExistingCollection");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/foo/bar.xml";
+        
+        try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            getDocument(xmldbUri, baos);
+            fail("exception should be thrown");
+
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*Collection /db/foo not found.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        }
+    }
+    
+//FromDB_NotExistingUser
+    public void testFromDB_NotExistingUser() {
+        System.out.println("testFromDB_NotExistingUser");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String uri = "xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/foo/bar.xml";
+        
+        try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            getDocument(xmldbUri, baos);
+            fail("exception should be thrown");
+
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        }
+    }
+    
+//FromDB_NotAuthorized
+    public void testFromDB_NotAuthorized() {
+        System.out.println("testFromDB_NotAuthorized");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/system/users.xml";
+        
+        try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            getDocument(xmldbUri, baos);
+            fail("exception should be thrown");
+
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*Insufficient privileges to read resource.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }

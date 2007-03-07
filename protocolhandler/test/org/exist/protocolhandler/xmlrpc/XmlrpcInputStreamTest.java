@@ -114,6 +114,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             
+            // TODO sometimes baos is empty
             assertTrue(baos.size()>0);
 
         } catch (Exception ex) {
@@ -219,9 +220,8 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
         
         // Shutdown
-        os.flush();
-        os.close();
         xis.close(); // required; checks wether all is OK
-        
+        os.flush();
+
     }
 }

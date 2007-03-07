@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.read;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,7 +30,6 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.xmlrpc.XmlrpcDownload;
 import org.exist.xmldb.XmldbURL;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
@@ -60,13 +59,13 @@ public class XmlrpcDownloadTest extends TestCase {
     
     protected void tearDown() throws Exception {
     }
-    
+
     /**
      * Test download of file.
      */
-    public void testDownloadExistingFile() {
+    public void testFromDB() {
         
-        System.out.println("testDownloadExistingFile");
+        System.out.println("testFromDB");
             
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -78,11 +77,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-            
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             LOG.error("Caught exception", ex);
             fail(ex.getMessage());
         }
@@ -91,9 +87,9 @@ public class XmlrpcDownloadTest extends TestCase {
     /**
      * Test download of file from not existing collection.
      */
-    public void testDownloadFileFromNotExistingCollection() {
+    public void testFromDB_NotExistingCollection() {
         
-        System.out.println("testDownloadFileFromNotExistingCollection");
+        System.out.println("testFromDB_NotExistingCollection");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
@@ -105,12 +101,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-            
-        } catch (IOException ex) {
-            if(!ex.getMessage().contains("Collection /db/foobar not found!")){
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*Collection /db/foobar not found.*")){
                 fail(ex.getMessage());
             };
         }
@@ -120,9 +112,9 @@ public class XmlrpcDownloadTest extends TestCase {
     /**
      * Test download of file as non existing user.
      */
-    public void testDownloadAsNotExistingUser() {
+    public void testFromDB_NotExistingUser() {
         
-        System.out.println("testDownloadAsNotExistingUser");
+        System.out.println("testFromDB_NotExistingUser");
         
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -134,12 +126,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-            
-        } catch (IOException ex) {
-            if(!ex.getMessage().contains("User foo unknown")){
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*User foo unknown.*")){
                 fail(ex.getMessage());
             }
         }
@@ -148,9 +136,9 @@ public class XmlrpcDownloadTest extends TestCase {
     /**
      * Test download of file to a forbidden collection
      */
-    public void testDownloadForbiddenFile() {
+    public void testFromDB_NotAuthorized() {
         
-        System.out.println("testDownloadForbiddenFile");
+        System.out.println("testFromDB_NotAuthorized");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/users.xml";
@@ -162,12 +150,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
-        } catch (MalformedURLException ex) {
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-            
-        } catch (IOException ex) {
-            if(!ex.getMessage().contains("Insufficient privileges to read resource")){
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*Insufficient privileges to read resource.*")){
                 fail(ex.getMessage());
             }
         }

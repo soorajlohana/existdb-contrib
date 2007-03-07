@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.protocolhandler.xmlrpc.write;
+package org.exist.protocolhandler.xmlrpc;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,7 +30,6 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.xmlrpc.XmlrpcOutputStream;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
@@ -61,8 +60,8 @@ public class XmlrpcOutputStreamTest extends TestCase {
         //
     }
     
-    public void testSendXmlDoc1() {
-        System.out.println("testSendXmlDoc1");
+    public void testToDB_XmlDoc() {
+        System.out.println("testToDB_XmlDoc");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
@@ -71,13 +70,14 @@ public class XmlrpcOutputStreamTest extends TestCase {
             sendDocument(xmldbUri, fis);
             
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            ex.printStackTrace();
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
-    public void testSendXmlDoc2() {
-        System.out.println("testSendXmlDoc2");
+    public void testToDB_NotExistingCollection_XmlDoc() {
+        System.out.println("testToDB_NotExistingCollection_XmlDoc");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
@@ -90,14 +90,15 @@ public class XmlrpcOutputStreamTest extends TestCase {
         } catch (Exception ex) {
             // TODO check message (org.exist.io.ExistIOException: BlockingInputStream closed with an exception.)
             if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
+                ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getCause().getMessage());
             }
         }
     }
     
-    public void testSendBinaryDoc1() {
-        System.out.println("testSendBinaryDoc1");
+    public void testToDB_BinaryDoc() {
+        System.out.println("voidtestToDB_BinaryDoc");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
@@ -107,13 +108,14 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fis.close();
             
         } catch (Exception ex) {
-            fail(ex.getMessage());
+            ex.printStackTrace();
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
-    public void testSendBinaryDoc2() {
-        System.out.println("testSendBinaryDoc2");
+    public void testToDB_NotExistingCollection_BinaryDoc() {
+        System.out.println("testToDB_NotExistingCollection_BinaryDoc");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
@@ -134,6 +136,51 @@ public class XmlrpcOutputStreamTest extends TestCase {
             }
         }
     }
+    
+//ToDB_NotExistingUser
+    public void testToDB_NotExistingUser() {
+        System.out.println("testToDB_NotExistingUser");
+        try{
+            FileInputStream fis = new FileInputStream("build.xml");
+            String uri = "xmldb:exist://foo:bar@localhost:8080"
+                    +"/exist/xmlrpc/db/build_testToDB_NotExistingUser.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument( xmldbUri, fis);
+            fis.close();
+            
+            fail("Expected exception");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getCause().getMessage());
+            }
+        }
+    }
+    
+//ToDB_NotAuthorized
+    public void testToDB_NotAuthorized() {
+        System.out.println("testToDB_NotAuthorized");
+        try{
+            FileInputStream fis = new FileInputStream("build.xml");
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/system/users.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument( xmldbUri, fis);
+            fis.close();
+            
+            fail("Expected exception");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Document exists and update is not allowed for the collection.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getCause().getMessage());
+            }
+        }
+    }
+
     
     private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
         

@@ -103,7 +103,8 @@ public class EmbeddedUpload {
             
             streamDocument(xmldbURL, tmp);
         } catch(Exception ex){
-            throw new ExistIOException(ex.getMessage(), ex);
+            //throw new ExistIOException(ex.getMessage(), ex);
+            throw new Exception(ex);
             
         } finally {
             if(tmp!=null){
@@ -201,15 +202,16 @@ public class EmbeddedUpload {
             transact.abort(txn);
             ex.printStackTrace();
             LOG.debug(ex); // NPE
-            throw new ExistIOException(ex.getMessage(), ex);
+            //throw new ExistIOException(ex.getMessage(), ex);
+            throw ex;
             
         } finally {
             LOG.debug("Done.");
             if(collectionLocked && collection != null){
                 collection.release(Lock.READ_LOCK);
             }
-            pool.release(broker);
             
+            pool.release(broker);
         }
         
     }

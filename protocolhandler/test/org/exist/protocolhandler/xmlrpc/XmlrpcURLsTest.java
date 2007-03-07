@@ -22,8 +22,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class XmlrpcURLsTest extends TestCase {
     
@@ -114,6 +113,7 @@ public class XmlrpcURLsTest extends TestCase {
             assertTrue(retVal);
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
             LOG.error(ex);
         }
@@ -139,10 +139,11 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             boolean retVal = sendToURL("xmldb:exist://localhost:8080/db/foo/bar.xml",
                     "build.xml");
-
-            fail("Not existing collection: Execption expected");
+            
+            fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {
+            ex.printStackTrace();
             fail("Need to change this text"+ex.getMessage());
             LOG.error(ex);
         }
@@ -152,7 +153,7 @@ public class XmlrpcURLsTest extends TestCase {
         System.out.println("testURLFromDB_notExistingCollection");
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://localhost:8080/db/foo.bar", os);
+            getFromURL("xmldb:exist://localhost:8080/db/foo/bar.xml", os);
             os.flush();
             os.close();
         } catch (Exception ex) {
@@ -167,14 +168,17 @@ public class XmlrpcURLsTest extends TestCase {
     public void testURLToDB_NotExistingUser() {
         System.out.println("testURLToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist://localhost:8080/db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist://foo:bar@localhost:8080/db/testURLToDB_NotExistingUser.xml",
                     "build.xml");
             
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
-            fail("Need to change this text"+ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
         }
     }
     
@@ -182,21 +186,24 @@ public class XmlrpcURLsTest extends TestCase {
         System.out.println("testURLFromDB_NotExistingUser");
         
         try {
-            OutputStream os = new ByteArrayOutputStream();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@localhost:8080/db/testURLFromDB_NotExistingUser.xml", os);
             
             os.flush();
             os.close();
             
+            assertTrue(os.size()==0);
+            
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User .* unknown.*")){
+                ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
             }
         }
     }
-
+    
     
 }

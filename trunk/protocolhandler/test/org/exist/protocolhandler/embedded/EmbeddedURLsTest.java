@@ -210,7 +210,7 @@ public class EmbeddedURLsTest extends TestCase {
     public void testToDB_NotExistingUser() {
         System.out.println("testToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist:///db/testToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist://foo:bar@/db/testToDB_NotExistingUser.xml",
                     "build.xml");
             
             fail("Not existing user: Exception expected");

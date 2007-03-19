@@ -22,8 +22,8 @@
 
 package org.exist.io;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * <code>BlockingInputStream</code> is a combination of an input stream and
@@ -47,38 +47,19 @@ public class BlockingInputStream extends InputStream {
     private byte[] buffer = new byte[SIZE];  // Circular queue.
     private int head;  // First full buffer position.
     private int tail;  // First empty buffer position.
-    private boolean inClosed;     // Is the input  stream closed?
-    private boolean outClosed;    // Is the output stream closed?
-    private Exception exception;  // Exception specified when closing input.
+    private boolean    inClosed;     // Is the input  stream closed?
+    private boolean   outClosed;     // Is the output stream closed?
+    private Exception  inException;  // Specified when closing input.
+    private Exception outException;  // Specified when closing output.
     
-    private OutputStream outputStream = new BlockingOutputStream();
+    private BlockingOutputStream bos = new BlockingOutputStream(this);
 
-    
-    /** OutputStream adapter class */
-    private class BlockingOutputStream extends OutputStream {
-
-        public void write(int b) throws ExistIOException {
-            writeOutputStream(b);
-        }
-
-        public void write(byte b[], int off, int len) throws ExistIOException {
-            writeOutputStream(b, off, len);
-        }
-
-        public void close() throws ExistIOException {
-            closeOutputStream();
-        }
-
-        public void flush() throws ExistIOException {
-            flushOutputStream();
-        }
-    }
 
     /**
-     * OutputStream adapter for this BlockingInputStream.
+     * BlockingOutputStream adapter for this BlockingInputStream.
      */
-    public OutputStream getOutputStream() {
-        return outputStream;
+    public BlockingOutputStream getOutputStream() {
+        return bos;
     }
 
     /** Is a stream closed? */
@@ -101,7 +82,7 @@ public class BlockingInputStream extends InputStream {
      *             stream is reached.
      * @throws ExistIOException  if an I/O error occurs.
      */
-    public synchronized int read() throws ExistIOException {
+    public synchronized int read() throws IOException {
         byte bb[] = new byte[1];
         return (read(bb, 0, 1) == EOS) ? EOS : bb[0];
     }
@@ -126,7 +107,7 @@ public class BlockingInputStream extends InputStream {
      * @throws ExistIOException  if an I/O error occurs.
      * @throws NullPointerException  if <code>b</code> is <code>null</code>.
      */
-    public synchronized int read(byte b[], int off, int len) throws ExistIOException {
+    public synchronized int read(byte b[], int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -138,7 +119,9 @@ public class BlockingInputStream extends InputStream {
         int count = EOS;
         try {
             while (empty() && !closed()) wait();
-            if (!closed()) {
+            if (outException != null) throw new ExistIOException(
+              "BlockingOutputStream closed with an exception.", outException);
+            else if (!closed()) {
                 count = Math.min(len, available());
                 int count1 = Math.min(count, availablePart1());
                 System.arraycopy(buffer, head, b, off, count1);
@@ -175,7 +158,7 @@ public class BlockingInputStream extends InputStream {
      * <code>BlockingInputStream</code> specific method.
      */
     public synchronized void close(Exception ex) {
-        exception = ex;
+        inException = ex;
         close();
     }
 
@@ -216,7 +199,7 @@ public class BlockingInputStream extends InputStream {
      *             an <code>ExistIOException</code> may be thrown if the 
      *             output stream has been closed.
      */
-    private synchronized void writeOutputStream(int b) throws ExistIOException {
+    synchronized void writeOutputStream(int b) throws IOException {
         byte bb[] = { (byte) b };
         writeOutputStream(bb, 0, 1);
     }
@@ -238,7 +221,7 @@ public class BlockingInputStream extends InputStream {
      *             an <code>ExistIOException</code> is thrown if the output 
      *             stream is closed.
      */
-    private synchronized void writeOutputStream(byte b[], int off, int len)
+    synchronized void writeOutputStream(byte b[], int off, int len)
     throws ExistIOException {
         if (b == null) {
             throw new NullPointerException();
@@ -250,8 +233,10 @@ public class BlockingInputStream extends InputStream {
             int count;
             try {
                 while (full() && !closed()) wait();
-                if (closed()) throw new ExistIOException(
-                    "Writing to closed stream", exception);
+            if (inException != null) throw new ExistIOException(
+              "BlockingInputStream closed with exception.", inException);
+            else if (closed()) throw new ExistIOException(
+                    "Writing to closed stream", inException);
                 count = Math.min(len, free());
                 int count1 = Math.min(count, freePart1());
                 System.arraycopy(b, off, buffer, tail, count1);
@@ -274,28 +259,40 @@ public class BlockingInputStream extends InputStream {
      * Equivalent of the <code>close()</code> method of an output stream.
      * Renamed to solve the name clash with the <code>close()</code> method
      * of the input stream also implemented by this class.
-     * Closes this output stream and releases the associated buffer.
+     * Closes this output stream.
      * A closed stream cannot perform output operations and cannot be reopened.
      * <p>
      * This method blocks its caller until the corresponding input stream is
      * closed or an exception occurs.
      * 
-     * 
      * @throws ExistIOException  if an I/O error occurs.
      */
-    private synchronized void closeOutputStream() throws ExistIOException {
+    synchronized void closeOutputStream() throws IOException {
         outClosed = true;
         notifyAll();
         try {
             while(!inClosed) wait();
-            if (exception != null) throw new ExistIOException(
-                "BlockingInputStream closed with an exception.", exception);
+            if (inException != null) throw new ExistIOException(
+                "BlockingInputStream closed with an exception.", inException);
             else if (!empty()) throw new ExistIOException(
-                "Closing non empty closed stream.", exception);
+                "Closing non empty closed stream.", inException);
         } catch (InterruptedException e) {
             throw new ExistIOException(
                 "Close OutputStream operation interrupted.", e);
         }
+    }
+
+    /**
+     * Closes this output stream, specifying that an exception has occurred.
+     * This will cause all consumer calls to be unblocked and throw an
+     * ExistIOException with this exception as its cause.
+     * <code>BlockingInputStream</code> specific method.
+
+     * @throws ExistIOException  if an I/O error occurs.
+     */
+    synchronized void closeOutputStream(Exception ex) throws IOException {
+        outException = ex;
+        closeOutputStream();
     }
 
     /**
@@ -308,13 +305,13 @@ public class BlockingInputStream extends InputStream {
      * 
      * @throws ExistIOException  if an I/O error occurs.
      */
-    private synchronized void flushOutputStream() throws ExistIOException {
+    synchronized void flushOutputStream() throws IOException {
         try {
             while(!empty() && !closed()) wait();
-            if (exception != null) throw new ExistIOException(
-                "BlockingInputStream closed with an exception.", exception);
+            if (inException != null) throw new ExistIOException(
+                "BlockingInputStream closed with an exception.", inException);
             else if (!empty()) throw new ExistIOException(
-                "Flushing non empty closed stream.", exception);
+                "Flushing non empty closed stream.", inException);
         } catch (InterruptedException e) {
             throw new ExistIOException("Flush operation interrupted.", e);
         } finally {

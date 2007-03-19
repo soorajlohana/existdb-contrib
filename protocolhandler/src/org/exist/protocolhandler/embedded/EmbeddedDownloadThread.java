@@ -23,15 +23,9 @@
 package org.exist.protocolhandler.embedded;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpc;
-import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
+import org.exist.io.BlockingOutputStream;
 import org.exist.xmldb.XmldbURL;
 
 /**
@@ -44,8 +38,8 @@ public class EmbeddedDownloadThread extends Thread {
     private final static Logger logger = Logger.getLogger(EmbeddedDownloadThread.class);
     
     private XmldbURL xmldbURL;
-    private OutputStream outputStream;
-    private Exception exception;
+    private BlockingOutputStream outputStream;
+    private IOException exception;
     
     
     /**
@@ -54,9 +48,9 @@ public class EmbeddedDownloadThread extends Thread {
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
      */
-    public EmbeddedDownloadThread(XmldbURL xmldbURL, OutputStream os) {
-        this.xmldbURL=xmldbURL;
-        this.outputStream=os;
+    public EmbeddedDownloadThread(XmldbURL url, BlockingOutputStream os) {
+        xmldbURL = url;
+        outputStream = os;
     }
     
     /**
@@ -68,13 +62,13 @@ public class EmbeddedDownloadThread extends Thread {
             EmbeddedDownload ed = new EmbeddedDownload();
             ed.stream(xmldbURL, outputStream);
             
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(ex);
-            exception=new Exception(ex.getMessage());
+            exception = ex;
             
         } finally {
             try { // NEEDED!
-                outputStream.close();
+                outputStream.close(exception);
             } catch (IOException ex) {
                 logger.debug(ex);
             }
@@ -82,22 +76,22 @@ public class EmbeddedDownloadThread extends Thread {
         }
     }
     
-    /**
+    /** COFF: @@@ can be removed!!
      *  Check if an exception is thrown during processing.
      *
      * @return TRUE when exception is thown in thread
      */
-    public boolean isExceptionThrown(){
-        return (exception!=null);
-    }
+//**    public boolean isExceptionThrown(){
+//**        return (exception!=null);
+//**    }
     
-    /**
+    /** COFF: @@@ can be removed!!
      *  Get thrown processing exception.
      *
      * @return Exception that is thrown during processing, NULL if not available.
      */
-    public Exception getThrownException(){
-        return exception;
-    }
+//**    public Exception getThrownException(){
+//**        return exception;
+//**    }
     
 }

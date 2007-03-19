@@ -157,7 +157,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Resource /db/foobar is not a collection.*")){
+            if(!ex.getMessage().matches(".*Resource /db/foobar is not a collection.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -214,7 +214,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            if(!ex.getCause().getMessage().matches(".*Unauthorized .* foo.*")){
+            if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
                 ex.printStackTrace();
                 fail("the text is "+ex.getCause().getMessage());
                 LOG.error(ex);
@@ -271,7 +271,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             
-            if(!ex.getMessage().matches(".*User .* not allowed to write to collection.*")){
+            if(!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);

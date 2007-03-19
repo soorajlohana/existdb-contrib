@@ -91,7 +91,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri=xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            baos.close();
+            // COFF baos.close();
             fail("exception should be thrown");
             
         } catch (Exception ex) {
@@ -222,6 +222,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         // Shutdown
         xis.close(); // required; checks wether all is OK
         os.flush();
+        os.close(); // COFF added
 
     }
 }

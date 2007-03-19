@@ -32,7 +32,6 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
-import org.exist.io.BlockingInputStream;
 import org.exist.io.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
@@ -85,8 +84,7 @@ public class EmbeddedUpload {
      * @param is  Stream containing document.
      * @throws IOException Thrown when something is wrong.
      */
-    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws Exception {
-        // DWES: no existIOException?
+    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws IOException {
         File tmp =null;
         try{
             tmp = File.createTempFile("EMBEDDED", "tmp");
@@ -98,16 +96,14 @@ public class EmbeddedUpload {
             while ((len = is.read(buf)) > 0) {
                 fos.write(buf, 0, len);
             }
-            is.close();
-            fos.close();
+            //is.close(); // Skrews up BIS close with exception
+            fos.close(); // COFF: Not called on exception while copying to file!
             
             streamDocument(xmldbURL, tmp);
-        } catch(Exception ex){
-            //throw new ExistIOException(ex.getMessage(), ex);
+        } catch(IOException ex){
             ex.printStackTrace();
-            //throw new Exception(ex);
+            LOG.error(ex);
             throw ex;
-            
         } finally {
             if(tmp!=null){
                 tmp.delete();
@@ -121,7 +117,7 @@ public class EmbeddedUpload {
      * @param tmp Document that is inserted.
      * @throws ExistIOException
      */
-    private void streamDocument(XmldbURL xmldbURL, File tmp) throws Exception {
+    private void streamDocument(XmldbURL xmldbURL, File tmp) throws IOException {
         LOG.debug("Begin document upload");
         
         Collection collection = null;
@@ -200,11 +196,24 @@ public class EmbeddedUpload {
             LOG.debug("commit");
             transact.commit(txn);
             
-        } catch (Exception ex) {
-            transact.abort(txn);
+        } catch (IOException ex) {
+            try { // COFF: added - trows an exception when the user is unknown! 
+              transact.abort(txn);
+            } catch (Exception abex) {
+              LOG.debug(abex);
+            }
             ex.printStackTrace();
             LOG.debug(ex); // NPE
-            throw new ExistIOException(ex);
+            throw ex;
+        } catch (Exception ex) {
+            try { // COFF: added - trows an exception when the user is unknown! 
+              transact.abort(txn);
+            } catch (Exception abex) {
+              LOG.debug(abex);
+            }
+            ex.printStackTrace();
+            LOG.debug(ex); // NPE
+            throw new ExistIOException(ex.getMessage(), ex);
             
             
         } finally {
@@ -228,16 +237,18 @@ public class EmbeddedUpload {
      */
     
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-        try {
+//**        try {
             streamDocument(xmldbURL, is);
-        } catch (IOException ioex) {
-            throw ioex;
-        } catch (Exception ex) {
-            //throw new ExistIOException(ex.getMessage(), ex); //TODO
-            throw new ExistIOException(ex); //TODO
-        } finally {
-            is.close();
-        }
+//**        } catch (ExistIOException ex) {
+//**            ex.printStackTrace();
+//**            LOG.error(ex);
+//**            throw ex;           
+//**        } catch (Exception ex) {
+//**            //throw new ExistIOException(ex.getMessage(), ex); //TODO
+//**            throw new ExistIOException(ex); //TODO
+//**        } finally {
+//**            is.close();
+//**        }
     }
     
     /**
@@ -247,15 +258,15 @@ public class EmbeddedUpload {
      * @param xmldbURL URL pointing to location on eXist-db server.
      * @param bis Document stream
      */
-    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
-        Exception exception = null;
-        try {
-            streamDocument(xmldbURL, bis);
-        } catch (Exception ex) {
-            exception = ex;
-        } finally {
-            bis.close(exception); // Pass the exception through the stream.
-        }
-    }
+//**    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
+//**        Exception exception = null;
+//**        try {
+//**            streamDocument(xmldbURL, bis);
+//**        } catch (Exception ex) {
+//**            exception = ex;
+//**        } finally {
+//**            bis.close(exception); // Pass the exception through the stream.
+//**        }
+//**    }
     
 }

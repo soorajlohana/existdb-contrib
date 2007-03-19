@@ -22,6 +22,7 @@
 
 package org.exist.protocolhandler.embedded;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -77,9 +78,9 @@ public class EmbeddedDownload {
      *
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws ExistIOException
+     * @throws IOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         LOG.debug("Begin document download");
         
         DocumentImpl resource = null;
@@ -131,11 +132,14 @@ public class EmbeddedDownload {
                     os.flush();
                 }
             }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            throw ex;           
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
-            throw new ExistIOException(ex.getMessage(), ex);
-            
+            throw new ExistIOException(ex.getMessage(), ex);            
         } finally {
             if(resource != null)
                 resource.getUpdateLock().release(Lock.READ_LOCK);

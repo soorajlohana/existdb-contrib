@@ -23,6 +23,7 @@
 package org.exist.protocolhandler.embedded;
 
 
+import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.exist.io.BlockingInputStream;
 import org.exist.xmldb.XmldbURL;
@@ -37,12 +38,12 @@ public class EmbeddedUploadThread extends Thread {
     private final static Logger logger = Logger.getLogger(EmbeddedUploadThread.class);
     private XmldbURL xmldbURL;
     private BlockingInputStream inputStream;
-    private Exception exception;
+    private IOException exception;
     
     
     public EmbeddedUploadThread(XmldbURL url, BlockingInputStream is) {
-        this.xmldbURL=url;
-        this.inputStream=is;
+        xmldbURL=url;
+        inputStream=is;
     }
     
     /**
@@ -50,8 +51,15 @@ public class EmbeddedUploadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        EmbeddedUpload uploader = new EmbeddedUpload();
-        uploader.stream(xmldbURL, inputStream);
-        logger.debug("Thread stopped." );
+        try {
+            EmbeddedUpload uploader = new EmbeddedUpload();
+            uploader.stream(xmldbURL, inputStream);
+        } catch (IOException ex) {
+            logger.error(ex);
+            exception = ex;
+        } finally {
+            inputStream.close(exception);
+            logger.debug("Thread stopped." );
+        }
     }
 }

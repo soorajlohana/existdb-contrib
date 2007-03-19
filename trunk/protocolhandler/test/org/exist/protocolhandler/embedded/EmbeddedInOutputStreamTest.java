@@ -174,7 +174,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
+            //fail(ex.getMessage());
             LOG.error(ex);
         }
     }
@@ -192,7 +192,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             fail("Exception expected, not existing collection.");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Resource .* not found.")){
+            if(!ex.getCause().getMessage().matches(".*Resource .* not found.")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -213,7 +213,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
+            //fail(ex.getMessage());
             LOG.error(ex);
         }
     }
@@ -231,7 +231,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             fail("Exception expected, not existing collection.");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Unauthorized user foo")){
+            if(!ex.getCause().getMessage().matches(".*Unauthorized user foo")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -252,7 +252,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
+            //fail(ex.getMessage());
             LOG.error(ex);
         }
     }
@@ -270,7 +270,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             fail("Exception expected, not existing collection.");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Permission denied to read collection '/db/system'")){
+            if(!ex.getCause().getMessage().matches(".*Permission denied to read collection '/db/system'")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);

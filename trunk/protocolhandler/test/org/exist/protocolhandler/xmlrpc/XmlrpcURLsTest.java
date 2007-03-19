@@ -64,7 +64,7 @@ public class XmlrpcURLsTest extends TestCase {
             throw ex;
         }
         
-        return retVal;
+        return retVal;  // COF: will never return false - makes no sense!
     }
     
     private boolean getFromURL(String URL, OutputStream os) throws Exception {

@@ -101,13 +101,13 @@ public class XmlrpcURLsTest extends TestCase {
     }
     
     // =====================================
-    
+     // TODO xmldb:exist://localhost:8080/db/build_testURLToDB.xml ?
     public void testURLToDB() {
         System.out.println("testURLToDB");
         
         try {
             boolean retVal = sendToURL(
-                    "xmldb:exist://localhost:8080/db/build_testURLToDB.xml",
+                    "xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml",
                     "build.xml" );
             
             assertTrue(retVal);
@@ -124,7 +124,7 @@ public class XmlrpcURLsTest extends TestCase {
         
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://localhost:8080/db/build_testURLToDB.xml", os);
+            getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml", os);
 //**            os.flush();
 //**            os.close();
         } catch (Exception ex) {
@@ -137,15 +137,17 @@ public class XmlrpcURLsTest extends TestCase {
     public void testURLToDB_notExistingCollection() {
         System.out.println("testURLToDB_notExistingCollection");
         try {
-            boolean retVal = sendToURL("xmldb:exist://localhost:8080/db/foo/bar.xml",
+            boolean retVal = sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml",
                     "build.xml");
             
             fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Need to change this text"+ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
+                ex.printStackTrace();
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
         }
     }
     
@@ -153,11 +155,11 @@ public class XmlrpcURLsTest extends TestCase {
         System.out.println("testURLFromDB_notExistingCollection");
         try {
             OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://localhost:8080/db/foo/bar.xml", os);
+            getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml", os);
 //**            os.flush();
 //**            os.close();
         } catch (Exception ex) {
-            if(!ex.getMessage().matches("Resource .* not found.")){
+            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
                 fail(ex.getMessage());
                 LOG.error(ex);
@@ -168,7 +170,7 @@ public class XmlrpcURLsTest extends TestCase {
     public void testURLToDB_NotExistingUser() {
         System.out.println("testURLToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist://foo:bar@localhost:8080/db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLToDB_NotExistingUser.xml",
                     "build.xml");
             
             fail("Not existing user: Exception expected");
@@ -187,7 +189,7 @@ public class XmlrpcURLsTest extends TestCase {
         
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://foo:bar@localhost:8080/db/testURLFromDB_NotExistingUser.xml", os);
+            getFromURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLFromDB_NotExistingUser.xml", os);
             
 //**            os.flush();
 //**            os.close();

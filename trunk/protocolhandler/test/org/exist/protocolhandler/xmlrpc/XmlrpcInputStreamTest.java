@@ -221,8 +221,8 @@ public class XmlrpcInputStreamTest extends TestCase {
         
         // Shutdown
         xis.close(); // required; checks wether all is OK
-        os.flush();
-        os.close(); // COFF added
+//        os.flush();
+//        os.close(); // COFF added
 
     }
 }

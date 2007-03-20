@@ -77,8 +77,8 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.toString());
             LOG.error(ex);
+            fail(ex.getMessage());
         }
         
     }

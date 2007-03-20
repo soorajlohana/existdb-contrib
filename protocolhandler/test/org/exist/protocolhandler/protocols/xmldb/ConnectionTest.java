@@ -40,7 +40,7 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public class ConnectionTest extends TestCase {
     
-     private static Logger LOG = Logger.getLogger(ConnectionTest.class);
+    private static Logger LOG = Logger.getLogger(ConnectionTest.class);
     
     private static boolean firstTime=true;
     
@@ -77,6 +77,8 @@ public class ConnectionTest extends TestCase {
             os.close();
             
         } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
             fail(ex.getMessage());
             
         }
@@ -97,7 +99,9 @@ public class ConnectionTest extends TestCase {
         } catch (Exception ex) {
             
             if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
-                fail(ex.getCause().getMessage());
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -117,8 +121,8 @@ public class ConnectionTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
-            LOG.error(ex);
             ex.printStackTrace();
+            LOG.error(ex);
             fail(ex.getMessage());
         }
     }
@@ -141,6 +145,8 @@ public class ConnectionTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("Collection /db/foobar not found!")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
@@ -164,6 +170,8 @@ public class ConnectionTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().contains("User foo unknown")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
         }

@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
-import org.exist.xmldb.XmldbURL;
-import org.exist.io.BlockingInputStream;
-import org.exist.io.BlockingOutputStream;
+import org.exist.protocolhandler.xmldb.XmldbURL;
+import org.exist.protocolhandler.io.BlockingInputStream;
+import org.exist.protocolhandler.io.BlockingOutputStream;
 
 /**
  * Write document to remote database (using xmlrpc) using output stream.

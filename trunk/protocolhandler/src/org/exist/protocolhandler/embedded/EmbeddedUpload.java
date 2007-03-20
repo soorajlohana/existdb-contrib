@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
-import org.exist.io.ExistIOException;
+import org.exist.protocolhandler.io.ExistIOException;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
@@ -43,7 +43,7 @@ import org.exist.storage.txn.Txn;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
 import org.exist.xmldb.XmldbURI;
-import org.exist.xmldb.XmldbURL;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.xml.sax.InputSource;
 
 /**

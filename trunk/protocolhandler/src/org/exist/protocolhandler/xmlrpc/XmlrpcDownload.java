@@ -30,8 +30,8 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.exist.io.ExistIOException;
-import org.exist.xmldb.XmldbURL;
+import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**
  *  Read document from using XMLRPC from remote database and write the data 

@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  * @author Dannes Wessels

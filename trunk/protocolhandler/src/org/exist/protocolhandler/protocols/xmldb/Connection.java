@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 import org.exist.protocolhandler.embedded.EmbeddedInputStream;
 import org.exist.protocolhandler.embedded.EmbeddedOutputStream;
-import org.exist.xmldb.XmldbURL;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.protocolhandler.xmlrpc.XmlrpcInputStream;
 import org.exist.protocolhandler.xmlrpc.XmlrpcOutputStream;
 

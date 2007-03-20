@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.io;
+package org.exist.protocolhandler.io;
 
 
 /**

@@ -20,7 +20,7 @@
  *  $Id$
  */
 
-package org.exist.xmldb;
+package org.exist.protocolhandler.xmldb;
 
 import java.net.MalformedURLException;
 

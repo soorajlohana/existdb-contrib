@@ -25,8 +25,8 @@ package org.exist.protocolhandler.embedded;
 
 import java.io.IOException;
 import org.apache.log4j.Logger;
-import org.exist.io.BlockingInputStream;
-import org.exist.xmldb.XmldbURL;
+import org.exist.protocolhandler.io.BlockingInputStream;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**
  *  Wrap XmlrpcUpload class into a thread for XmlrpcOutputStream.

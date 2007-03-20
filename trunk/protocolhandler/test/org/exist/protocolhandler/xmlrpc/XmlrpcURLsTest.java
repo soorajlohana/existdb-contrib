@@ -97,9 +97,9 @@ public class XmlrpcURLsTest extends TestCase {
                     "build.xml" );
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-            LOG.error(ex);
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
         }
     }
     
@@ -110,9 +110,9 @@ public class XmlrpcURLsTest extends TestCase {
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml", os);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-            LOG.error(ex);
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
         }
     }
     
@@ -126,8 +126,8 @@ public class XmlrpcURLsTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -141,8 +141,8 @@ public class XmlrpcURLsTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -157,8 +157,8 @@ public class XmlrpcURLsTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -176,8 +176,8 @@ public class XmlrpcURLsTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User .* unknown.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }

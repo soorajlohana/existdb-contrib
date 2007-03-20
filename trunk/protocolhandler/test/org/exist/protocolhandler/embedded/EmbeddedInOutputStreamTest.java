@@ -90,7 +90,6 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
         
-        // Setup
         EmbeddedOutputStream eos = new EmbeddedOutputStream(uri);
         
         // Transfer bytes from in to out
@@ -100,14 +99,12 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             eos.write(buf, 0, len);
         }
         
-        // Shutdown
         eos.flush();
         eos.close();
     }
     
     private void getDocument(XmldbURL uri, OutputStream os) throws IOException{
         
-        // Setup
         EmbeddedInputStream eis = new EmbeddedInputStream(uri);
         
         // Transfer bytes from in to out
@@ -117,17 +114,13 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             os.write(buf, 0, len);
         }
         
-        // Shutdown
         os.flush();
         os.close();
-        eis.close(); // required; checks wether all is OK
+        eis.close();
         
     }
     
-    // ===================================
-    
-    
-//testToDB
+    //testToDB
     public void testToDB() {
         System.out.println("testToDB");
         try{
@@ -143,8 +136,8 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         }
     }
     
-//testFromDB
-    public void testtestFromDB() {
+    //testFromDB
+    public void testFromDB() {
         System.out.println("testFromDB");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist:///db/build_embedded_testToDB.xml";
@@ -161,7 +154,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     }
     
     
-//testToDB_NotExistingCollection
+    //testToDB_NotExistingCollection
     public void testToDB_NotExistingCollection() {
         System.out.println("testToDB_NotExistingCollection");
         try{
@@ -173,13 +166,15 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             fail("Exception expected, not existing collection.");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            //fail(ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Resource /db/foobar is not a collection.")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
         }
     }
     
-//testFromDB_NotExistingCollection
+    //testFromDB_NotExistingCollection
     public void testFromDB_NotExistingCollection() {
         System.out.println("testFromDB_NotExistingCollection");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -194,13 +189,13 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Resource .* not found.")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
     
-//testToDB_NotExistingUser
+    //testToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
         System.out.println("testToDB_NotExistingUser");
         try{
@@ -212,13 +207,15 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             fail("Exception expected, not existing user.");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            //fail(ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Unauthorized user foo.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getCause().getMessage());
+            }
         }
     }
     
-//testFromDB_NotExistingUser
+    //testFromDB_NotExistingUser
     public void testFromDB_NotExistingUser() {
         System.out.println("testFromDB_NotExistingUser");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -227,19 +224,18 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            
             fail("Exception expected, not existing collection.");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Unauthorized user foo")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
     
-//testToDB_NotAuthorized
+    //testToDB_NotAuthorized
     public void testToDB_NotAuthorized() {
         System.out.println("testToDB_NotAuthorized");
         try{
@@ -247,17 +243,18 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             String uri = "xmldb:exist:///db/system/users.xml";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
-            
             fail("Exception expected, not authorized user.");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            //fail(ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Document exists and update is not allowed for the collection.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
         }
     }
     
-//testFromDB_NotAuthorized
+    //testFromDB_NotAuthorized
     public void testFromDB_NotAuthorized() {
         System.out.println("testFromDB_NotAuthorized");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -272,8 +269,8 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Permission denied to read collection '/db/system'")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }

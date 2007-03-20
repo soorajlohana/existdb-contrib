@@ -31,9 +31,9 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.io.ExistIOException;
-import org.exist.xmldb.XmldbURL;
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.protocolhandler.xmldb.XmldbURL;
+import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  *  jUnit tests for XmlrpcUpload class

@@ -39,8 +39,8 @@ import org.exist.security.SecurityManager;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.util.Configuration;
-import org.exist.xmldb.XmldbURL;
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.xmldb.XmldbURL;
+import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 

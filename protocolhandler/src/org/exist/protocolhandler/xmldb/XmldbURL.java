@@ -20,11 +20,12 @@
  *  $Id$
  */
 
-package org.exist.xmldb;
+package org.exist.protocolhandler.xmldb;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import org.exist.xmldb.*;
 
 /**
  *  A utility class for xmldb URLs. Since, java.net.URL is final this class

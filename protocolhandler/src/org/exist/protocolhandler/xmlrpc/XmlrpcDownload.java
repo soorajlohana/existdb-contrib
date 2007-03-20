@@ -22,20 +22,15 @@
 
 package org.exist.protocolhandler.xmlrpc;
 
+import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.exist.io.ExistIOException;
-
-import org.exist.xmldb.XmldbURLStreamHandlerFactory;
 import org.exist.xmldb.XmldbURL;
 
 /**
@@ -56,7 +51,7 @@ public class XmlrpcDownload {
      * @param os Stream to which the document is written.
      * @throws ExistIOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws ExistIOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         LOG.debug("Begin document download");
         try {
             // Setup client client
@@ -99,11 +94,14 @@ public class XmlrpcDownload {
             }
             
             // Finish transport
-            os.close();
+            //** os.close();
             
+        } catch (IOException ex) {
+            LOG.error(ex);
+            throw ex;
         } catch (Exception ex) {
             LOG.error(ex);
-            throw new ExistIOException(ex.getMessage());
+            throw new ExistIOException(ex.getMessage(), ex);
                        
         } finally {
             LOG.debug("Finished document download"); 

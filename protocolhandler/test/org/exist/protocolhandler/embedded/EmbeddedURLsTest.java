@@ -182,7 +182,7 @@ public class EmbeddedURLsTest extends TestCase {
             boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
             
-            fail("Execption expected");
+            fail("Exception expected");
             
         } catch (Exception ex) {
             ex.printStackTrace();

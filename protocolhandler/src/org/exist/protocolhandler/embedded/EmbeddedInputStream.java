@@ -57,7 +57,7 @@ public class EmbeddedInputStream extends InputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new EmbeddedDownloadThread( xmldbURL , bos);
+        rt = new EmbeddedDownloadThread(xmldbURL , bos);
         
         rt.start();
         
@@ -88,13 +88,13 @@ public class EmbeddedInputStream extends InputStream {
 //        bos.mark(readlimit);
 //    }
     
-//*    public long skip(long n) throws IOException {
-//*        return super.skip(n);
-//*    }
+    public long skip(long n) throws IOException {
+        return bis.skip(n);
+    }
     
-//*    public void reset() throws IOException {
-//*        super.reset();
-//*    }
+    public void reset() throws IOException {
+        bis.reset();
+    }
     
     public int read() throws IOException {
         

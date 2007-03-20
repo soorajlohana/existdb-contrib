@@ -140,7 +140,7 @@ public class ConnectionTest extends TestCase {
             fail("Document should not exist");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().contains("Collection /db/foobar not found!")){
+            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found!")){
                 fail(ex.getMessage());
             }
         }
@@ -163,7 +163,7 @@ public class ConnectionTest extends TestCase {
             fail("user should not exist");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().contains("User foo unknown")){
+            if(!ex.getCause().getMessage().contains("User foo unknown")){
                 fail(ex.getMessage());
             }
         }

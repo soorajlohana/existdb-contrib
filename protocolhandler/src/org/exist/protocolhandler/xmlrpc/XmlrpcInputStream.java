@@ -24,12 +24,12 @@ package org.exist.protocolhandler.xmlrpc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
 import org.exist.io.BlockingInputStream;
+import org.exist.io.BlockingOutputStream;
 
 /**
  * Read document from remote database (using xmlrpc) as a input stream.
@@ -40,7 +40,7 @@ public class XmlrpcInputStream  extends InputStream {
     
     private final static Logger logger = Logger.getLogger(XmlrpcInputStream.class);
     private BlockingInputStream bis;
-    private OutputStream bos;
+    private BlockingOutputStream bos;
     private XmlrpcDownloadThread rt;
     
     /**
@@ -56,7 +56,7 @@ public class XmlrpcInputStream  extends InputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcDownloadThread( xmldbURL , bos); 
+        rt = new XmlrpcDownloadThread(xmldbURL , bos); 
         
         rt.start();
         
@@ -66,20 +66,20 @@ public class XmlrpcInputStream  extends InputStream {
     
     public int read(byte[] b, int off, int len) throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
         
         return bis.read(b, off, len);
     }
 
     public int read(byte[] b) throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
         
         return bis.read(b, 0, b.length);
     }
@@ -90,19 +90,19 @@ public class XmlrpcInputStream  extends InputStream {
 //    }
 
     public long skip(long n) throws IOException {
-        return super.skip(n);
+        return bis.skip(n);
     }
 
     public void reset() throws IOException {
-        super.reset();
+        bis.reset();
     }
 
     public int read() throws IOException {
         
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
         
         return bis.read();
     }
@@ -119,31 +119,31 @@ public class XmlrpcInputStream  extends InputStream {
 
         bis.close();
         
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
 
     }
     
     /** NOTE (COFF) : This is an OutputStream method!? */
-    public void flush() throws IOException {
-        bos.flush();
-        
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
-    }
+//**    public void flush() throws IOException {
+//**        bos.flush();
+//**        
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
+//**    }
        
 
     public int available() throws IOException {
-        
-        if(rt.isExceptionThrown())
-        {
-            throw new IOException(rt.getThrownException());
-        }
-        
+//**        
+//**        if(rt.isExceptionThrown())
+//**        {
+//**            throw new IOException(rt.getThrownException());
+//**        }
+//**        
         return bis.available();
     }
     

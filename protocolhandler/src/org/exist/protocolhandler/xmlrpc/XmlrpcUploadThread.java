@@ -23,6 +23,7 @@
 package org.exist.protocolhandler.xmlrpc;
 
 
+import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.exist.io.BlockingInputStream;
 import org.exist.xmldb.XmldbURL;
@@ -41,8 +42,8 @@ public class XmlrpcUploadThread extends Thread {
     
     
     public XmlrpcUploadThread(XmldbURL url, BlockingInputStream is) {
-        this.xmldbURL=url;
-        this.inputStream=is;
+        xmldbURL=url;
+        inputStream=is;
     }
     
     /**
@@ -50,8 +51,15 @@ public class XmlrpcUploadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
-        XmlrpcUpload uploader = new XmlrpcUpload();
-        uploader.stream(xmldbURL, inputStream);
-        logger.debug("Thread stopped." );
+        try {
+            XmlrpcUpload uploader = new XmlrpcUpload();
+            uploader.stream(xmldbURL, inputStream);
+        } catch (IOException ex) {
+            logger.error(ex);
+            exception = ex;
+        } finally {
+            inputStream.close(exception);
+            logger.debug("Thread stopped." );
+        }
     }
 }

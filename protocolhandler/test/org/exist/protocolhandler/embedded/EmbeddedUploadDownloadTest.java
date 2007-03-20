@@ -69,8 +69,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     protected void tearDown() throws Exception {
         LOG.debug("tearDown");
-//        Thread.sleep(1500);
-//        BrokerPool.stopAll(false);
     }
     
     protected BrokerPool startDB() {
@@ -107,8 +105,9 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
+            
         } finally {
             pool.release(broker);
         }
@@ -135,14 +134,15 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
+            
         } finally {
             pool.release(broker);
         }
     }
     
-//ToDB_NotExistingCollection
+    //ToDB_NotExistingCollection
     public void testToDB_NotExistingCollection() {
         System.out.println("testToDB_NotExistingCollection");
         BrokerPool pool = null;
@@ -159,15 +159,15 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Resource /db/foobar is not a collection.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);
         }
     }
     
-//FromDB_NotExistingCollection
+    //FromDB_NotExistingCollection
     public void testFromDB_NotExistingCollection() {
         System.out.println("testFromDB_NotExistingCollection");
         BrokerPool pool = null;
@@ -190,15 +190,15 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Resource .* not found.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);
         }
     }
     
-//ToDB_NotExistingUser
+    //ToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
         System.out.println("testToDB_NotExistingUser");
         BrokerPool pool = null;
@@ -213,18 +213,17 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             is.close();
             
         } catch (Exception ex) {
-            ex.printStackTrace();
             if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
                 ex.printStackTrace();
-                fail("the text is "+ex.getCause().getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);
         }
     }
     
-//FromDB_NotExistingUser
+    //FromDB_NotExistingUser
     public void testFromDB_NotExistingUser() {
         System.out.println("testFromDB_NotExistingUser");
         BrokerPool pool = null;
@@ -247,15 +246,15 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);
         }
     }
     
-//ToDB_NotAuthorized
+    //ToDB_NotAuthorized
     public void testToDB_NotAuthorized() {
         System.out.println("testToDB_NotAuthorized");
         BrokerPool pool = null;
@@ -273,15 +272,15 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
             if(!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);
         }
     }
     
-//FromDB_NotAuthorized
+    //FromDB_NotAuthorized
     public void testFromDB_NotAuthorized() {
         System.out.println("testFromDB_NotAuthorized");
         BrokerPool pool = null;
@@ -303,8 +302,9 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Permission denied to read collection .*")){
-                fail(ex.getMessage());
+                ex.printStackTrace();
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         } finally {
             pool.release(broker);

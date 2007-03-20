@@ -85,52 +85,30 @@ public class EmbeddedURLsTest extends TestCase {
         return null;
     }
     
-    private boolean sendToURL(String URL, String file) throws Exception {
+    private void sendToURL(String URL, String file) throws Exception {
         
-        boolean retVal=false;
+        pool = startDB();
+        URL url = new URL(URL);
+        InputStream is = new BufferedInputStream( new FileInputStream(file) );
+        OutputStream os = url.openConnection().getOutputStream();
+        copyDocument(is,os);
+        is.close();
+        os.flush();
+        os.close();
         
-        try {
-            pool = startDB();
-            URL url = new URL(URL);
-            InputStream is = new BufferedInputStream( new FileInputStream(file) );
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is,os);
-            is.close();
-            os.flush();
-            os.close();
-            
-            retVal=true; // no problems!
-            
-        } catch (Exception ex) {
-            LOG.error(ex);
-            throw ex;
-        }
-        
-        return retVal; //COFF: Will NEVER return false; boolean makes no sense!
     }
     
-    private boolean getFromURL(String URL, OutputStream os) throws Exception {
+    private void getFromURL(String URL, OutputStream os) throws Exception {
         
-        boolean retVal=false;
+        pool = startDB();
+        URL url = new URL(URL);
+        InputStream is = url.openConnection().getInputStream();
+        copyDocument(is,os);
         
-        try {
-            pool = startDB();
-            URL url = new URL(URL);
-            InputStream is = url.openConnection().getInputStream();
-            copyDocument(is,os);
-            
-            is.close();
-            os.flush();
-            os.close();
-            
-            retVal=true; // no problems!
-            
-        } catch (Exception ex) {
-            LOG.error(ex);
-            throw ex;
-        }
+        is.close();
+        os.flush();
+        os.close();
         
-        return retVal;
     }
     
     // Transfer bytes from inputstream to outputstream
@@ -149,15 +127,13 @@ public class EmbeddedURLsTest extends TestCase {
         System.out.println("testToDB");
         
         try {
-            boolean retVal = sendToURL(
+            sendToURL(
                     "xmldb:exist:///db/build_testToDB.xml",
                     "build.xml" );
             
-            assertTrue(retVal);
-            
         } catch (Exception ex) {
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
@@ -171,23 +147,24 @@ public class EmbeddedURLsTest extends TestCase {
             os.close();
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
     public void testToDB_NotExistingCollection() {
         System.out.println("testToDB_NotExistingCollection");
         try {
-            boolean retVal = sendToURL("xmldb:exist:///db/foo/bar.xml",
+            sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
-            
             fail("Exception expected");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            // COFF - fail("Need to change this text"+ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Resource /db/foo is not a collection.*")){
+                ex.printStackTrace();
+                fail(ex.getMessage());
+                LOG.error(ex);
+            }
         }
     }
     
@@ -216,9 +193,11 @@ public class EmbeddedURLsTest extends TestCase {
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
-            ex.printStackTrace();
-            // COFF - fail("Need to change this text"+ex.getMessage());
-            LOG.error(ex);
+            if(!ex.getCause().getMessage().matches(".*Unauthorized user.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
         }
     }
     
@@ -235,10 +214,10 @@ public class EmbeddedURLsTest extends TestCase {
             fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Unauthorized user")){
+            if(!ex.getCause().getMessage().matches(".*Unauthorized user.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -253,10 +232,10 @@ public class EmbeddedURLsTest extends TestCase {
             fail("Not authorized: Exception expected");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getCause().getMessage().matches(".*not allowed to write to collection.*")){
+            if(!ex.getCause().getMessage().matches(".*not allowed to write to collection.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }
@@ -276,8 +255,8 @@ public class EmbeddedURLsTest extends TestCase {
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Permission denied to read collection.*")){
                 ex.printStackTrace();
-                fail(ex.getMessage());
                 LOG.error(ex);
+                fail(ex.getMessage());
             }
         }
     }

@@ -131,8 +131,8 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     
@@ -148,8 +148,8 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            fail(ex.getMessage());
             LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
     

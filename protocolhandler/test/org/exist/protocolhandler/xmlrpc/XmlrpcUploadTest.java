@@ -104,7 +104,7 @@ public class XmlrpcUploadTest extends TestCase {
             fail("Upload to non existing collection must fail.");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("Collection /db/foobar not found")){
+            if(!ex.getCause().getMessage().matches(".*Collection /db/foobar not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -131,7 +131,7 @@ public class XmlrpcUploadTest extends TestCase {
             fail("Upload as non existing user must fail.");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("User foo unknown")){
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -157,7 +157,7 @@ public class XmlrpcUploadTest extends TestCase {
             fail("Upload to collection /db/system/ must fail.");
 
         } catch (Exception ex) {
-            if(!ex.getMessage().contains("User 'guest' not allowed to write to collection '/db/system'")){
+            if(!ex.getMessage().matches(".*User 'guest' not allowed to write to collection '/db/system'.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());

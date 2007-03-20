@@ -88,11 +88,10 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            // TODO check message (org.exist.io.ExistIOException: BlockingInputStream closed with an exception.)
             if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getCause().getMessage());
+                fail(ex.getMessage());
             }
         }
     }
@@ -127,17 +126,15 @@ public class XmlrpcOutputStreamTest extends TestCase {
             fail("Expected exception");
             
         } catch (Exception ex) {
-            
-            // TODO check message
             if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getCause().getMessage());
+                fail(ex.getMessage());
             }
         }
     }
     
-//ToDB_NotExistingUser
+    //ToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
         System.out.println("testToDB_NotExistingUser");
         try{
@@ -154,12 +151,12 @@ public class XmlrpcOutputStreamTest extends TestCase {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getCause().getMessage());
+                fail(ex.getMessage());
             }
         }
     }
     
-//ToDB_NotAuthorized
+    //ToDB_NotAuthorized
     public void testToDB_NotAuthorized() {
         System.out.println("testToDB_NotAuthorized");
         try{
@@ -176,11 +173,11 @@ public class XmlrpcOutputStreamTest extends TestCase {
             if(!ex.getCause().getMessage().matches(".*Document exists and update is not allowed for the collection.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getCause().getMessage());
+                fail(ex.getMessage());
             }
         }
     }
-
+    
     
     private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
         

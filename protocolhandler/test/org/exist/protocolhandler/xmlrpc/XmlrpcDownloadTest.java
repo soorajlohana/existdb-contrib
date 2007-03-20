@@ -23,8 +23,6 @@
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -35,8 +33,8 @@ import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
  *  jUnit tests for XmlrpcDownload class.
- * 
- * 
+ *
+ *
  * @author Dannes Wessels
  */
 public class XmlrpcDownloadTest extends TestCase {
@@ -59,14 +57,14 @@ public class XmlrpcDownloadTest extends TestCase {
     
     protected void tearDown() throws Exception {
     }
-
+    
     /**
      * Test download of file.
      */
     public void testFromDB() {
         
         System.out.println("testFromDB");
-            
+        
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
         
@@ -103,10 +101,12 @@ public class XmlrpcDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Collection /db/foobar not found.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             };
         }
-
+        
     }
     
     /**
@@ -128,6 +128,8 @@ public class XmlrpcDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
@@ -152,6 +154,8 @@ public class XmlrpcDownloadTest extends TestCase {
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Insufficient privileges to read resource.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
                 fail(ex.getMessage());
             }
         }

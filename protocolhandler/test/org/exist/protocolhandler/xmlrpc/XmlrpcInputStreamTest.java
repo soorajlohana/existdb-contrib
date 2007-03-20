@@ -60,7 +60,7 @@ public class XmlrpcInputStreamTest extends TestCase {
     protected void tearDown() throws Exception {
         // Empty
     }
-
+    
     /**
      * Test retrieve document from db.
      */
@@ -73,7 +73,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             assertTrue(baos.size()>0);
-
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
@@ -115,7 +115,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             
             // TODO sometimes baos is empty
             assertTrue(baos.size()>0);
-
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
@@ -135,9 +135,9 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("exception should be thrown");
-
+            
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().contains("document not found")){
+            if(!ex.getCause().getMessage().matches(".*document not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -145,7 +145,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
-//FromDB_NotExistingCollection
+    //FromDB_NotExistingCollection
     public void testFromDB_NotExistingCollection() {
         System.out.println("FromDB_NotExistingCollection");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -155,7 +155,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("exception should be thrown");
-
+            
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
@@ -165,7 +165,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
-//FromDB_NotExistingUser
+    //FromDB_NotExistingUser
     public void testFromDB_NotExistingUser() {
         System.out.println("testFromDB_NotExistingUser");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -175,7 +175,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("exception should be thrown");
-
+            
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
@@ -185,7 +185,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
-//FromDB_NotAuthorized
+    //FromDB_NotAuthorized
     public void testFromDB_NotAuthorized() {
         System.out.println("testFromDB_NotAuthorized");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -195,7 +195,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("exception should be thrown");
-
+            
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Insufficient privileges to read resource.*")){
                 ex.printStackTrace();
@@ -217,7 +217,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         while ((len = xis.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-
+        
         // Shutdown
         xis.close(); // required; checks wether all is OK
     }

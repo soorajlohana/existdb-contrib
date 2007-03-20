@@ -29,7 +29,6 @@ public class XmlrpcURLsTest extends TestCase {
     private static Logger LOG = Logger.getLogger(XmlrpcURLsTest.class);
     private static boolean firstTime=true;
     
-    
     public XmlrpcURLsTest(String testName) {
         super(testName);
     }
@@ -43,51 +42,26 @@ public class XmlrpcURLsTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
+        // empty
     }
     
-    private boolean sendToURL(String URL, String file) throws Exception {
-        
-        boolean retVal=false;
-        
-        try {
-            URL url = new URL(URL);
-            InputStream is = new BufferedInputStream( new FileInputStream(file) );
-            OutputStream os = url.openConnection().getOutputStream();
-            copyDocument(is,os);
-            is.close();
-//**            os.flush();
-            os.close();
-            
-            retVal=true; // no problems!
-            
-        } catch (Exception ex) {
-            throw ex;
-        }
-        
-        return retVal;  // COF: will never return false - makes no sense!
+    private void sendToURL(String URL, String file) throws Exception {
+        URL url = new URL(URL);
+        InputStream is = new BufferedInputStream( new FileInputStream(file) );
+        OutputStream os = url.openConnection().getOutputStream();
+        copyDocument(is,os);
+        is.close();
+        os.close();
     }
     
-    private boolean getFromURL(String URL, OutputStream os) throws Exception {
+    private void getFromURL(String URL, OutputStream os) throws Exception {
         
-        boolean retVal=false;
+        URL url = new URL(URL);
+        InputStream is = url.openConnection().getInputStream();
+        copyDocument(is,os);
         
-        try {
-            URL url = new URL(URL);
-            InputStream is = url.openConnection().getInputStream();
-            copyDocument(is,os);
-            
-            is.close();
-//**            os.flush();
-            os.close();
-            
-            retVal=true; // no problems!
-            
-        } catch (Exception ex) {
-            throw ex;
-            
-        }
-        
-        return retVal;  // COF: will never return false - makes no sense!
+        is.close();
+        os.close();
     }
     
     // Transfer bytes from inputstream to outputstream
@@ -101,17 +75,14 @@ public class XmlrpcURLsTest extends TestCase {
     }
     
     // =====================================
-     // TODO xmldb:exist://localhost:8080/db/build_testURLToDB.xml ?
+    // TODO xmldb:exist://localhost:8080/db/build_testURLToDB.xml ?
     public void testURLToDB() {
         System.out.println("testURLToDB");
-        
         try {
-            boolean retVal = sendToURL(
+            sendToURL(
                     "xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml",
                     "build.xml" );
-            
-            assertTrue(retVal);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
@@ -121,12 +92,10 @@ public class XmlrpcURLsTest extends TestCase {
     
     public void testURLFromDB() {
         System.out.println("testURLFromDB");
-        
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml", os);
-//**            os.flush();
-//**            os.close();
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
@@ -137,7 +106,7 @@ public class XmlrpcURLsTest extends TestCase {
     public void testURLToDB_notExistingCollection() {
         System.out.println("testURLToDB_notExistingCollection");
         try {
-            boolean retVal = sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml",
+            sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml",
                     "build.xml");
             
             fail("Not existing collection: Exception expected");
@@ -156,8 +125,7 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml", os);
-//**            os.flush();
-//**            os.close();
+
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
@@ -172,9 +140,8 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             sendToURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLToDB_NotExistingUser.xml",
                     "build.xml");
-            
             fail("Not existing user: Exception expected");
-            
+
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
@@ -186,14 +153,10 @@ public class XmlrpcURLsTest extends TestCase {
     
     public void testURLFromDB_NotExistingUser() {
         System.out.println("testURLFromDB_NotExistingUser");
-        
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLFromDB_NotExistingUser.xml", os);
-            
-//**            os.flush();
-//**            os.close();
-            
+
             assertTrue(os.size()==0);
             
             fail("Not existing user: Exception expected");
@@ -206,6 +169,4 @@ public class XmlrpcURLsTest extends TestCase {
             }
         }
     }
-    
-    
 }

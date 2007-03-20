@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.exist.io.BlockingInputStream;
 import org.exist.io.ExistIOException;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
@@ -59,7 +58,7 @@ public class XmlrpcUpload {
      * @throws Exception When something is wrong.
      */
     private void streamDocument(XmldbURL xmldbURL, InputStream is)
-    throws Exception {
+    throws IOException {
         LOG.debug("Begin document upload");
         try {
             // Setup xmlrpc client
@@ -110,9 +109,12 @@ public class XmlrpcUpload {
                 throw new ExistIOException("Could not store document.");
             }
             
-        } catch (Exception ex) {
-            LOG.error(ex);
+        } catch (IOException ex) {
+            LOG.debug(ex);
             throw ex;
+        } catch (Exception ex) {
+            LOG.debug(ex);
+            throw new ExistIOException(ex.getMessage(), ex);
         } finally {
            LOG.debug("Finished document upload");
         }
@@ -128,15 +130,15 @@ public class XmlrpcUpload {
      */
 
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-        try {
+//**        try {
            streamDocument(xmldbURL, is); 
-        } catch (IOException ioex) {
-            throw ioex;
-        } catch (Exception ex) {
-            throw new ExistIOException(ex.getMessage(), ex); //TODO
-        } finally {
-            is.close();
-        }
+//**        } catch (IOException ioex) {
+//**            throw ioex;
+//**        } catch (Exception ex) {
+//**            throw new ExistIOException(ex.getMessage(), ex); //TODO
+//**        } finally {
+//**            is.close();
+//**        }
     }
 
     /**
@@ -146,14 +148,14 @@ public class XmlrpcUpload {
      * @param xmldbURL URL pointing to location on eXist-db server.
      * @param bis Document stream
      */
-    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
-        Exception exception = null; 
-        try {
-            streamDocument(xmldbURL, bis); 
-        } catch (Exception ex) {
-            exception = ex;
-        } finally {
-            bis.close(exception); // Pass the exception through the stream.
-        }
-    }    
+//**    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
+//**        Exception exception = null; 
+//**        try {
+//**            streamDocument(xmldbURL, bis); 
+//**        } catch (Exception ex) {
+//**            exception = ex;
+//**        } finally {
+//**            bis.close(exception); // Pass the exception through the stream.
+//**        }
+//**    }    
 }

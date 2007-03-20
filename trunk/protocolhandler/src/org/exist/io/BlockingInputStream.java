@@ -36,7 +36,7 @@ import java.io.InputStream;
  * Closing of the output stream will block until the inputstream is closed.
  * A special version of the close function enables the consumer threads to
  * specify that an exception has occurred. This will cause producer calls to
- * be unblocked and throw an ExistIOException containing this exception as cause.
+ * be unblocked and throw an IOException containing this exception as cause.
  */
 public class BlockingInputStream extends InputStream {
 
@@ -80,7 +80,7 @@ public class BlockingInputStream extends InputStream {
      * 
      * @return the next byte of data, or <code>-1</code> if the end of the
      *             stream is reached.
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      */
     public synchronized int read() throws IOException {
         byte bb[] = new byte[1];
@@ -104,7 +104,7 @@ public class BlockingInputStream extends InputStream {
      * @return the total number of bytes read into the buffer, or
      *             <code>-1</code> if there is no more data because the end of
      *             the stream has been reached.
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      * @throws NullPointerException  if <code>b</code> is <code>null</code>.
      */
     public synchronized int read(byte b[], int off, int len) throws IOException {
@@ -217,12 +217,12 @@ public class BlockingInputStream extends InputStream {
      * @param b     the data.
      * @param off   the start offset in the data.
      * @param len   the number of bytes to write.
-     * @throws ExistIOException  if an I/O error occurs. In particular, 
-     *             an <code>ExistIOException</code> is thrown if the output 
+     * @throws IOException  if an I/O error occurs. In particular, 
+     *             an <code>IOException</code> is thrown if the output 
      *             stream is closed.
      */
     synchronized void writeOutputStream(byte b[], int off, int len)
-    throws ExistIOException {
+    throws IOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -265,7 +265,7 @@ public class BlockingInputStream extends InputStream {
      * This method blocks its caller until the corresponding input stream is
      * closed or an exception occurs.
      * 
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      */
     synchronized void closeOutputStream() throws IOException {
         outClosed = true;
@@ -285,10 +285,10 @@ public class BlockingInputStream extends InputStream {
     /**
      * Closes this output stream, specifying that an exception has occurred.
      * This will cause all consumer calls to be unblocked and throw an
-     * ExistIOException with this exception as its cause.
+     * IOException with this exception as its cause.
      * <code>BlockingInputStream</code> specific method.
 
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      */
     synchronized void closeOutputStream(Exception ex) throws IOException {
         outException = ex;
@@ -303,7 +303,7 @@ public class BlockingInputStream extends InputStream {
      * read by the consuming threads.
      * 
      * 
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      */
     synchronized void flushOutputStream() throws IOException {
         try {
@@ -327,7 +327,7 @@ public class BlockingInputStream extends InputStream {
      * 
      * @return the number of bytes that can be written to this output stream
      *             without blocking.
-     * @throws ExistIOException  if an I/O error occurs.
+     * @throws IOException  if an I/O error occurs.
      */
     private synchronized int free() {
         int prevhead = prev(head);

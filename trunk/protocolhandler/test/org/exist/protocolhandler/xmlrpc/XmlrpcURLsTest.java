@@ -55,7 +55,7 @@ public class XmlrpcURLsTest extends TestCase {
             OutputStream os = url.openConnection().getOutputStream();
             copyDocument(is,os);
             is.close();
-            os.flush();
+//**            os.flush();
             os.close();
             
             retVal=true; // no problems!
@@ -77,7 +77,7 @@ public class XmlrpcURLsTest extends TestCase {
             copyDocument(is,os);
             
             is.close();
-            os.flush();
+//**            os.flush();
             os.close();
             
             retVal=true; // no problems!
@@ -87,7 +87,7 @@ public class XmlrpcURLsTest extends TestCase {
             
         }
         
-        return retVal;
+        return retVal;  // COF: will never return false - makes no sense!
     }
     
     // Transfer bytes from inputstream to outputstream
@@ -125,8 +125,8 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/db/build_testURLToDB.xml", os);
-            os.flush();
-            os.close();
+//**            os.flush();
+//**            os.close();
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
@@ -154,8 +154,8 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/db/foo/bar.xml", os);
-            os.flush();
-            os.close();
+//**            os.flush();
+//**            os.close();
         } catch (Exception ex) {
             if(!ex.getMessage().matches("Resource .* not found.")){
                 ex.printStackTrace();
@@ -189,8 +189,8 @@ public class XmlrpcURLsTest extends TestCase {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@localhost:8080/db/testURLFromDB_NotExistingUser.xml", os);
             
-            os.flush();
-            os.close();
+//**            os.flush();
+//**            os.close();
             
             assertTrue(os.size()==0);
             

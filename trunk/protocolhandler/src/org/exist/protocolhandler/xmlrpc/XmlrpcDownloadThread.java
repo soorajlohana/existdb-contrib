@@ -24,14 +24,9 @@ package org.exist.protocolhandler.xmlrpc;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpc;
-import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
+import org.exist.io.BlockingOutputStream;
 import org.exist.xmldb.XmldbURL;
 
 /**
@@ -42,9 +37,9 @@ import org.exist.xmldb.XmldbURL;
 public class XmlrpcDownloadThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(XmlrpcDownloadThread.class);
-    private XmldbURL xmldbURL;
-    private OutputStream outputStream;
-    private Exception exception=null;
+    private XmldbURL     xmldbURL;
+    private BlockingOutputStream outputStream;
+    private IOException  exception;
     
     /**
      *  Constructor of XmlrpcDownloadThread.
@@ -52,9 +47,9 @@ public class XmlrpcDownloadThread extends Thread {
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
      */
-    public XmlrpcDownloadThread(XmldbURL xmldbURL, OutputStream os) {
-        this.xmldbURL=xmldbURL;
-        this.outputStream=os;
+    public XmlrpcDownloadThread(XmldbURL url, BlockingOutputStream os) {
+        xmldbURL=url;
+        outputStream=os;
     }
     
     /**
@@ -65,12 +60,12 @@ public class XmlrpcDownloadThread extends Thread {
         try {
             XmlrpcDownload xuc = new XmlrpcDownload();
             xuc.stream(xmldbURL, outputStream);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(ex);
-            exception=new Exception(ex.getMessage());
+            exception = ex;
         } finally {
             try { // NEEDED!
-                outputStream.close();
+                outputStream.close(exception);
             } catch (IOException ex) {
                 logger.debug(ex);
             }
@@ -83,17 +78,17 @@ public class XmlrpcDownloadThread extends Thread {
      *
      * @return TRUE when exception is thown in thread
      */
-    public boolean isExceptionThrown(){
-        return (exception!=null);
-    }
+//**    public boolean isExceptionThrown(){
+//**        return (exception!=null);
+//**    }
     
     /**
      *  Get thrown processing exception.
      *
      * @return Exception that is thrown during processing, NULL if not available.
      */
-    public Exception getThrownException(){
-        return this.exception;
-    }
+//**    public Exception getThrownException(){
+//**        return this.exception;
+//**    }
     
 }

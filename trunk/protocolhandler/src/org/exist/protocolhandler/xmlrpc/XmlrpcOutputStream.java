@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import org.apache.log4j.Logger;
 import org.exist.xmldb.XmldbURL;
 import org.exist.io.BlockingInputStream;
+import org.exist.io.BlockingOutputStream;
 
 /**
  * Write document to remote database (using xmlrpc) using output stream.
@@ -39,7 +40,7 @@ public class XmlrpcOutputStream  extends OutputStream {
     
     private final static Logger logger = Logger.getLogger(XmlrpcOutputStream.class);
     private BlockingInputStream bis;
-    private OutputStream bos;
+    private BlockingOutputStream bos;
     private XmlrpcUploadThread rt; 
     
     /**

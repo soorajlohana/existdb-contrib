@@ -95,7 +95,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
             
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*document not found.*")){
+            if(!ex.getCause().getMessage().matches(".*document not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -138,7 +138,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
 
         } catch (Exception ex) {
-            if(!ex.getMessage().contains("document not found")){
+            if(!ex.getCause().getMessage().contains("document not found")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -158,7 +158,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
 
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Collection /db/foo not found.*")){
+            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -178,7 +178,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
 
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*User foo unknown.*")){
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -198,7 +198,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("exception should be thrown");
 
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Insufficient privileges to read resource.*")){
+            if(!ex.getCause().getMessage().matches(".*Insufficient privileges to read resource.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());

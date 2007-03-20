@@ -58,8 +58,9 @@ public class XmlrpcInputStreamTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
+        // Empty
     }
-    
+
     /**
      * Test retrieve document from db.
      */
@@ -71,7 +72,6 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            
             assertTrue(baos.size()>0);
 
         } catch (Exception ex) {
@@ -91,7 +91,6 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri=xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            // COFF baos.close();
             fail("exception should be thrown");
             
         } catch (Exception ex) {
@@ -218,11 +217,8 @@ public class XmlrpcInputStreamTest extends TestCase {
         while ((len = xis.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        
+
         // Shutdown
         xis.close(); // required; checks wether all is OK
-//        os.flush();
-//        os.close(); // COFF added
-
     }
 }

@@ -1,8 +1,23 @@
 /*
- * XmlrpcURLsTest.java
- * JUnit based test
+ *  eXist Open Source Native XML Database
+ *  Copyright (C) 2001-07 The eXist Project
+ *  http://exist-db.org
  *
- * Created on February 26, 2007, 9:20 PM
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  $Id$
  */
 
 package org.exist.protocolhandler.xmlrpc;
@@ -55,11 +70,9 @@ public class XmlrpcURLsTest extends TestCase {
     }
     
     private void getFromURL(String URL, OutputStream os) throws Exception {
-        
         URL url = new URL(URL);
         InputStream is = url.openConnection().getInputStream();
         copyDocument(is,os);
-        
         is.close();
         os.close();
     }
@@ -108,7 +121,6 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml",
                     "build.xml");
-            
             fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {

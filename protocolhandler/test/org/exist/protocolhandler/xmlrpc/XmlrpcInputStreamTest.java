@@ -91,7 +91,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri=xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            fail("exception should be thrown");
+            fail("Not existing document: exception should be thrown");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*document not found.*")){
@@ -134,7 +134,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            fail("exception should be thrown");
+            fail("Not existing document: exception should be thrown");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*document not found.*")){
@@ -154,7 +154,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            fail("exception should be thrown");
+            fail("Not existing collection: exception should be thrown");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
@@ -174,7 +174,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            fail("exception should be thrown");
+            fail("Not existing user: exception should be thrown");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
@@ -194,7 +194,7 @@ public class XmlrpcInputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
-            fail("exception should be thrown");
+            fail("Not authorized user: exception should be thrown");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Insufficient privileges to read resource.*")){

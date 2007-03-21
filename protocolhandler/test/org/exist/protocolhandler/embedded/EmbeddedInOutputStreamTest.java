@@ -145,6 +145,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
+            assertTrue(baos.size()>0);
             
         } catch (Exception ex) {
             ex.printStackTrace();

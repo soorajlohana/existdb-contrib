@@ -117,7 +117,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         System.out.println("testFromDB");
         BrokerPool pool = null;
         DBBroker broker = null;
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
         try {
             pool = startDB();
@@ -125,12 +125,12 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testEmbeddedUploadToDB.xml");
             
             EmbeddedDownload instance = new EmbeddedDownload();
-            instance.stream(xmldbURL, os);
+            instance.stream(xmldbURL, baos);
             
-            os.flush();
-            os.close();
+            baos.flush();
+            baos.close();
             
-            assertTrue( os.size()>0 );
+            assertTrue( baos.size()>0 );
             
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -155,6 +155,8 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
+            
+            fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Resource /db/foobar is not a collection.*")){
@@ -185,7 +187,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             os.flush();
             os.close();
             
-            assertTrue( os.size()>0 );
+            fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Resource .* not found.*")){
@@ -211,6 +213,8 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
+            
+            fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
@@ -241,7 +245,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             os.flush();
             os.close();
             
-            assertTrue( os.size()>0 );
+            fail("Not existing user: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
@@ -267,6 +271,8 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
+            
+            fail("User not authorized: Exception expected");
             
         } catch (Exception ex) {
             
@@ -298,7 +304,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             os.flush();
             os.close();
             
-            assertTrue( os.size()>0 );
+            fail("User not authorized: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Permission denied to read collection .*")){

@@ -85,7 +85,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
-            fail("Expected exception");
+            fail("Not existing collection: Expected exception");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
@@ -123,7 +123,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
             sendDocument( xmldbUri, fis);
             fis.close();
             
-            fail("Expected exception");
+            fail("Not existing collection: Expected exception");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
@@ -145,7 +145,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
             sendDocument( xmldbUri, fis);
             fis.close();
             
-            fail("Expected exception");
+            fail("not existing user: Expected exception");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
@@ -167,7 +167,7 @@ public class XmlrpcOutputStreamTest extends TestCase {
             sendDocument( xmldbUri, fis);
             fis.close();
             
-            fail("Expected exception");
+            fail("User not authorized: Expected exception");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Document exists and update is not allowed for the collection.*")){

@@ -61,6 +61,7 @@ public class XmlrpcInOutputStreamTest extends TestCase {
         //
     }
     
+    // ***************************************
 
     private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
         
@@ -98,6 +99,17 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     // ***********************
+    
+    //ToDB
+    //FromDB
+    //ToDB_NotExistingCollection
+    //FromDB_NotExistingCollection
+    //ToDB_NotExistingUser
+    //FromDB_NotExistingUser
+    //ToDB_NotAuthorized
+    //FromDB_NotAuthorized
+    
+    
     
     //ToDB_NotExistingUser
     public void testToDB_NotExistingUser() {

@@ -23,7 +23,6 @@
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
 import org.exist.protocolhandler.io.BlockingOutputStream;
@@ -38,9 +37,8 @@ public class XmlrpcDownloadThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(XmlrpcDownloadThread.class);
     private XmldbURL     xmldbURL;
-    private BlockingOutputStream outputStream;
-    private IOException  exception;
-    
+    private BlockingOutputStream bos;
+
     /**
      *  Constructor of XmlrpcDownloadThread.
      * 
@@ -49,7 +47,7 @@ public class XmlrpcDownloadThread extends Thread {
      */
     public XmlrpcDownloadThread(XmldbURL url, BlockingOutputStream os) {
         xmldbURL=url;
-        outputStream=os;
+        bos=os;
     }
     
     /**
@@ -57,38 +55,21 @@ public class XmlrpcDownloadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
+        IOException exception=null;
         try {
             XmlrpcDownload xuc = new XmlrpcDownload();
-            xuc.stream(xmldbURL, outputStream);
+            xuc.stream(xmldbURL, bos);
         } catch (IOException ex) {
             logger.error(ex);
             exception = ex;
         } finally {
             try { // NEEDED!
-                outputStream.close(exception);
+                bos.close(exception);
             } catch (IOException ex) {
                 logger.debug(ex);
             }
             logger.debug("Thread stopped." );
         }
     }
-    
-    /**
-     *  Check if an exception is thrown during processing.
-     *
-     * @return TRUE when exception is thown in thread
-     */
-//**    public boolean isExceptionThrown(){
-//**        return (exception!=null);
-//**    }
-    
-    /**
-     *  Get thrown processing exception.
-     *
-     * @return Exception that is thrown during processing, NULL if not available.
-     */
-//**    public Exception getThrownException(){
-//**        return this.exception;
-//**    }
-    
+
 }

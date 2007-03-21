@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
@@ -93,12 +94,10 @@ public class XmlrpcDownload {
                 os.write(data);
             }
             
-            // Finish transport
-            //** os.close();
-            
         } catch (IOException ex) {
             LOG.error(ex);
             throw ex;
+            
         } catch (Exception ex) {
             LOG.error(ex);
             throw new ExistIOException(ex.getMessage(), ex);

@@ -27,9 +27,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
-import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.protocolhandler.io.BlockingInputStream;
 import org.exist.protocolhandler.io.BlockingOutputStream;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**
  * Read document from remote database (using xmlrpc) as a input stream.
@@ -44,8 +44,8 @@ public class XmlrpcInputStream  extends InputStream {
     private XmlrpcDownloadThread rt;
     
     /**
-     *  Constructor of XmlrpcInputStream. 
-     * 
+     *  Constructor of XmlrpcInputStream.
+     *
      * @param xmldbURL Location of document in database.
      * @throws MalformedURLException Thrown for illegalillegal URLs.
      */
@@ -56,7 +56,7 @@ public class XmlrpcInputStream  extends InputStream {
         bis = new BlockingInputStream();
         bos = bis.getOutputStream();
         
-        rt = new XmlrpcDownloadThread(xmldbURL , bos); 
+        rt = new XmlrpcDownloadThread(xmldbURL , bos);
         
         rt.start();
         
@@ -65,85 +65,45 @@ public class XmlrpcInputStream  extends InputStream {
     }
     
     public int read(byte[] b, int off, int len) throws IOException {
-        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-        
         return bis.read(b, off, len);
     }
-
+    
     public int read(byte[] b) throws IOException {
-        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-        
         return bis.read(b, 0, b.length);
     }
-
+    
+    // TODO Is this needed?
 //    public void mark(int readlimit) {
 //
 //        bos.mark(readlimit);
 //    }
-
+    
     public long skip(long n) throws IOException {
         return bis.skip(n);
     }
-
+    
     public void reset() throws IOException {
         bis.reset();
     }
-
+    
     public int read() throws IOException {
-        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-        
         return bis.read();
     }
-
+    
+    // TODO Is this needed?
 //    public boolean markSupported() {
 //
 //        boolean retValue;
-//        
+//
 //        retValue = bos.markSupported();
 //        return retValue;
 //    }
-
+    
     public void close() throws IOException {
-
         bis.close();
-        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-
     }
     
-    /** NOTE (COFF) : This is an OutputStream method!? */
-//**    public void flush() throws IOException {
-//**        bos.flush();
-//**        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-//**    }
-       
-
     public int available() throws IOException {
-//**        
-//**        if(rt.isExceptionThrown())
-//**        {
-//**            throw new IOException(rt.getThrownException());
-//**        }
-//**        
         return bis.available();
     }
     

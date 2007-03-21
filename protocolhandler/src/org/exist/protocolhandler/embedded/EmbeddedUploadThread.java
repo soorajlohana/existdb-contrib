@@ -37,13 +37,11 @@ public class EmbeddedUploadThread extends Thread {
     
     private final static Logger logger = Logger.getLogger(EmbeddedUploadThread.class);
     private XmldbURL xmldbURL;
-    private BlockingInputStream inputStream;
-    private IOException exception;
-    
+    private BlockingInputStream bis;
     
     public EmbeddedUploadThread(XmldbURL url, BlockingInputStream is) {
         xmldbURL=url;
-        inputStream=is;
+        bis=is;
     }
     
     /**
@@ -51,14 +49,15 @@ public class EmbeddedUploadThread extends Thread {
      */
     public void run() {
         logger.debug("Thread started." );
+        IOException exception=null;
         try {
             EmbeddedUpload uploader = new EmbeddedUpload();
-            uploader.stream(xmldbURL, inputStream);
+            uploader.stream(xmldbURL, bis);
         } catch (IOException ex) {
             logger.error(ex);
             exception = ex;
         } finally {
-            inputStream.close(exception);
+            bis.close(exception);
             logger.debug("Thread stopped." );
         }
     }

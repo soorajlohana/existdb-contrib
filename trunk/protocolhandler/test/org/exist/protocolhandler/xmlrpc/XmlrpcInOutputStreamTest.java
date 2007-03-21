@@ -25,6 +25,7 @@ package org.exist.protocolhandler.xmlrpc;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -38,13 +39,13 @@ import org.exist.protocolhandler.xmldb.XmldbURL;
  *
  * @author Dannes Wessels.
  */
-public class XmlrpcOutputStreamTest extends TestCase {
+public class XmlrpcInOutputStreamTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(XmlrpcOutputStreamTest.class);
+    private static Logger LOG = Logger.getLogger(XmlrpcInOutputStreamTest.class);
     
     private static boolean firstTime=true;
     
-    public XmlrpcOutputStreamTest(String testName) {
+    public XmlrpcInOutputStreamTest(String testName) {
         super(testName);
     }
     
@@ -60,79 +61,43 @@ public class XmlrpcOutputStreamTest extends TestCase {
         //
     }
     
-    public void testToDB_XmlDoc() {
-        System.out.println("testToDB_XmlDoc");
-        try{
-            FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/build.xml";
-            XmldbURL xmldbUri = new XmldbURL(uri);
-            sendDocument(xmldbUri, fis);
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error(ex);
-            fail(ex.getMessage());
+
+    private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
+        
+        // Setup
+        XmlrpcOutputStream xos = new XmlrpcOutputStream(uri);
+        
+        // Transfer bytes from in to out
+        byte[] buf = new byte[4096];
+        int len;
+        while ((len = is.read(buf)) > 0) {
+            xos.write(buf, 0, len);
         }
+        
+        // Shutdown
+        xos.flush();
+        xos.close();
+        
     }
     
-    public void testToDB_NotExistingCollection_XmlDoc() {
-        System.out.println("testToDB_NotExistingCollection_XmlDoc");
-        try{
-            FileInputStream fis = new FileInputStream("build.xml");
-            String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/notexisting/build.xml";
-            XmldbURL xmldbUri = new XmldbURL(uri);
-            sendDocument(xmldbUri, fis);
-            fis.close();
-            fail("Not existing collection: Expected exception");
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
-            }
+    // Copy document from URL to outputstream
+    private void getDocument(XmldbURL uri, OutputStream os) throws IOException{
+        
+        // Setup
+        InputStream xis = new XmlrpcInputStream(uri);
+        
+        // Transfer bytes from in to out
+        byte[] buf = new byte[4096];
+        int len;
+        while ((len = xis.read(buf)) > 0) {
+            os.write(buf, 0, len);
         }
+        
+        // Shutdown
+        xis.close(); // required; checks wether all is OK
     }
     
-    public void testToDB_BinaryDoc() {
-        System.out.println("voidtestToDB_BinaryDoc");
-        try{
-            FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/manifest.mf";
-            XmldbURL xmldbUri = new XmldbURL(uri);
-            sendDocument(xmldbUri, fis);
-            fis.close();
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error(ex);
-            fail(ex.getMessage());
-        }
-    }
-    
-    public void testToDB_NotExistingCollection_BinaryDoc() {
-        System.out.println("testToDB_NotExistingCollection_BinaryDoc");
-        try{
-            FileInputStream fis = new FileInputStream("manifest.mf");
-            String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/notexisting/manifest.mf";
-            XmldbURL xmldbUri = new XmldbURL(uri);
-            sendDocument( xmldbUri, fis);
-            fis.close();
-            
-            fail("Not existing collection: Expected exception");
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
-            }
-        }
-    }
+    // ***********************
     
     //ToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
@@ -179,22 +144,6 @@ public class XmlrpcOutputStreamTest extends TestCase {
     }
     
     
-    private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
-        
-        // Setup
-        XmlrpcOutputStream xos = new XmlrpcOutputStream(uri);
-        
-        // Transfer bytes from in to out
-        byte[] buf = new byte[4096];
-        int len;
-        while ((len = is.read(buf)) > 0) {
-            xos.write(buf, 0, len);
-        }
-        
-        // Shutdown
-        xos.flush();
-        xos.close();
-        
-    }
+
     
 }

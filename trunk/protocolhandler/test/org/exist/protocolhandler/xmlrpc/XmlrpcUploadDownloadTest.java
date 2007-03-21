@@ -23,6 +23,8 @@
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -32,18 +34,18 @@ import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 /**
- *  jUnit tests for XmlrpcDownload class.
- *
- *
+ *  jUnit tests for XmlrpcUpload class
+ * .
+ * 
  * @author Dannes Wessels
  */
-public class XmlrpcDownloadTest extends TestCase {
+public class XmlrpcUploadDownloadTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(XmlrpcDownloadTest.class);
+    private static Logger LOG = Logger.getLogger(XmlrpcUploadDownloadTest.class);
     
     private static boolean firstTime=true;
     
-    public XmlrpcDownloadTest(String testName) {
+    public XmlrpcUploadDownloadTest(String testName) {
         super(testName);
     }
     
@@ -56,6 +58,109 @@ public class XmlrpcDownloadTest extends TestCase {
     }
     
     protected void tearDown() throws Exception {
+        // -/-
+    }
+
+    /**
+     * Test upload of file
+     */
+    public void testToDB()  {
+        
+        System.out.println("testToDB");
+         
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+
+        } catch (Exception ex) {
+            LOG.error(ex);
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
+    }
+    
+    /**
+     * Test upload of file to non existing collection
+     */
+    public void testToDB_NotExistingCollection() {
+        System.out.println("testToDB_NotExistingCollection");
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/foobar/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+            
+            fail("Upload to non existing collection must fail.");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Collection /db/foobar not found.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        } 
+    }
+    
+    
+    /**
+     * Test upload of file as non existing user
+     */
+    public void testToDB_NotExistingUser() {
+        System.out.println("testToDB_NotExistingUser");
+        
+        String url = "xmldb:exist://foo:bar@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+            
+            fail("Upload as non existing user must fail.");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        } 
+    }
+    
+    /**
+     * Test upload of file to a forbidden collection
+     */
+    public void testToDB_NotAuthorized() {
+        System.out.println("testToDB_NotAuthorized");
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/system/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+            
+            fail("Upload to collection /db/system/ must fail.");
+
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*User 'guest' not allowed to write to collection '/db/system'.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        } 
     }
     
     /**
@@ -166,5 +271,4 @@ public class XmlrpcDownloadTest extends TestCase {
             }
         }
     }
-    
 }

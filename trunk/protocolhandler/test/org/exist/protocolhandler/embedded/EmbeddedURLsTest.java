@@ -141,10 +141,13 @@ public class EmbeddedURLsTest extends TestCase {
         System.out.println("testFromDB");
         
         try {
-            OutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist:///db/build_testToDB.xml", os);
-            os.flush();
-            os.close();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist:///db/build_testToDB.xml", baos);
+            baos.flush();
+            baos.close();
+            
+            assertTrue(baos.size()>0);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
@@ -157,7 +160,7 @@ public class EmbeddedURLsTest extends TestCase {
         try {
             sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
-            fail("Exception expected");
+            fail("Not existing collection: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Resource /db/foo is not a collection.*")){
@@ -175,6 +178,9 @@ public class EmbeddedURLsTest extends TestCase {
             getFromURL("xmldb:exist:///db/foo.bar", os);
             os.flush();
             os.close();
+            
+            fail("Not existing collection: Exception expected");
+            
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches("Resource .* not found.")){
                 ex.printStackTrace();

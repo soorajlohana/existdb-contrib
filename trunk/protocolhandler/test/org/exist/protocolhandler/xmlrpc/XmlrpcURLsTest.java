@@ -137,7 +137,8 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml", os);
-
+            fail("Not existing collection: Exception expected");
+            
         } catch (Exception ex) {
             if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
                 ex.printStackTrace();
@@ -168,8 +169,6 @@ public class XmlrpcURLsTest extends TestCase {
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLFromDB_NotExistingUser.xml", os);
-
-            assertTrue(os.size()==0);
             
             fail("Not existing user: Exception expected");
             

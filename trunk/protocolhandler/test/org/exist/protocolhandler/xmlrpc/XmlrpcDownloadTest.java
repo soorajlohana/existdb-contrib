@@ -99,6 +99,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
+            fail("Collection does not exist: Exception expected");
+            
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Collection /db/foobar not found.*")){
                 ex.printStackTrace();
@@ -126,6 +128,8 @@ public class XmlrpcDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
+            fail("User does not exist: Exception expected");
+            
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*User foo unknown.*")){
                 ex.printStackTrace();
@@ -151,6 +155,8 @@ public class XmlrpcDownloadTest extends TestCase {
         try {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
+            
+            fail("User not authorized: Exception expected");
             
         } catch (Exception ex) {
             if(!ex.getMessage().matches(".*Insufficient privileges to read resource.*")){

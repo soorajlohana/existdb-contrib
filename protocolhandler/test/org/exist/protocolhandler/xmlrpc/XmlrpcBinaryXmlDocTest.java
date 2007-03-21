@@ -23,6 +23,7 @@
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,13 +40,13 @@ import org.exist.protocolhandler.xmldb.XmldbURL;
  *
  * @author Dannes Wessels
  */
-public class XmlrpcInputStreamTest extends TestCase {
+public class XmlrpcBinaryXmlDocTest extends TestCase {
     
-    private static Logger LOG = Logger.getLogger(XmlrpcInputStreamTest.class);
+    private static Logger LOG = Logger.getLogger(XmlrpcBinaryXmlDocTest.class);
     
     private static boolean firstTime=true;
     
-    public XmlrpcInputStreamTest(String testName) {
+    public XmlrpcBinaryXmlDocTest(String testName) {
         super(testName);
     }
     
@@ -61,13 +62,65 @@ public class XmlrpcInputStreamTest extends TestCase {
         // Empty
     }
     
-    /**
-     * Test retrieve document from db.
-     */
+    // ***************************************
+    
+    private void sendDocument(XmldbURL uri, InputStream is) throws IOException{
+        
+        // Setup
+        XmlrpcOutputStream xos = new XmlrpcOutputStream(uri);
+        
+        // Transfer bytes from in to out
+        byte[] buf = new byte[4096];
+        int len;
+        while ((len = is.read(buf)) > 0) {
+            xos.write(buf, 0, len);
+        }
+        
+        // Shutdown
+        xos.flush();
+        xos.close();
+    }
+    
+    // Copy document from URL to outputstream
+    private void getDocument(XmldbURL uri, OutputStream os) throws IOException{
+        
+        // Setup
+        InputStream xis = new XmlrpcInputStream(uri);
+        
+        // Transfer bytes from in to out
+        byte[] buf = new byte[4096];
+        int len;
+        while ((len = xis.read(buf)) > 0) {
+            os.write(buf, 0, len);
+        }
+        
+        // Shutdown
+        xis.close(); // required; checks wether all is OK
+    }
+    
+    // ***************************************
+    
+    public void testToDB_XmlDoc() {
+        System.out.println("testToDB_XmlDoc");
+        try{
+            FileInputStream fis = new FileInputStream("build.xml");
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/build.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument(xmldbUri, fis);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
     public void testFromDB_XmlDoc() {
         System.out.println("testFromDB_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml";
+        String uri = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
@@ -81,9 +134,28 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
-    /**
-     * Test try retrieve non existing document from db.
-     */
+    // ***************************************
+    
+    public void testToDB_NotExistingCollection_XmlDoc() {
+        System.out.println("testToDB_NotExistingCollection_XmlDoc");
+        try{
+            FileInputStream fis = new FileInputStream("build.xml");
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/notexisting/build.xml";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument(xmldbUri, fis);
+            fis.close();
+            fail("Not existing collection: Expected exception");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        }
+    }
+    
     public void testFromDB_NotExistingDoc_XmlDoc() {
         System.out.println("testFromDB_NotExistingDoc_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -94,21 +166,37 @@ public class XmlrpcInputStreamTest extends TestCase {
             fail("Not existing document: exception should be thrown");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*document not found.*")){
+            if(!ex.getCause().getMessage().matches(".*Collection .* not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getMessage());
+                fail(ex.getCause().getMessage());
             }
         }
     }
     
-    /**
-     * Test retrieve binary document from db.
-     */
+    // *************
+    
+    public void testToDB_BinaryDoc() {
+        System.out.println("voidtestToDB_BinaryDoc");
+        try{
+            FileInputStream fis = new FileInputStream("manifest.mf");
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/manifest.mf";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument(xmldbUri, fis);
+            fis.close();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
     public void testFromDB_BinaryDoc() throws Exception {
         System.out.println("testFromDB_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/shakes.css";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/manifest.mf";
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
@@ -119,17 +207,37 @@ public class XmlrpcInputStreamTest extends TestCase {
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
-            fail(ex.getMessage());
+            fail(ex.getCause().getMessage());
         }
     }
     
-    /**
-     * Test retrieve non existing binary document from db.
-     */
+    // *************
+    
+    public void testToDB_NotExistingCollection_BinaryDoc() {
+        System.out.println("testToDB_NotExistingCollection_BinaryDoc");
+        try{
+            FileInputStream fis = new FileInputStream("manifest.mf");
+            String uri = "xmldb:exist://guest:guest@localhost:8080"
+                    +"/exist/xmlrpc/db/notexisting/manifest.mf";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument( xmldbUri, fis);
+            fis.close();
+            
+            fail("Not existing collection: Expected exception");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*Collection .* not found")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        }
+    }
+    
     public void testFromDB_NotExistingDoc_BinaryDoc() throws Exception {
         System.out.println("testFromDB_NotExistingDoc_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foo.css";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/manifest.foo";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
@@ -140,7 +248,7 @@ public class XmlrpcInputStreamTest extends TestCase {
             if(!ex.getCause().getMessage().matches(".*document not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
-                fail(ex.getMessage());
+                fail(ex.getCause().getMessage());
             }
         }
     }
@@ -205,20 +313,5 @@ public class XmlrpcInputStreamTest extends TestCase {
         }
     }
     
-    // Copy document from URL to outputstream
-    private void getDocument(XmldbURL uri, OutputStream os) throws IOException{
-        
-        // Setup
-        InputStream xis = new XmlrpcInputStream(uri);
-        
-        // Transfer bytes from in to out
-        byte[] buf = new byte[4096];
-        int len;
-        while ((len = xis.read(buf)) > 0) {
-            os.write(buf, 0, len);
-        }
-        
-        // Shutdown
-        xis.close(); // required; checks wether all is OK
-    }
+    
 }

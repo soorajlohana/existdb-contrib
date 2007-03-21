@@ -43,7 +43,7 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     
     private static String XMLDB_URL_1=
             "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc"
-            +"/db/shakespeare/plays/macbeth.xml";
+            +"/db/build.xml";
     
     private static boolean firstTime=true;
     

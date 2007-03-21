@@ -66,23 +66,14 @@ public class EmbeddedInputStream extends InputStream {
     }
     
     public int read(byte[] b, int off, int len) throws IOException {
-        
-//*        if(rt.isExceptionThrown()) {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-        
         return bis.read(b, off, len);
     }
     
     public int read(byte[] b) throws IOException {
-        
-//*        if(rt.isExceptionThrown()) {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-        
         return bis.read(b, 0, b.length);
     }
     
+    // TODO is this needed?
 //    public void mark(int readlimit) {
 //
 //        bos.mark(readlimit);
@@ -98,13 +89,10 @@ public class EmbeddedInputStream extends InputStream {
     
     public int read() throws IOException {
         
-//*        if(rt.isExceptionThrown()) {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-        
         return bis.read();
     }
-    
+
+    // TODO is this needed?
 //    public boolean markSupported() {
 //
 //        boolean retValue;
@@ -114,31 +102,10 @@ public class EmbeddedInputStream extends InputStream {
 //    }
     
     public void close() throws IOException {
-        
         bis.close();
-//*        if(rt.isExceptionThrown()) {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-        
     }
-    
-    
-    /** NOTE (COFF) : This is an OutputStream method!? */
-//*    public void flush() throws IOException {
-//*        bos.flush();
-//*        
-//*        if(rt.isExceptionThrown())
-//*        {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-//*    }
-    
+
     public int available() throws IOException {
-        
-//*        if(rt.isExceptionThrown()) {
-//*            throw new IOException(rt.getThrownException());
-//*        }
-//*        
         return bis.available();
     }
     

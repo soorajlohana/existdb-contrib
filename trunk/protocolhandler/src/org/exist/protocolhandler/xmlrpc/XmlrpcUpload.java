@@ -25,14 +25,15 @@ package org.exist.protocolhandler.xmlrpc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
+
 import org.apache.log4j.Logger;
 
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
-import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**
  * Write document using XMLRPC to remote database and read the data 
@@ -130,32 +131,8 @@ public class XmlrpcUpload {
      */
 
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-//**        try {
+            // TODO Get rid of this method
            streamDocument(xmldbURL, is); 
-//**        } catch (IOException ioex) {
-//**            throw ioex;
-//**        } catch (Exception ex) {
-//**            throw new ExistIOException(ex.getMessage(), ex); //TODO
-//**        } finally {
-//**            is.close();
-//**        }
     }
 
-    /**
-     * Write data from a <code>BlockingInputStream</code> to the specified
-     * XMLRPC url.
-     * 
-     * @param xmldbURL URL pointing to location on eXist-db server.
-     * @param bis Document stream
-     */
-//**    public void stream(XmldbURL xmldbURL, BlockingInputStream bis) {
-//**        Exception exception = null; 
-//**        try {
-//**            streamDocument(xmldbURL, bis); 
-//**        } catch (Exception ex) {
-//**            exception = ex;
-//**        } finally {
-//**            bis.close(exception); // Pass the exception through the stream.
-//**        }
-//**    }    
 }

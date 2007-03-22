@@ -46,7 +46,6 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     
     private String TESTCASENAME= getClass().getName();
     
-    
     private static boolean firstTime=true;
     
     public XmlrpcInOutputStreamTest(String testName) {
@@ -115,11 +114,7 @@ public class XmlrpcInOutputStreamTest extends TestCase {
             LOG.error(ex);
             fail(ex.getMessage());
         }
-        
     }
-    
-    
-    
     
     //ToDB
     public void testToDB() {

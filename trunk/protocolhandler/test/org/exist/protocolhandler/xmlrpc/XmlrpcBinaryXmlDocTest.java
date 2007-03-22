@@ -46,6 +46,8 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     
     private static boolean firstTime=true;
     
+    private String TESTCASENAME= getClass().getName();
+    
     public XmlrpcBinaryXmlDocTest(String testName) {
         super(testName);
     }
@@ -98,14 +100,29 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         xis.close(); // required; checks wether all is OK
     }
     
+    
     // ***************************************
+    
+    public void testCreateCollection(){
+        try {
+            URL url = new URL("http://localhost:8080/exist/rest/db?_query="
+                    +"xmldb:create-collection(%22/db/%22,%22"+TESTCASENAME+"%22)");
+            url.openStream();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
     
     public void testToDB_XmlDoc() {
         System.out.println("testToDB_XmlDoc");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/build.xml";
+                    +"/exist/xmlrpc/db/"+TESTCASENAME+"/build.xml";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             
@@ -120,7 +137,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         System.out.println("testFromDB_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/build.xml";
+                +"/exist/xmlrpc/db/"+TESTCASENAME+"/build.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
@@ -141,7 +158,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/notexisting/build.xml";
+                    +"/exist/xmlrpc/db/"+TESTCASENAME+"/notexisting/build.xml";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
@@ -159,14 +176,15 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     public void testFromDB_NotExistingDoc_XmlDoc() {
         System.out.println("testFromDB_NotExistingDoc_XmlDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/foobar.xml";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/"
+                +TESTCASENAME+"/foobar.xml";
         try {
             XmldbURL xmldbUri=xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
             fail("Not existing document: exception should be thrown");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection .* not found.*")){
+            if(!ex.getCause().getMessage().matches(".*document not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getCause().getMessage());
@@ -181,7 +199,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/manifest.mf";
+                    +"/exist/xmlrpc/db/"+TESTCASENAME+"/manifest.mf";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument(xmldbUri, fis);
             fis.close();
@@ -196,7 +214,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     public void testFromDB_BinaryDoc() throws Exception {
         System.out.println("testFromDB_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/manifest.mf";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/"+TESTCASENAME+"/manifest.mf";
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
             getDocument(xmldbUri, baos);
@@ -218,7 +236,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
             String uri = "xmldb:exist://guest:guest@localhost:8080"
-                    +"/exist/xmlrpc/db/notexisting/manifest.mf";
+                    +"/exist/xmlrpc/db/"+TESTCASENAME+"/notexisting/manifest.mf";
             XmldbURL xmldbUri = new XmldbURL(uri);
             sendDocument( xmldbUri, fis);
             fis.close();
@@ -237,7 +255,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     public void testFromDB_NotExistingDoc_BinaryDoc() throws Exception {
         System.out.println("testFromDB_NotExistingDoc_BinaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/manifest.foo";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/"+TESTCASENAME+"/manifest.foo";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
@@ -257,7 +275,8 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     public void testFromDB_NotExistingCollection() {
         System.out.println("FromDB_NotExistingCollection");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/foo/bar.xml";
+        String uri = "xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/"
+                +TESTCASENAME+"/foo/bar.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);
@@ -265,7 +284,7 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
             fail("Not existing collection: exception should be thrown");
             
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
+            if(!ex.getCause().getMessage().matches(".*Collection /db/.* not found.*")){
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
@@ -277,7 +296,8 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
     public void testFromDB_NotExistingUser() {
         System.out.println("testFromDB_NotExistingUser");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        String uri = "xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/foo/bar.xml";
+        String uri = "xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/"
+                +TESTCASENAME+"/bar.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(uri);

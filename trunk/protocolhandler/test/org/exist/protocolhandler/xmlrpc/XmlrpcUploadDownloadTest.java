@@ -180,6 +180,8 @@ public class XmlrpcUploadDownloadTest extends TestCase {
             XmldbURL xmldbURL = new XmldbURL(url);
             xdc.stream(xmldbURL, baos);
             
+            assertTrue(baos.size()>0);
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error("Caught exception", ex);

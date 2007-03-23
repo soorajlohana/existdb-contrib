@@ -1,7 +1,7 @@
 #summary The xmldb:exist:// custom protocol handler.
 #labels Featured,Phase-Implementation
 
-== Custom protocol handler "xmldb:exist://" ==
+= Custom protocol handler "xmldb:exist://" =
 
 Under certain conditions it is handy to be able to access data stored in eXist via a *xmldb:exist://* type URL, straight out of javacode. The code below shows how to do this.
 
@@ -11,7 +11,8 @@ To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
  * call URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
 
- A code example for use in a Java program:
+== Java code example ==
+
 {{{
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,15 +48,19 @@ InputStream is = url.openStream();
             
 is.close();
 
+
 // ************************
 // Write to URL
 OutputStream os = url.openConnection().getOutputStream();
 
 }}}
 
+== Usage for JVM ==
+start jvm with {{{java -Djava.protocol.handler.pkgs=org.exist.protocolhandler.protocols -jar ......}}}
+
 == Dependancies ==
 The code does have a dependancy with the eXist jar files, in particular:
- * exist.jar
+ * exist.jar (1.1.2dev, rev5524+)
  * exist-optional.jar (to be checked)
  * log4j-1.2.14.jar
  * xmldb.jar

@@ -85,6 +85,33 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     }
     
     /**
+     * Test download of file.
+     */
+    public void testFromDB() {
+        
+        System.out.println("testFromDB");
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XmlrpcDownload xdc = new XmlrpcDownload();
+        
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xdc.stream(xmldbURL, baos);
+            
+            assertTrue(baos.size()>0);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Caught exception", ex);
+            fail(ex.getMessage());
+        }
+    }
+
+    
+    /**
      * Test upload of file to non existing collection
      */
     public void testToDB_NotExistingCollection() {
@@ -110,84 +137,6 @@ public class XmlrpcUploadDownloadTest extends TestCase {
         } 
     }
     
-    
-    /**
-     * Test upload of file as non existing user
-     */
-    public void testToDB_NotExistingUser() {
-        System.out.println("testToDB_NotExistingUser");
-        
-        String url = "xmldb:exist://foo:bar@localhost:8080"
-                +"/exist/xmlrpc/db/build.xml";
-        File src = new File("build.xml");
-        
-        XmlrpcUpload xuc = new XmlrpcUpload();
-        try {
-            XmldbURL xmldbURL = new XmldbURL(url);
-            xuc.stream(xmldbURL, new FileInputStream(src));
-            
-            fail("Upload as non existing user must fail.");
-            
-        } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
-            }
-        } 
-    }
-    
-    /**
-     * Test upload of file to a forbidden collection
-     */
-    public void testToDB_NotAuthorized() {
-        System.out.println("testToDB_NotAuthorized");
-        
-        String url = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/system/build.xml";
-        File src = new File("build.xml");
-        
-        XmlrpcUpload xuc = new XmlrpcUpload();
-        try {
-            XmldbURL xmldbURL = new XmldbURL(url);
-            xuc.stream(xmldbURL, new FileInputStream(src));
-            
-            fail("Upload to collection /db/system/ must fail.");
-
-        } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*User 'guest' not allowed to write to collection '/db/system'.*")){
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
-            }
-        } 
-    }
-    
-    /**
-     * Test download of file.
-     */
-    public void testFromDB() {
-        
-        System.out.println("testFromDB");
-        
-        String url = "xmldb:exist://guest:guest@localhost:8080"
-                +"/exist/xmlrpc/db/build.xml";
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XmlrpcDownload xdc = new XmlrpcDownload();
-        
-        try {
-            XmldbURL xmldbURL = new XmldbURL(url);
-            xdc.stream(xmldbURL, baos);
-            
-            assertTrue(baos.size()>0);
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error("Caught exception", ex);
-            fail(ex.getMessage());
-        }
-    }
     
     /**
      * Test download of file from not existing collection.
@@ -216,6 +165,33 @@ public class XmlrpcUploadDownloadTest extends TestCase {
             };
         }
         
+    }
+    
+    
+    /**
+     * Test upload of file as non existing user
+     */
+    public void testToDB_NotExistingUser() {
+        System.out.println("testToDB_NotExistingUser");
+        
+        String url = "xmldb:exist://foo:bar@localhost:8080"
+                +"/exist/xmlrpc/db/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+            
+            fail("Upload as non existing user must fail.");
+            
+        } catch (Exception ex) {
+            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        } 
     }
     
     /**
@@ -247,6 +223,33 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     }
     
     /**
+     * Test upload of file to a forbidden collection
+     */
+    public void testToDB_NotAuthorized() {
+        System.out.println("testToDB_NotAuthorized");
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/system/build.xml";
+        File src = new File("build.xml");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+            
+            fail("Upload to collection /db/system/ must fail.");
+
+        } catch (Exception ex) {
+            if(!ex.getMessage().matches(".*User 'guest' not allowed to write to collection '/db/system'.*")){
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+            }
+        } 
+    }
+    
+ 
+    /**
      * Test download of file to a forbidden collection
      */
     public void testFromDB_NotAuthorized() {
@@ -271,6 +274,59 @@ public class XmlrpcUploadDownloadTest extends TestCase {
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
+        }
+    }
+    
+    /*
+     * Additional tests on binary resources
+     */
+    
+    /**
+     * Test upload of file
+     */
+    public void testToDB_BinaryDoc()  {
+        
+        System.out.println("testToDB_BinaryDoc");
+         
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/manifest.txt";
+        File src = new File("manifest.mf");
+        
+        XmlrpcUpload xuc = new XmlrpcUpload();
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xuc.stream(xmldbURL, new FileInputStream(src));
+
+        } catch (Exception ex) {
+            LOG.error(ex);
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
+    }
+    
+    /**
+     * Test download of file.
+     */
+    public void testFromDB_BinaryDoc() {
+        
+        System.out.println("testFromDB_BinaryDoc");
+        
+        String url = "xmldb:exist://guest:guest@localhost:8080"
+                +"/exist/xmlrpc/db/manifest.txt";
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XmlrpcDownload xdc = new XmlrpcDownload();
+        
+        try {
+            XmldbURL xmldbURL = new XmldbURL(url);
+            xdc.stream(xmldbURL, baos);
+            
+            assertTrue(baos.size()>0);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Caught exception", ex);
+            fail(ex.getMessage());
         }
     }
 }

@@ -106,8 +106,10 @@ public class XmlrpcURLsTest extends TestCase {
     public void testURLFromDB() {
         System.out.println("testURLFromDB");
         try {
-            OutputStream os = new ByteArrayOutputStream();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml", os);
+            
+            assertTrue(os.size()>0);
 
         } catch (Exception ex) {
                 ex.printStackTrace();
@@ -178,6 +180,39 @@ public class XmlrpcURLsTest extends TestCase {
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
+        }
+    }
+    
+    /*
+     * Binary files
+     */
+    
+    public void testURLToDB_binaryDoc() {
+        System.out.println("testURLToDB_binaryDoc");
+        try {
+            sendToURL(
+                    "xmldb:exist://localhost:8080/exist/xmlrpc/db/manifest.txt",
+                    "manifest.mf" );
+
+        } catch (Exception ex) {
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
+        }
+    }
+    
+    public void testURLFromDB_binaryDoc() {
+        System.out.println("testURLFromDB_binaryDoc");
+        try {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/manifest.txt", os);
+            
+            assertTrue(os.size()>0);
+
+        } catch (Exception ex) {
+                ex.printStackTrace();
+                LOG.error(ex);
+                fail(ex.getMessage());
         }
     }
 }

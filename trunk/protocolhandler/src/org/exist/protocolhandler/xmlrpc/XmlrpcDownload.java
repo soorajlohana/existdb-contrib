@@ -104,6 +104,7 @@ public class XmlrpcDownload {
                        
         } finally {
             LOG.debug("Finished document download"); 
+            os.flush(); // TODO added this for failing binary tests
         }
     }
     

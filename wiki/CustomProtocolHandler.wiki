@@ -11,8 +11,7 @@ To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
  * call URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
 
-The code example
-
+ A code example for use in a Java program:
 {{{
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,28 +23,34 @@ import org.exist.protocols.eXistURLStreamHandlerFactory;
 
 ...
 
+// ************************
+// Setup protocol handler
+
 BasicConfigurator.configure();
 
 // OR use this
-System.setProperty( 'java.protocol.handler.pkgs', 'org.exist.protocols' );
+System.setProperty( 'java.protocol.handler.pkgs', 'org.exist.protocolhandler.protocols' );
 
 // OR use this
 URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
 
 URL url = new URL('xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml');
+
+
+// ************************
+// Read from URL
  
+// InputStream os = url.openConnection().getInputStream ();
 InputStream is = url.openStream();
             
 ... (handle inputstream) ...
             
 is.close();
-}}}
 
-* Warning !!*
-The equivalent for sending data to the database does not work well enough yet. Exceptions are not handled right at this moment. This effect is shown in the jUnit testsuite.
-
-{{{
+// ************************
+// Write to URL
 OutputStream os = url.openConnection().getOutputStream();
+
 }}}
 
 == Dependancies ==
@@ -56,12 +61,20 @@ The code does have a dependancy with the eXist jar files, in particular:
  * xmldb.jar
  * xmlrpc-1.2-patched.jar
 
+== Status ==
+The code is fully functional for both embedded and remote URLs. It is also possible to supply username/password information to the URL. Example:
+
+ * xmldb:exist:///db/foobar/document.xml
+ * xmldb:exist://username:password@/db/foobar/document.xml
+ * xmldb:exist://localhost:8080/exist/xmlrpc/db/foobar/document.xml
+ * xmldb:exist://username:password@localhost:8080/exist/xmlrpc/db/foobar/document.xml
+
+== ToDo ==
+ * refactor code
+ * add handling of exist instance name
+
 == Known Issues ==
-
- * Error/exception handling for uploading documents not complete yet.
-_When a document is uploaded to the eXist-db, and an error occurs (e.g. collection does not exist, unknown user, not authorized), this error is not propagated to the end user. It is caused by a Threading issue, which is difficult to tackle. The issues are shown when running the test suite._
-
-
+ * URL parsing is not yet perfect :-)
 
 
 

@@ -93,6 +93,7 @@ public class XmlrpcDownload {
                 offset = ((Integer)ht.get("offset")).intValue();
                 os.write(data);
             }
+            os.flush(); // TODO added this for failing binary tests
             
         } catch (IOException ex) {
             LOG.error(ex);
@@ -104,7 +105,7 @@ public class XmlrpcDownload {
                        
         } finally {
             LOG.debug("Finished document download"); 
-            os.flush(); // TODO added this for failing binary tests
+//            os.flush(); // TODO added this for failing binary tests
         }
     }
     

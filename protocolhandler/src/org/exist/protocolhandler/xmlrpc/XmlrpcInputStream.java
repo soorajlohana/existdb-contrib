@@ -71,13 +71,7 @@ public class XmlrpcInputStream  extends InputStream {
     public int read(byte[] b) throws IOException {
         return bis.read(b, 0, b.length);
     }
-    
-    // TODO Is this needed?
-//    public void mark(int readlimit) {
-//
-//        bos.mark(readlimit);
-//    }
-    
+       
     public long skip(long n) throws IOException {
         return bis.skip(n);
     }
@@ -90,7 +84,16 @@ public class XmlrpcInputStream  extends InputStream {
         return bis.read();
     }
     
-    // TODO Is this needed?
+    public void close() throws IOException {
+        bis.close();
+    }
+    
+    public int available() throws IOException {
+        return bis.available();
+    }
+    
+    // TODO Are the following methods actually needed?
+    
 //    public boolean markSupported() {
 //
 //        boolean retValue;
@@ -99,12 +102,9 @@ public class XmlrpcInputStream  extends InputStream {
 //        return retValue;
 //    }
     
-    public void close() throws IOException {
-        bis.close();
-    }
-    
-    public int available() throws IOException {
-        return bis.available();
-    }
+//    public void mark(int readlimit) {
+//
+//        bos.mark(readlimit);
+//    }
     
 }

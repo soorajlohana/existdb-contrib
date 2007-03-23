@@ -220,7 +220,8 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
             getDocument(xmldbUri, baos);
             
             // TODO sometimes baos is empty
-            assertTrue(baos.size()>0);
+            assertTrue("Filesize must be greater than 0", baos.size()>0);
+            assertEquals(85, baos.size());
             
         } catch (Exception ex) {
             ex.printStackTrace();

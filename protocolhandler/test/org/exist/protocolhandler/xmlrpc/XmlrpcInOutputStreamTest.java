@@ -283,5 +283,45 @@ public class XmlrpcInOutputStreamTest extends TestCase {
         }
     }
     
+    /*
+     * Extra binary tests
+     */
+    
+    //ToDB
+    public void testToDB_binaryDoc() {
+        System.out.println(this.getName());
+        try{
+            FileInputStream fis = new FileInputStream("manifest.mf");
+            String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
+                    +TESTCASENAME+"/manifest.txt";
+            XmldbURL xmldbUri = new XmldbURL(url);
+            sendDocument( xmldbUri, fis);
+            fis.close();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
+    //FromDB
+    public void testFromDB_binaryDoc() {
+        System.out.println(this.getName());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
+                +TESTCASENAME+"/manifest.txt";
+        
+        try {
+            XmldbURL xmldbUri = new XmldbURL(url);
+            getDocument(xmldbUri, baos);
+            assertTrue(baos.size()>0);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
     
 }

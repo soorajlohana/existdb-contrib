@@ -78,7 +78,7 @@ The code is fully functional for both embedded and remote URLs. It is also possi
  * refactor code
  * add handling of exist instance name
  * XmlrpcDownload line 96 ; why a flush on output stream here? might indicate an issue in BlockingIOstream;
- * add tests regarding binary files in embedded mode
+ * ~~add tests regarding binary files in embedded mode~~
 
 == Known Issues ==
  * URL parsing is not yet perfect :-)

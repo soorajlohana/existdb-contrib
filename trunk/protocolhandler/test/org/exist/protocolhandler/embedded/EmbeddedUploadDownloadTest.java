@@ -91,7 +91,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     
     public void testToDB() {
-        System.out.println("testToDB");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         
@@ -114,7 +114,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     }
     
     public void testFromDB() {
-        System.out.println("testFromDB");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -144,7 +144,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //ToDB_NotExistingCollection
     public void testToDB_NotExistingCollection() {
-        System.out.println("testToDB_NotExistingCollection");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         
@@ -171,7 +171,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //FromDB_NotExistingCollection
     public void testFromDB_NotExistingCollection() {
-        System.out.println("testFromDB_NotExistingCollection");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -202,7 +202,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //ToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
-        System.out.println("testToDB_NotExistingUser");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         
@@ -229,7 +229,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //FromDB_NotExistingUser
     public void testFromDB_NotExistingUser() {
-        System.out.println("testFromDB_NotExistingUser");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -260,7 +260,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //ToDB_NotAuthorized
     public void testToDB_NotAuthorized() {
-        System.out.println("testToDB_NotAuthorized");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         
@@ -288,7 +288,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     //FromDB_NotAuthorized
     public void testFromDB_NotAuthorized() {
-        System.out.println("testFromDB_NotAuthorized");
+        System.out.println(this.getName());
         BrokerPool pool = null;
         DBBroker broker = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -319,6 +319,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     
     
     public void testCleanUp(){
+        System.out.println(this.getName());
         BrokerPool.stopAll(false);
     }
     
@@ -331,4 +332,62 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         }
         os.flush();
     }
+    
+    /*
+     * Additional tests binary documents
+     */
+    
+    public void testToDB_binaryDoc() {
+        System.out.println(this.getName());
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        
+        try {
+            pool = startDB();
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/manifest.txt");
+            InputStream is = new BufferedInputStream( new FileInputStream("manifest.mf") );
+            EmbeddedUpload instance = new EmbeddedUpload();
+            instance.stream(xmldbURL, is);
+            is.close();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+            
+        } finally {
+            pool.release(broker);
+        }
+    }
+    
+    public void testFromDB_binaryDoc() {
+        System.out.println(this.getName());
+        BrokerPool pool = null;
+        DBBroker broker = null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
+        try {
+            pool = startDB();
+            
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/manifest.txt");
+            
+            EmbeddedDownload instance = new EmbeddedDownload();
+            instance.stream(xmldbURL, baos);
+            
+            baos.flush();
+            baos.close();
+            
+            assertTrue( baos.size()>0 );
+            assertEquals(85, baos.size());
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+            
+        } finally {
+            pool.release(broker);
+        }
+    }
+
 }

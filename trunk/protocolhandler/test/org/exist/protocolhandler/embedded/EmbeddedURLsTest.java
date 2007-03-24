@@ -124,8 +124,7 @@ public class EmbeddedURLsTest extends TestCase {
     // ======================================================================
     
     public void testToDB() {
-        System.out.println("testToDB");
-        
+        System.out.println(this.getName());
         try {
             sendToURL(
                     "xmldb:exist:///db/build_testToDB.xml",
@@ -138,8 +137,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testFromDB() {
-        System.out.println("testFromDB");
-        
+        System.out.println(this.getName());
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/build_testToDB.xml", baos);
@@ -156,7 +154,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testToDB_NotExistingCollection() {
-        System.out.println("testToDB_NotExistingCollection");
+        System.out.println(this.getName());
         try {
             sendToURL("xmldb:exist:///db/foo/bar.xml",
                     "build.xml");
@@ -172,7 +170,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testFromDB_NotExistingCollection() {
-        System.out.println("testFromDB_NotExistingCollection");
+        System.out.println(this.getName());
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/foo.bar", os);
@@ -191,7 +189,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testToDB_NotExistingUser() {
-        System.out.println("testToDB_NotExistingUser");
+        System.out.println(this.getName());
         try {
             sendToURL("xmldb:exist://foo:bar@/db/testToDB_NotExistingUser.xml",
                     "build.xml");
@@ -208,8 +206,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testFromDB_NotExistingUser() {
-        System.out.println("testFromDB_NotExistingUser");
-        
+        System.out.println(this.getName());
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@/db/testFromDB_NotExistingUser.xml", os);
@@ -230,7 +227,7 @@ public class EmbeddedURLsTest extends TestCase {
     
     
     public void testToDB_NotAuthorized() {
-        System.out.println("testToDB_NotAuthorized");
+        System.out.println(this.getName());
         try {
             sendToURL("xmldb:exist://guest:guest@/db/system/testToDB_NotAuthorized.xml",
                     "build.xml");
@@ -247,8 +244,7 @@ public class EmbeddedURLsTest extends TestCase {
     }
     
     public void testFromDB_NotAuthorized() {
-        System.out.println("testFromDB_NotAuthorized");
-        
+        System.out.println(this.getName());
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://guest:guest@/db/system/testToDB_NotAuthorized.xml", os);
@@ -267,4 +263,37 @@ public class EmbeddedURLsTest extends TestCase {
         }
     }
     
+    /*
+     * Additional tests binary docs
+     */
+    
+    public void testToDB_binaryDoc() {
+        System.out.println(this.getName());
+        try {
+            sendToURL(
+                    "xmldb:exist:///db/manifest.txt",
+                    "manifest.mf" );
+            
+        } catch (Exception ex) {
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
+    public void testFromDB_binaryDoc() {
+        System.out.println(this.getName());
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            getFromURL("xmldb:exist:///db/manifest.txt", baos);
+            baos.flush();
+            baos.close();
+            
+            assertTrue(baos.size()>0);
+            assertEquals(85, baos.size());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
 }

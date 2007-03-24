@@ -122,7 +122,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testToDB
     public void testToDB() {
-        System.out.println("testToDB");
+        System.out.println(this.getName());
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist:///db/build_embedded_testToDB.xml";
@@ -138,7 +138,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testFromDB
     public void testFromDB() {
-        System.out.println("testFromDB");
+        System.out.println(this.getName());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist:///db/build_embedded_testToDB.xml";
         
@@ -157,7 +157,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testToDB_NotExistingCollection
     public void testToDB_NotExistingCollection() {
-        System.out.println("testToDB_NotExistingCollection");
+        System.out.println(this.getName());
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist:///db/foobar/build_embedded_testToDB_NotExistingCollection.xml";
@@ -177,7 +177,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testFromDB_NotExistingCollection
     public void testFromDB_NotExistingCollection() {
-        System.out.println("testFromDB_NotExistingCollection");
+        System.out.println(this.getName());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist:///db/foobar/build_embedded_testToDB_NotExistingCollection.xml";
         
@@ -198,7 +198,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testToDB_NotExistingUser
     public void testToDB_NotExistingUser() {
-        System.out.println("testToDB_NotExistingUser");
+        System.out.println(this.getName());
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist://foo:bar@/db/build_embedded_testToDB_testToDB_NotExistingUser.xml";
@@ -218,7 +218,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testFromDB_NotExistingUser
     public void testFromDB_NotExistingUser() {
-        System.out.println("testFromDB_NotExistingUser");
+        System.out.println(this.getName());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist://foo:bar@/db/build_embedded_testToDB_testToDB_NotExistingUser.xml";
         
@@ -238,7 +238,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testToDB_NotAuthorized
     public void testToDB_NotAuthorized() {
-        System.out.println("testToDB_NotAuthorized");
+        System.out.println(this.getName());
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String uri = "xmldb:exist:///db/system/users.xml";
@@ -257,7 +257,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     
     //testFromDB_NotAuthorized
     public void testFromDB_NotAuthorized() {
-        System.out.println("testFromDB_NotAuthorized");
+        System.out.println(this.getName());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String uri = "xmldb:exist:///db/system/users.xml";
         
@@ -276,4 +276,41 @@ public class EmbeddedInOutputStreamTest extends TestCase {
         }
     }
     
+    /*
+     * Additional tests on binary resources
+     */
+    
+    //ToDB
+    public void testToDB_binaryDoc() {
+        System.out.println(this.getName());
+        try{
+            FileInputStream fis = new FileInputStream("manifest.mf");
+            String uri = "xmldb:exist:///db/manifest.txt";
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            sendDocument(xmldbUri, fis);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
+    
+    //FromDB
+    public void testFromDB_binaryDoc() {
+        System.out.println(this.getName());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String uri = "xmldb:exist:///db/manifest.txt";
+        
+        try {
+            XmldbURL xmldbUri = new XmldbURL(uri);
+            getDocument(xmldbUri, baos);
+            assertTrue(baos.size()>0);
+            assertEquals(85, baos.size());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+    }
 }

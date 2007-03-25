@@ -23,6 +23,7 @@
 package org.exist.protocolhandler.xmldb;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
@@ -84,7 +85,7 @@ public class XmldbURLTest extends TestCase {
             "xmldb:exist://localhost:8080/exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
     
-    private static String XMLDB_URL_22=         
+    private static String XMLDB_URL_22=
             "xmldb:exist:///exist/xmlrpc"
             +"/db/shakespeare/plays/macbeth.xml";
     
@@ -103,6 +104,50 @@ public class XmldbURLTest extends TestCase {
     
     protected void tearDown() throws Exception {
         //
+    }
+    
+    public void testRegularExpressions(){
+        String PATTERN = org.exist.protocolhandler.protocols.xmldb.Handler.PATTERN;
+        String txt1="xmldb:justatext://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+        assertTrue(txt1.matches(PATTERN));
+        
+        String txt2="xmldb:://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+        assertFalse(txt2.matches(PATTERN));
+        
+        String txt3="xmldb:abd%^&*efg://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+        assertFalse(txt3.matches(PATTERN));
+        
+        String txt4="xmldb: ://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+        assertFalse(txt4.matches(PATTERN));
+        
+        // =================
+        String splits[] = txt1.split(":",3);
+        assertEquals(3, splits.length);
+        
+        String instance = splits[1];
+        assertEquals("justatext", instance);
+        
+        int seperator = txt1.indexOf("//");
+        assertEquals(16, seperator);
+    }
+    
+    public void testURLclass(){
+        try {
+            URL urla = new URL("xmldb:justatext://fobar1:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
+            assertEquals("fobar1", urla.getHost());
+            
+            URL urlb = new URL("xmldb:exist://fobar2:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
+            assertEquals("fobar2", urlb.getHost());
+            
+            URL urlc = new URL("xmldb:://fobar3:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
+            assertEquals("fobar3", urlc.getHost());
+            
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+        }
+        
     }
     
     /**

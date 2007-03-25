@@ -41,30 +41,48 @@ import org.apache.log4j.Logger;
  */
 public class Handler extends URLStreamHandler {
     
-    
     private final static Logger LOG = Logger.getLogger(Handler.class);
+    
+    public static final String XMLDB_EXIST  = "xmldb:exist:";
+    public static final String XMLDB        = "xmldb:";
+    public static final String PATTERN      = "xmldb:[\\w]+:\\/\\/.*";
     
     /**
      * Creates a new instance of Handler
      */
     public Handler() {
-        // --
         LOG.debug("Setup \"xmldb:exist:\" handler");
     }
     
     /**
      * @see java.net.URLStreamHandler#parseURL(java.net.URL,java.lang.String,int,int)
+     *
+     * TODO: exist instance names must be supported. The idea is to pass
+     * this information as a parameter to the url, format __instance=XXXXX
+     * Should we clean all other params? remove #?
      */
     protected void parseURL(URL url, String spec, int start, int limit) {
         LOG.debug(spec);
         
-        if(spec.startsWith("xmldb:exist://")){
+        if(spec.startsWith(XMLDB_EXIST+"//")){
             LOG.debug("Parsing xmldb:exist:// URL.");
-            super.parseURL(url, spec, 12, limit);
+            super.parseURL(url, spec, XMLDB_EXIST.length(), limit);
             
-        } else if(spec.startsWith("xmldb://")) {
+        } else if(spec.startsWith(XMLDB+"//")) {
             LOG.debug("Parsing xmldb:// URL.");
-            super.parseURL(url, spec, 6, limit);
+            super.parseURL(url, spec, XMLDB.length(), limit);
+            
+        } else if(spec.matches(PATTERN)) {
+            LOG.debug("Parsing URL with custom exist instance");
+            String splits[] = spec.split(":",3);
+            String instance = splits[1]; // TODO pass to URL as param
+
+            int seperator = spec.indexOf("//");
+            super.parseURL(url, spec, seperator, limit);
+            
+        } else if(spec.startsWith("xmldb:://")){  // very dirty
+            int seperator = spec.indexOf("//");
+            super.parseURL(url, spec, seperator, limit);
             
         } else {
             LOG.error("Expected xmldb: URL, found "+spec);

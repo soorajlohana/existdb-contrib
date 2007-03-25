@@ -58,7 +58,7 @@ public class XmlrpcUpload {
      * @param is Document stream
      * @throws Exception When something is wrong.
      */
-    private void streamDocument(XmldbURL xmldbURL, InputStream is)
+    public void stream(XmldbURL xmldbURL, InputStream is)
     throws IOException {
         LOG.debug("Begin document upload");
         try {
@@ -100,7 +100,7 @@ public class XmlrpcUpload {
             params.addElement( xmldbURL.getCollectionPath() );
             params.addElement(new Boolean(true));
             params.addElement(contentType);
-            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); // TODO which exceptions
+            Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); 
             
             // Check XMLRPC result
             if(result.booleanValue()){
@@ -119,20 +119,6 @@ public class XmlrpcUpload {
         } finally {
            LOG.debug("Finished document upload");
         }
-    }
-
-    /**
-     * Write data from an input stream to the specified XMLRPC url.
-     * 
-     * 
-     * @param xmldbURL URL pointing to location on eXist-db server.
-     * @param is Document input stream
-     * @throws ExistIOException When something is wrong.
-     */
-
-    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-            // TODO Get rid of this method
-           streamDocument(xmldbURL, is); 
     }
 
 }

@@ -56,9 +56,8 @@ public class Connection extends URLConnection {
       */
     protected Connection(URL url) {
         super(url);
-        LOG.info(url);
+        LOG.debug(url);
         
-        // TODO check is this needed
         setDoInput(true);
         setDoOutput(true);
     }
@@ -67,7 +66,7 @@ public class Connection extends URLConnection {
      * @see java.net.URLConnection#connect
      */
     public void connect() throws IOException {
-        LOG.info(url) ;
+        LOG.debug(url) ;
     }
     
     /**

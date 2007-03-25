@@ -73,12 +73,6 @@ public class EmbeddedInputStream extends InputStream {
         return bis.read(b, 0, b.length);
     }
     
-    // TODO is this needed?
-//    public void mark(int readlimit) {
-//
-//        bos.mark(readlimit);
-//    }
-    
     public long skip(long n) throws IOException {
         return bis.skip(n);
     }
@@ -92,15 +86,6 @@ public class EmbeddedInputStream extends InputStream {
         return bis.read();
     }
 
-    // TODO is this needed?
-//    public boolean markSupported() {
-//
-//        boolean retValue;
-//
-//        retValue = bos.markSupported();
-//        return retValue;
-//    }
-    
     public void close() throws IOException {
         bis.close();
     }
@@ -108,5 +93,19 @@ public class EmbeddedInputStream extends InputStream {
     public int available() throws IOException {
         return bis.available();
     }
-    
+
+    // TODO is this needed?
+//    public void mark(int readlimit) {
+//
+//        bos.mark(readlimit);
+//    }
+//    
+//    public boolean markSupported() {
+//
+//        boolean retValue;
+//
+//        retValue = bos.markSupported();
+//        return retValue;
+//    }
+
 }

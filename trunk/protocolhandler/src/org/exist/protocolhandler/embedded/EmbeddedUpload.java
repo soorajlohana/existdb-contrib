@@ -55,6 +55,8 @@ public class EmbeddedUpload {
     
     private final static Logger LOG = Logger.getLogger(EmbeddedUpload.class);
     
+    
+    // TODO share with embedded download
     private User authenticate(XmldbURL xmldbURL, BrokerPool pool){
         
         if(!xmldbURL.hasUserInfo()){
@@ -84,7 +86,7 @@ public class EmbeddedUpload {
      * @param is  Stream containing document.
      * @throws IOException Thrown when something is wrong.
      */
-    private void streamDocument(XmldbURL xmldbURL, InputStream is) throws IOException {
+    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
         File tmp =null;
         try{
             tmp = File.createTempFile("EMBEDDED", "tmp");
@@ -96,10 +98,11 @@ public class EmbeddedUpload {
             while ((len = is.read(buf)) > 0) {
                 fos.write(buf, 0, len);
             }
-            //is.close(); // Skrews up BIS close with exception
+
             fos.close(); // COFF: Not called on exception while copying to file!
             
-            streamDocument(xmldbURL, tmp);
+            stream(xmldbURL, tmp);
+            
         } catch(IOException ex){
             ex.printStackTrace();
             LOG.error(ex);
@@ -113,11 +116,12 @@ public class EmbeddedUpload {
     
     /**
      *  Read document and write data to database.
+     *
      * @param xmldbURL Location in database.
      * @param tmp Document that is inserted.
      * @throws ExistIOException
      */
-    private void streamDocument(XmldbURL xmldbURL, File tmp) throws IOException {
+    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
         LOG.debug("Begin document upload");
         
         Collection collection = null;
@@ -203,7 +207,7 @@ public class EmbeddedUpload {
               LOG.debug(abex);
             }
             ex.printStackTrace();
-            LOG.debug(ex); // NPE
+            LOG.debug(ex); 
             throw ex;
         } catch (Exception ex) {
             try { // COFF: added - trows an exception when the user is unknown! 
@@ -212,7 +216,7 @@ public class EmbeddedUpload {
               LOG.debug(abex);
             }
             ex.printStackTrace();
-            LOG.debug(ex); // NPE
+            LOG.debug(ex); 
             throw new ExistIOException(ex.getMessage(), ex);
             
             
@@ -225,20 +229,6 @@ public class EmbeddedUpload {
             pool.release(broker);
         }
         
-    }
-    
-    /**
-     * Write data from an input stream to the specified XMLRPC url.
-     *
-     *
-     * @param xmldbURL URL pointing to location on eXist-db server.
-     * @param is Document input stream
-     * @throws ExistIOException When something is wrong.
-     */
-    
-    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
-            // TODO get rid of this method
-            streamDocument(xmldbURL, is);
     }
     
 }

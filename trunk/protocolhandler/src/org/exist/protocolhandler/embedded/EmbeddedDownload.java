@@ -71,6 +71,10 @@ public class EmbeddedDownload {
     }
     
     
+    // TODO javadoc
+    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+        stream(xmldbURL, os, null);
+    }
     
     /**
      *   Write document referred by URL to an (output)stream.
@@ -80,7 +84,7 @@ public class EmbeddedDownload {
      * @param os Stream to which the document is written.
      * @throws IOException
      */
-    public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
+    public void stream(XmldbURL xmldbURL, OutputStream os, User user) throws IOException {
         LOG.debug("Begin document download");
         
         DocumentImpl resource = null;
@@ -91,14 +95,15 @@ public class EmbeddedDownload {
             XmldbURI path = XmldbURI.create(xmldbURL.getPath());
             pool = BrokerPool.getInstance();
             
-            User user=null;
-            if(xmldbURL.hasUserInfo()){
-                user=authenticate(xmldbURL, pool);
-                if(user==null){
-                    throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
-                } 
-            } else {
-                user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+            if(user==null){
+                if(xmldbURL.hasUserInfo()){
+                    user=authenticate(xmldbURL, pool);
+                    if(user==null){
+                        throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
+                    }
+                } else {
+                    user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+                }
             }
             broker = pool.get(user);
             
@@ -135,11 +140,11 @@ public class EmbeddedDownload {
         } catch (IOException ex) {
             ex.printStackTrace();
             LOG.error(ex);
-            throw ex;           
+            throw ex;
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
-            throw new ExistIOException(ex.getMessage(), ex);            
+            throw new ExistIOException(ex.getMessage(), ex);
         } finally {
             if(resource != null)
                 resource.getUpdateLock().release(Lock.READ_LOCK);

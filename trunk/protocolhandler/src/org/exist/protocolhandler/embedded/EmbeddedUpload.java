@@ -79,6 +79,11 @@ public class EmbeddedUpload {
         return user;
     }
     
+    // TODO javadoc
+    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+        stream(xmldbURL, is, null);
+    }
+    
     /**
      *  Read document from stream and write data to database.
      *
@@ -86,7 +91,7 @@ public class EmbeddedUpload {
      * @param is  Stream containing document.
      * @throws IOException Thrown when something is wrong.
      */
-    public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
+    public void stream(XmldbURL xmldbURL, InputStream is, User user) throws IOException {
         File tmp =null;
         try{
             tmp = File.createTempFile("EMBEDDED", "tmp");
@@ -98,10 +103,10 @@ public class EmbeddedUpload {
             while ((len = is.read(buf)) > 0) {
                 fos.write(buf, 0, len);
             }
-
+            
             fos.close(); // COFF: Not called on exception while copying to file!
             
-            stream(xmldbURL, tmp);
+            stream(xmldbURL, tmp, user);
             
         } catch(IOException ex){
             ex.printStackTrace();
@@ -114,6 +119,11 @@ public class EmbeddedUpload {
         }
     }
     
+    // TODO javadoc
+    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
+        stream(xmldbURL, tmp, null);
+    }
+    
     /**
      *  Read document and write data to database.
      *
@@ -121,7 +131,7 @@ public class EmbeddedUpload {
      * @param tmp Document that is inserted.
      * @throws ExistIOException
      */
-    public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
+    public void stream(XmldbURL xmldbURL, File tmp, User user) throws IOException {
         LOG.debug("Begin document upload");
         
         Collection collection = null;
@@ -136,15 +146,16 @@ public class EmbeddedUpload {
         try {
             pool = BrokerPool.getInstance();
             
-            User user=null;
-            if(xmldbURL.hasUserInfo()){
-                user=authenticate(xmldbURL, pool);
-                if(user==null){
-                    LOG.debug("Unauthorized user "+xmldbURL.getUsername());
-                    throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
-                } 
-            } else {
-                user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+            if(user==null) {
+                if(xmldbURL.hasUserInfo()){
+                    user=authenticate(xmldbURL, pool);
+                    if(user==null){
+                        LOG.debug("Unauthorized user "+xmldbURL.getUsername());
+                        throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
+                    }
+                } else {
+                    user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+                }
             }
             
             broker = pool.get(user);
@@ -201,22 +212,22 @@ public class EmbeddedUpload {
             transact.commit(txn);
             
         } catch (IOException ex) {
-            try { // COFF: added - trows an exception when the user is unknown! 
-              transact.abort(txn);
+            try { // COFF: added - trows an exception when the user is unknown!
+                transact.abort(txn);
             } catch (Exception abex) {
-              LOG.debug(abex);
+                LOG.debug(abex);
             }
             ex.printStackTrace();
-            LOG.debug(ex); 
+            LOG.debug(ex);
             throw ex;
         } catch (Exception ex) {
-            try { // COFF: added - trows an exception when the user is unknown! 
-              transact.abort(txn);
+            try { // COFF: added - trows an exception when the user is unknown!
+                transact.abort(txn);
             } catch (Exception abex) {
-              LOG.debug(abex);
+                LOG.debug(abex);
             }
             ex.printStackTrace();
-            LOG.debug(ex); 
+            LOG.debug(ex);
             throw new ExistIOException(ex.getMessage(), ex);
             
             

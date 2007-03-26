@@ -37,6 +37,8 @@ import java.io.InputStream;
  * A special version of the close function enables the consumer threads to
  * specify that an exception has occurred. This will cause producer calls to
  * be unblocked and throw an IOException containing this exception as cause.
+ *
+ * @author Chris Offerman
  */
 public class BlockingInputStream extends InputStream {
 

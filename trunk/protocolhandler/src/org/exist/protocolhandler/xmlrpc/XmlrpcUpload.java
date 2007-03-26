@@ -27,9 +27,9 @@ import java.io.InputStream;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
+
 import org.exist.protocolhandler.io.ExistIOException;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.util.MimeTable;
@@ -113,9 +113,11 @@ public class XmlrpcUpload {
         } catch (IOException ex) {
             LOG.debug(ex);
             throw ex;
+            
         } catch (Exception ex) {
             LOG.debug(ex);
             throw new ExistIOException(ex.getMessage(), ex);
+            
         } finally {
            LOG.debug("Finished document upload");
         }

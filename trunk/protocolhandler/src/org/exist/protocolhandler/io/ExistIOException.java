@@ -26,6 +26,8 @@ package org.exist.protocolhandler.io;
 /**
  * A subclass of ExistIOException that adds the constructors for specifying
  * a cause to the ExistIOException class (missing in ExistIOException until Java 6).
+ *
+ * @author Chris Offerman
  */
 public class ExistIOException extends java.io.IOException {
     

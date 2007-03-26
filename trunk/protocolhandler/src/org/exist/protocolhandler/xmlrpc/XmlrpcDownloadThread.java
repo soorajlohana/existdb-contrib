@@ -25,6 +25,7 @@ package org.exist.protocolhandler.xmlrpc;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+
 import org.exist.protocolhandler.io.BlockingOutputStream;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
@@ -59,9 +60,11 @@ public class XmlrpcDownloadThread extends Thread {
         try {
             XmlrpcDownload xuc = new XmlrpcDownload();
             xuc.stream(xmldbURL, bos);
+            
         } catch (IOException ex) {
             logger.error(ex);
             exception = ex;
+            
         } finally {
             try { // NEEDED!
                 bos.close(exception);

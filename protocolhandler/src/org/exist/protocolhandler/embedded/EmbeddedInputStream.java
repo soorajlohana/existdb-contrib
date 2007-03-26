@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
+
 import org.exist.protocolhandler.io.BlockingInputStream;
 import org.exist.protocolhandler.io.BlockingOutputStream;
 import org.exist.protocolhandler.xmldb.XmldbURL;

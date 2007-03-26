@@ -33,6 +33,7 @@ import org.exist.collections.Collection;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
 import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
@@ -40,7 +41,6 @@ import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
 import org.exist.storage.serializers.Serializer;
 import org.exist.xmldb.XmldbURI;
-import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**
  *   Read document from an embedded database and write the data into an
@@ -71,18 +71,25 @@ public class EmbeddedDownload {
     }
     
     
-    // TODO javadoc
+    /**
+     *   Write document referred by URL to an (output)stream.
+     *
+     * @param xmldbURL Document location in database.
+     * @param os Stream to which the document is written.
+     * @throws IOException 
+     */
     public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         stream(xmldbURL, os, null);
     }
     
     /**
-     *   Write document referred by URL to an (output)stream.
-     *
-     *
+     *   Write document referred by URL to an (output)stream as specified user.
+     * 
+     * @param user Effective user for operation. If NULL the user information 
+     * is distilled from the URL.
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException
+     * @throws IOException 
      */
     public void stream(XmldbURL xmldbURL, OutputStream os, User user) throws IOException {
         LOG.debug("Begin document download");
@@ -141,10 +148,12 @@ public class EmbeddedDownload {
             ex.printStackTrace();
             LOG.error(ex);
             throw ex;
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             throw new ExistIOException(ex.getMessage(), ex);
+            
         } finally {
             if(resource != null)
                 resource.getUpdateLock().release(Lock.READ_LOCK);

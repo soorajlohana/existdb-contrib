@@ -24,7 +24,9 @@ package org.exist.protocolhandler.embedded;
 
 
 import java.io.IOException;
+
 import org.apache.log4j.Logger;
+
 import org.exist.protocolhandler.io.BlockingInputStream;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
@@ -53,9 +55,11 @@ public class EmbeddedUploadThread extends Thread {
         try {
             EmbeddedUpload uploader = new EmbeddedUpload();
             uploader.stream(xmldbURL, bis);
+            
         } catch (IOException ex) {
             logger.error(ex);
             exception = ex;
+            
         } finally {
             bis.close(exception);
             logger.debug("Thread stopped." );

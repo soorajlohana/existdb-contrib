@@ -79,17 +79,25 @@ public class EmbeddedUpload {
         return user;
     }
     
-    // TODO javadoc
+    /**
+     *   Read document from stream and write data to database.
+     *
+     * @param xmldbURL Location in database.
+     * @param is Stream containing document.
+     * @throws IOException
+     */
     public void stream(XmldbURL xmldbURL, InputStream is) throws IOException {
         stream(xmldbURL, is, null);
     }
     
     /**
-     *  Read document from stream and write data to database.
-     *
+     *  Read document from stream and write data to database with specified user.
+     * 
+     * @param user Effective user for operation. If NULL the user information 
+     * is distilled from the URL. 
      * @param xmldbURL Location in database.
-     * @param is  Stream containing document.
-     * @throws IOException Thrown when something is wrong.
+     * @param is Stream containing document.
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, InputStream is, User user) throws IOException {
         File tmp =null;
@@ -119,17 +127,25 @@ public class EmbeddedUpload {
         }
     }
     
-    // TODO javadoc
+    /**
+     *  Read document and write data to database.
+     *
+     * @param xmldbURL Location in database.
+     * @param tmp Document that is inserted.
+     * @throws IOException 
+     */
     public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
         stream(xmldbURL, tmp, null);
     }
     
     /**
      *  Read document and write data to database.
-     *
+     * 
+     * @param user  Effective user for operation. If NULL the user information 
+     * is distilled from the URL.
      * @param xmldbURL Location in database.
      * @param tmp Document that is inserted.
-     * @throws ExistIOException
+     * @throws IOException 
      */
     public void stream(XmldbURL xmldbURL, File tmp, User user) throws IOException {
         LOG.debug("Begin document upload");
@@ -200,6 +216,7 @@ public class EmbeddedUpload {
                 collectionLocked = false;
                 collection.store(txn, broker, info, inputsource, false);
                 LOG.debug("done");
+                
             } else {
                 LOG.debug("storing Binary resource");
                 InputStream is = new FileInputStream(tmp);
@@ -220,6 +237,7 @@ public class EmbeddedUpload {
             ex.printStackTrace();
             LOG.debug(ex);
             throw ex;
+            
         } catch (Exception ex) {
             try { // COFF: added - trows an exception when the user is unknown!
                 transact.abort(txn);
@@ -229,7 +247,6 @@ public class EmbeddedUpload {
             ex.printStackTrace();
             LOG.debug(ex);
             throw new ExistIOException(ex.getMessage(), ex);
-            
             
         } finally {
             LOG.debug("Done.");

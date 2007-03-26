@@ -25,6 +25,7 @@ package org.exist.protocolhandler.embedded;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+
 import org.exist.protocolhandler.io.BlockingOutputStream;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
@@ -43,7 +44,7 @@ public class EmbeddedDownloadThread extends Thread {
     /**
      *  Constructor of EmbeddedDownloadThread.
      * 
-     * @param xmldbURL Document location in database.
+     * @param url Document location in database.
      * @param os Stream to which the document is written.
      */
     public EmbeddedDownloadThread(XmldbURL url, BlockingOutputStream os) {

@@ -11,6 +11,10 @@ To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
  * call URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
 
+== Usage for JVM ==
+start jvm with {{{java -Djava.protocol.handler.pkgs=org.exist.protocolhandler.protocols -jar ......}}}
+
+
 == Java code example ==
 
 {{{
@@ -55,9 +59,6 @@ OutputStream os = url.openConnection().getOutputStream();
 
 }}}
 
-== Usage for JVM ==
-start jvm with {{{java -Djava.protocol.handler.pkgs=org.exist.protocolhandler.protocols -jar ......}}}
-
 == Dependancies ==
 The code does have a dependancy with the eXist jar files, in particular:
  * exist.jar (1.1.2dev, rev5524+)
@@ -77,7 +78,7 @@ The code is fully functional for both embedded and remote URLs. It is also possi
 == ToDo ==
  * refactor code
  * add handling of exist instance name
- * XmlrpcDownload line 96 ; why a flush on output stream here? might indicate an issue in BlockingIOstream;
+ * ~~XmlrpcDownload line 96 ; why a flush on output stream here? might indicate an issue in BlockingIOstream~~
  * ~~add tests regarding binary files in embedded mode~~
 
 == Known Issues ==

@@ -79,7 +79,6 @@ public class XmlrpcBinaryXmlDocTest extends TestCase {
         }
         
         // Shutdown
-        xos.flush();
         xos.close();
     }
     

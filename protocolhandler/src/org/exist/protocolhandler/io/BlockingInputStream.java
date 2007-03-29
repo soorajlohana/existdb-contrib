@@ -270,6 +270,7 @@ public class BlockingInputStream extends InputStream {
      * @throws IOException  if an I/O error occurs.
      */
     synchronized void closeOutputStream() throws IOException {
+        if (outException == null) flushOutputStream();
         outClosed = true;
         notifyAll();
         try {

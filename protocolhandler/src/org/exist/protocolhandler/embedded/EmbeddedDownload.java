@@ -136,12 +136,10 @@ public class EmbeddedDownload {
                     // TODO set properties? serializer.setProperties(WebDAV.OUTPUT_PROPERTIES);
                     Writer w = new OutputStreamWriter(os,"UTF-8");
                     serializer.serialize(resource,w);
-                    w.flush();
                     w.close();
                     
                 } else {
                     broker.readBinaryResource((BinaryDocument) resource, os);
-                    os.flush();
                 }
             }
         } catch (IOException ex) {

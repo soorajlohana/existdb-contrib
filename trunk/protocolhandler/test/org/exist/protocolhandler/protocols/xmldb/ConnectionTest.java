@@ -184,6 +184,5 @@ public class ConnectionTest extends TestCase {
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        os.flush();
     }
 }

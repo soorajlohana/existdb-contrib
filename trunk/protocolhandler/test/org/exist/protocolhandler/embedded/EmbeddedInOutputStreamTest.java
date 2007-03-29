@@ -99,7 +99,6 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             eos.write(buf, 0, len);
         }
         
-        eos.flush();
         eos.close();
     }
     
@@ -114,7 +113,6 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             os.write(buf, 0, len);
         }
         
-        os.flush();
         os.close();
         eis.close();
         

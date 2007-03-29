@@ -127,7 +127,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, baos);
             
-            baos.flush();
             baos.close();
             
             assertTrue( baos.size()>0 );
@@ -184,7 +183,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
             
-            os.flush();
             os.close();
             
             fail("Not existing collection: Exception expected");
@@ -242,7 +240,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
             
-            os.flush();
             os.close();
             
             fail("Not existing user: Exception expected");
@@ -301,7 +298,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
             
-            os.flush();
             os.close();
             
             fail("User not authorized: Exception expected");
@@ -330,7 +326,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        os.flush();
     }
     
     /*
@@ -374,7 +369,6 @@ public class EmbeddedUploadDownloadTest extends TestCase {
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, baos);
             
-            baos.flush();
             baos.close();
             
             assertTrue( baos.size()>0 );

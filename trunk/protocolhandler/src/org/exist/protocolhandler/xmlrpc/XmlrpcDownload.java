@@ -93,7 +93,6 @@ public class XmlrpcDownload {
                 offset = ((Integer)ht.get("offset")).intValue();
                 os.write(data);
             }
-            os.flush(); // TODO (COFF) added this for failing binary tests
             
         } catch (IOException ex) {
             LOG.error(ex);

@@ -93,7 +93,6 @@ public class EmbeddedURLsTest extends TestCase {
         OutputStream os = url.openConnection().getOutputStream();
         copyDocument(is,os);
         is.close();
-        os.flush();
         os.close();
         
     }
@@ -106,7 +105,6 @@ public class EmbeddedURLsTest extends TestCase {
         copyDocument(is,os);
         
         is.close();
-        os.flush();
         os.close();
         
     }
@@ -118,7 +116,6 @@ public class EmbeddedURLsTest extends TestCase {
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
-        os.flush();
     }
     
     // ======================================================================
@@ -141,7 +138,6 @@ public class EmbeddedURLsTest extends TestCase {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/build_testToDB.xml", baos);
-            baos.flush();
             baos.close();
             
             assertTrue(baos.size()>0);
@@ -174,7 +170,6 @@ public class EmbeddedURLsTest extends TestCase {
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/foo.bar", os);
-            os.flush();
             os.close();
             
             fail("Not existing collection: Exception expected");
@@ -211,7 +206,6 @@ public class EmbeddedURLsTest extends TestCase {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://foo:bar@/db/testFromDB_NotExistingUser.xml", os);
             
-            os.flush();
             os.close();
             
             fail("Not existing user: Exception expected");
@@ -249,7 +243,6 @@ public class EmbeddedURLsTest extends TestCase {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://guest:guest@/db/system/testToDB_NotAuthorized.xml", os);
             
-            os.flush();
             os.close();
             
             fail("Not authorized: Exception expected");
@@ -285,7 +278,6 @@ public class EmbeddedURLsTest extends TestCase {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             getFromURL("xmldb:exist:///db/manifest.txt", baos);
-            baos.flush();
             baos.close();
             
             assertTrue(baos.size()>0);

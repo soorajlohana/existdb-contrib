@@ -79,7 +79,6 @@ public class XmlrpcInOutputStreamTest extends TestCase {
         }
         
         // Shutdown
-        xos.flush();
         xos.close();
         
     }

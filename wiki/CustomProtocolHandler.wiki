@@ -15,7 +15,7 @@ To be able to use this special URL you can either
 start jvm with {{{java -Djava.protocol.handler.pkgs=org.exist.protocolhandler.protocols -jar ......}}}
 
 
-== Use in Java code (example) ==
+== Usage in Java code (example) ==
 
 {{{
 import java.io.FileInputStream;
@@ -83,7 +83,6 @@ The code is fully functional for both embedded and remote URLs. It is also possi
 
 == Known Issues ==
  * URL parsing is not yet perfect :-)
-
 
 
 

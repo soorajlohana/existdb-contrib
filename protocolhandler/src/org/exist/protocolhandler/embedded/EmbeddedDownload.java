@@ -34,7 +34,6 @@ import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
 import org.exist.protocolhandler.io.ExistIOException;
 import org.exist.protocolhandler.xmldb.XmldbURL;
-import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -52,31 +51,12 @@ public class EmbeddedDownload {
     
     private final static Logger LOG = Logger.getLogger(EmbeddedDownload.class);
     
-    private User authenticate(XmldbURL xmldbURL, BrokerPool pool){
-        
-        if(!xmldbURL.hasUserInfo()){
-            return null;
-        }
-        
-        SecurityManager secman = pool.getSecurityManager();
-        User user = secman.getUser(xmldbURL.getUsername());
-        if(user == null) {
-            return null;
-        }
-        if (!user.validate(xmldbURL.getPassword())) {
-            return null;
-        }
-        
-        return user;
-    }
-    
-    
     /**
      *   Write document referred by URL to an (output)stream.
      *
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException 
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, OutputStream os) throws IOException {
         stream(xmldbURL, os, null);
@@ -84,12 +64,12 @@ public class EmbeddedDownload {
     
     /**
      *   Write document referred by URL to an (output)stream as specified user.
-     * 
-     * @param user Effective user for operation. If NULL the user information 
+     *
+     * @param user Effective user for operation. If NULL the user information
      * is distilled from the URL.
      * @param xmldbURL Document location in database.
      * @param os Stream to which the document is written.
-     * @throws IOException 
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, OutputStream os, User user) throws IOException {
         LOG.debug("Begin document download");
@@ -104,12 +84,12 @@ public class EmbeddedDownload {
             
             if(user==null){
                 if(xmldbURL.hasUserInfo()){
-                    user=authenticate(xmldbURL, pool);
+                    user=EmbeddedUser.authenticate(xmldbURL, pool);
                     if(user==null){
                         throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
                     }
                 } else {
-                    user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+                    user=EmbeddedUser.getUserGuest(pool);
                 }
             }
             broker = pool.get(user);
@@ -133,7 +113,6 @@ public class EmbeddedDownload {
                     Serializer serializer = broker.getSerializer();
                     serializer.reset();
                     
-                    // TODO set properties? serializer.setProperties(WebDAV.OUTPUT_PROPERTIES);
                     Writer w = new OutputStreamWriter(os,"UTF-8");
                     serializer.serialize(resource,w);
                     w.close();
@@ -153,11 +132,13 @@ public class EmbeddedDownload {
             throw new ExistIOException(ex.getMessage(), ex);
             
         } finally {
-            if(resource != null)
+            if(resource != null){
                 resource.getUpdateLock().release(Lock.READ_LOCK);
+            }
             
-            if(collection != null)
+            if(collection != null){
                 collection.release(Lock.READ_LOCK);
+            }
             
             pool.release(broker);
             

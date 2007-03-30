@@ -34,7 +34,6 @@ import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
 import org.exist.protocolhandler.io.ExistIOException;
 import org.exist.protocolhandler.xmldb.XmldbURL;
-import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
@@ -54,30 +53,6 @@ import org.xml.sax.InputSource;
 public class EmbeddedUpload {
     
     private final static Logger LOG = Logger.getLogger(EmbeddedUpload.class);
-    
-    
-    // TODO share with embedded download
-    private User authenticate(XmldbURL xmldbURL, BrokerPool pool){
-        
-        if(!xmldbURL.hasUserInfo()){
-            LOG.debug("No UserInfo in URL.");
-            return null;
-        }
-        
-        SecurityManager secman = pool.getSecurityManager();
-        User user = secman.getUser(xmldbURL.getUsername());
-        if(user == null) {
-            LOG.debug("user is null.");
-            return null;
-        }
-        if (!user.validate(xmldbURL.getPassword())) {
-            LOG.debug("no validated password.");
-            return null;
-        }
-        
-        LOG.debug("Return user:"+user.toString());
-        return user;
-    }
     
     /**
      *   Read document from stream and write data to database.
@@ -164,19 +139,17 @@ public class EmbeddedUpload {
             
             if(user==null) {
                 if(xmldbURL.hasUserInfo()){
-                    user=authenticate(xmldbURL, pool);
+                    user=EmbeddedUser.authenticate(xmldbURL, pool);
                     if(user==null){
                         LOG.debug("Unauthorized user "+xmldbURL.getUsername());
                         throw new ExistIOException("Unauthorized user "+xmldbURL.getUsername());
                     }
                 } else {
-                    user=pool.getSecurityManager().getUser(SecurityManager.GUEST_USER);
+                    user=EmbeddedUser.getUserGuest(pool);
                 }
             }
             
             broker = pool.get(user);
-            
-            LOG.debug("Effective user="+user.toString());
             
             transact = pool.getTransactionManager();
             txn = transact.beginTransaction();

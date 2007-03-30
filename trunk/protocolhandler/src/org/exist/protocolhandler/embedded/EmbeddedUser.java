@@ -28,7 +28,7 @@ import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 
 /**
- * Authenticate user with embedded eXist.
+ * Authenticate user with embedded eXist. 
  *
  * @author @author Dannes Wessels
  */

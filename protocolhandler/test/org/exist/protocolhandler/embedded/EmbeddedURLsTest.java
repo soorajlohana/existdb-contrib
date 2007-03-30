@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.storage.BrokerPool;
 import org.exist.util.Configuration;
 import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
@@ -288,4 +289,25 @@ public class EmbeddedURLsTest extends TestCase {
             fail(ex.getMessage());
         }
     }
+    
+//    public void testMisc(){
+//        System.out.println(this.getName());
+//        String uri_1="xmldb:exist://db/collectionname/doc.xml";
+//        try {
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            getFromURL(uri_1, baos);
+//            baos.close();
+//            
+//            URL url = new URL(uri_1);
+//            InputStream is = url.openStream();
+//            byte bytes[] = new byte[4096];
+//            is.read(bytes);
+//            is.close();
+//            
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            LOG.error(ex);
+//            fail(ex.getMessage());
+//        }
+//    }
 }

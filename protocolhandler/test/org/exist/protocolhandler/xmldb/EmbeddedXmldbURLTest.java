@@ -22,7 +22,9 @@
 
 package org.exist.protocolhandler.xmldb;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
@@ -74,7 +76,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
        
     public void testURL1() {
-        System.out.println("testURL1");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_1);
             assertNull(xmldbUrl.getHost());
@@ -87,7 +89,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
     
     public void testURL2() {
-        System.out.println("testURL2");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_2);
             assertNull(xmldbUrl.getHost());
@@ -100,7 +102,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
     
     public void testURL3() {
-        System.out.println("testURL3");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_3);
             assertNull(xmldbUrl.getHost());
@@ -113,7 +115,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
     
     public void testURL4() {
-        System.out.println("testURL4");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_4);
             assertNull(xmldbUrl.getHost());
@@ -126,7 +128,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
     
     public void testURL5() {
-        System.out.println("testURL5");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_5);
             assertNull(xmldbUrl.getHost());
@@ -139,7 +141,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
     }
     
     public void testURL6() {
-        System.out.println("testURL6");
+        System.out.println(this.getName());
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_6);
             assertNull(xmldbUrl.getHost());

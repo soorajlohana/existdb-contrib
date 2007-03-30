@@ -107,6 +107,8 @@ public class XmldbURLTest extends TestCase {
     }
     
     public void testRegularExpressions(){
+        System.out.println(this.getName());
+        
         String PATTERN = org.exist.protocolhandler.protocols.xmldb.Handler.PATTERN;
         String txt1="xmldb:justatext://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
         assertTrue(txt1.matches(PATTERN));
@@ -132,6 +134,8 @@ public class XmldbURLTest extends TestCase {
     }
     
     public void testURLclass(){
+        System.out.println(this.getName());
+        
         try {
             URL urla = new URL("xmldb:justatext://fobar1:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
             assertEquals("fobar1", urla.getHost());
@@ -154,7 +158,8 @@ public class XmldbURLTest extends TestCase {
      * Test of getUserInfo method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetUserInfo() {
-        System.out.println("testGetUserInfo");
+        System.out.println(this.getName());
+        
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_0);
             assertEquals("username:password", xmldbUrl.getUserInfo());
@@ -167,7 +172,7 @@ public class XmldbURLTest extends TestCase {
      * Test of getUsername method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetUsername() {
-        System.out.println("testGetUsername");
+        System.out.println(this.getName());
         try{
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_0);
             assertEquals("username", xmldbUrl.getUsername());
@@ -180,7 +185,7 @@ public class XmldbURLTest extends TestCase {
      * Test of getPassword method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetPassword() {
-        System.out.println("testGetPassword");
+        System.out.println(this.getName());
         try{
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_0);
             assertEquals("password", xmldbUrl.getPassword());
@@ -193,7 +198,7 @@ public class XmldbURLTest extends TestCase {
      * Test of getCollection method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetCollection() {
-        System.out.println("testGetCollection");
+        System.out.println(this.getName());
         try{
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_0);
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
@@ -206,7 +211,7 @@ public class XmldbURLTest extends TestCase {
      * Test of getDocumentName method, of class org.exist.protocolhandler.protocols.util.XmldbURL.
      */
     public void testGetDocumentName() {
-        System.out.println("testGetDocumentName");
+        System.out.println(this.getName());
         try{
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_0);
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
@@ -217,7 +222,7 @@ public class XmldbURLTest extends TestCase {
     
     // Some tests are now performed double
     public void testMoreOnOneXmldbURL() {
-        System.out.println("testMoreOnOneXmldbURL");
+        System.out.println(this.getName());
         try {
             XmldbURL url = new XmldbURL(XMLDB_URL_1);
             assertEquals("xmldb", url.getProtocol());
@@ -237,8 +242,7 @@ public class XmldbURLTest extends TestCase {
     
     
     public void testXmldbURI_getUserInfo() {
-        System.out.println("testXmldbURI_getUserInfo");
-        
+        System.out.println(this.getName());
         try {
             String userinfo=null;
             
@@ -285,8 +289,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     public void testXmldbURI_HostName() {
-        System.out.println("testXmldbURI_HostName");
-        
+        System.out.println(this.getName());
         try {
             XmldbURL url = new XmldbURL(XMLDB_URL_21);
             assertEquals("localhost", url.getHost()); ///
@@ -301,8 +304,7 @@ public class XmldbURLTest extends TestCase {
     }
     
     public void testXmldbURI_InstanceName() {
-        System.out.println("testXmldbURI_InstanceName");
-        
+        System.out.println(this.getName());
         try {
             XmldbURL url = new XmldbURL(XMLDB_URL_1);
             assertEquals("exist", url.getInstanceName());

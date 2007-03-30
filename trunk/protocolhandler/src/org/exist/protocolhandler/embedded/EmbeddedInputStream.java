@@ -95,18 +95,4 @@ public class EmbeddedInputStream extends InputStream {
         return bis.available();
     }
 
-    // TODO is this needed?
-//    public void mark(int readlimit) {
-//
-//        bos.mark(readlimit);
-//    }
-//    
-//    public boolean markSupported() {
-//
-//        boolean retValue;
-//
-//        retValue = bos.markSupported();
-//        return retValue;
-//    }
-
 }

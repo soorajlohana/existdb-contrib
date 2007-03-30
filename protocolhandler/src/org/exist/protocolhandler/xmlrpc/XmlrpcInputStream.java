@@ -93,19 +93,4 @@ public class XmlrpcInputStream  extends InputStream {
         return bis.available();
     }
     
-    // TODO Are the following methods actually needed?
-    
-//    public boolean markSupported() {
-//
-//        boolean retValue;
-//
-//        retValue = bos.markSupported();
-//        return retValue;
-//    }
-    
-//    public void mark(int readlimit) {
-//
-//        bos.mark(readlimit);
-//    }
-    
 }

@@ -77,12 +77,14 @@ The code is fully functional for both embedded and remote URLs. It is also possi
  * xmldb:exist://demo.exist-db.org/xmlrpc/db/foobar/document.xml
 
 == ToDo ==
- * refactor code
+ * ~~refactor code~~
+  * ~~nearly finished~~
  * add handling of exist instance name
   * for what purpose? what code will use it?
  * ~~XmlrpcDownload line 96 ; why a flush on output stream here? might indicate an issue in BlockingIOstream~~
  * ~~add tests regarding binary files in embedded mode~~
  * ~~fix issues with demo server urls~~
+  * ~~more tests are always welcome~~
 
 == Known Issues ==
  * URL parsing is not yet perfect :-)

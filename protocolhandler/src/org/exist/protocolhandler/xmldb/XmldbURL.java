@@ -154,15 +154,14 @@ public class XmldbURL {
      * @return collection
      */
     public String getCollection(){
-        // TODO change hardcoded numbers
-        String serverPath=myUrl.getFile();
+
+        String serverPath=myUrl.getPath();
         String collectionName=null;
         
         // TODO seperate check /exist/xmlrpc or /.*/xmlrpc/, check this first
         // then /db check can be removed
-        // TODO add seperate xmlrpc style URL tests
         
-        if(serverPath.startsWith("/db")){
+        if(serverPath.startsWith("/db")){ // Embedd URLs
             if(serverPath.endsWith("/")){
                 collectionName=serverPath.substring(0,serverPath.length()-1);
             } else {
@@ -174,11 +173,14 @@ public class XmldbURL {
                 }
             }
         } else {
+            // URLa : xmldb:exist:...../exist/xmlrpc/db/....
+            // URLb : xmldb:exist:...../xmlrpc/db/....
+            int dbLocation=serverPath.indexOf("/db");
             if(serverPath.endsWith("/")){
-                collectionName=serverPath.substring(13);
+                collectionName=serverPath.substring(dbLocation);
             } else {
                 int lastSep=serverPath.lastIndexOf('/'); // TODO extra checks
-                collectionName=serverPath.substring(13, lastSep);
+                collectionName=serverPath.substring(dbLocation, lastSep);
             }
         }
         
@@ -190,7 +192,7 @@ public class XmldbURL {
      * @return collection
      */
     public String getDocumentName(){
-        String serverPath=myUrl.getFile();
+        String serverPath=myUrl.getPath();
         String documentName=null;
         if(serverPath.endsWith("/")){
             documentName=null;

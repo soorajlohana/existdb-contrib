@@ -79,11 +79,13 @@ The code is fully functional for both embedded and remote URLs. It is also possi
 == ToDo ==
  * refactor code
  * add handling of exist instance name
+  * for what purpose? what code will use it?
  * ~~XmlrpcDownload line 96 ; why a flush on output stream here? might indicate an issue in BlockingIOstream~~
  * ~~add tests regarding binary files in embedded mode~~
  * ~~fix issues with demo server urls~~
 
 == Known Issues ==
- * URL parsing is not yet perfect :-)  (but good enough)
+ * URL parsing is not yet perfect :-)
+  * but good enough right now
 
 

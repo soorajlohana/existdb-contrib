@@ -107,7 +107,7 @@ public class MiscUrlTest extends TestCase {
     
     public void testDemoServerURLs(){
         try {
-            XmldbURL urla = new XmldbURL("xmldb:exist://demo.exist-db.org/xmlrpc/db/foo/bar.xml");
+            XmldbURL urla = new XmldbURL("xmldb:exist://demo.exist-db.org/xmlrpc/db/foo/bar.xml?a=b#cc");
             assertEquals("demo.exist-db.org", urla.getHost());
             assertEquals(-1, urla.getPort());
             assertEquals("bar.xml", urla.getDocumentName());

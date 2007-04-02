@@ -83,7 +83,8 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -96,7 +97,8 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
             assertNull( xmldbUrl.getDocumentName() );
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -109,7 +111,8 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertEquals("/db", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -122,7 +125,8 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertEquals("/db", xmldbUrl.getCollection());
             assertNull(xmldbUrl.getDocumentName());
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -132,10 +136,12 @@ public class EmbeddedXmldbURLTest extends TestCase {
         try {
             XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_5);
             assertNull(xmldbUrl.getHost());
-            assertNull(xmldbUrl.getCollection());
+            //assertNull(xmldbUrl.getCollection());
+            assertEquals("/", xmldbUrl.getCollection());
             assertEquals("db", xmldbUrl.getDocumentName());
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
@@ -153,7 +159,8 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertEquals("foo", xmldbUrl.getUsername());
             assertEquals("bar", xmldbUrl.getPassword());
             
-        } catch (MalformedURLException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }

@@ -154,33 +154,42 @@ public class XmldbURL {
      * @return collection
      */
     public String getCollection(){
-
-        String serverPath=myUrl.getPath();
+        
+        String path=myUrl.getPath();
         String collectionName=null;
         
-        // TODO seperate check /exist/xmlrpc or /.*/xmlrpc/, check this first
-        // then /db check can be removed
+        int dbLocation=path.indexOf("/db");
         
-        if(serverPath.startsWith("/db")){ // Embedd URLs
-            if(serverPath.endsWith("/")){
-                collectionName=serverPath.substring(0,serverPath.length()-1);
+        if(dbLocation!=-1){
+            // found pattern "/db"
+            if(path.endsWith("/")){
+                // -1 removes the slash
+                collectionName=path.substring(dbLocation, (path.length()-1) );
             } else {
-                int lastSep=serverPath.lastIndexOf('/'); // TODO extra checks
+                int lastSep=path.lastIndexOf('/');
                 if(lastSep==0){
-                   collectionName=null;
+                    collectionName="/";
+                    
+                } else if(lastSep!=-1){
+                    collectionName=path.substring(dbLocation, lastSep);
+                    
                 } else {
-                   collectionName=serverPath.substring(0, lastSep);
+                    collectionName=path;
                 }
             }
-        } else {
-            // URLa : xmldb:exist:...../exist/xmlrpc/db/....
-            // URLb : xmldb:exist:...../xmlrpc/db/....
-            int dbLocation=serverPath.indexOf("/db");
-            if(serverPath.endsWith("/")){
-                collectionName=serverPath.substring(dbLocation);
+            
+        } else {  // TODO not very well tested
+            // pattern not found, taking full path
+            if(path.endsWith("/")){
+                // -1 removes the slash
+                collectionName=path.substring(0, (path.length()-1) );
             } else {
-                int lastSep=serverPath.lastIndexOf('/'); // TODO extra checks
-                collectionName=serverPath.substring(dbLocation, lastSep);
+                int lastSep=path.lastIndexOf('/');
+                if(lastSep!=-1){
+                    collectionName=path.substring(dbLocation, lastSep);
+                } else {
+                    collectionName="/";
+                }
             }
         }
         
@@ -199,7 +208,7 @@ public class XmldbURL {
         } else {
             int lastSep=serverPath.lastIndexOf('/');
             if(lastSep==-1){
-                documentName=serverPath; // TODO discuss
+                documentName=serverPath;
             } else {
                 documentName=serverPath.substring(lastSep+1);
             }

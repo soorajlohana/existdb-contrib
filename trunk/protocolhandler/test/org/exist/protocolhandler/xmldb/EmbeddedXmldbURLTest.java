@@ -82,6 +82,7 @@ public class EmbeddedXmldbURLTest extends TestCase {
             assertNull(xmldbUrl.getHost());
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
+            assertNull(xmldbUrl.getContext());
             
         } catch (Exception ex) {
             ex.printStackTrace();

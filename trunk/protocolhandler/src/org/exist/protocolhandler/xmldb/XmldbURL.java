@@ -137,10 +137,24 @@ public class XmldbURL {
     }
     
     /**
-     * Return context
+     * xmldb:exist://username:password@hostname:8080<B>/exist/xmlrpc</B>/db/collection/document.xml?query#fragment
+     * Return context, null if not available.
      */
     public String getContext() {
-        return "/exist/xmlrpc"; // TODO repair
+        String path = myUrl.getPath();
+        int dbPosition=path.indexOf("/db");
+        String context=null;
+        
+        if(dbPosition!=-1){
+            // since all paths begin with this pattern..
+            context=path.substring(0,dbPosition);
+        } 
+        
+        if(context!=null && context.equals("")){
+            context=null;
+        }
+        
+        return context;
     }
     
     // /exist/xmlrpc/db/shakespeare/plays/macbeth.xml

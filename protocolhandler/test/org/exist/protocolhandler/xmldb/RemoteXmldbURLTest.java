@@ -185,6 +185,7 @@ public class RemoteXmldbURLTest extends TestCase {
             assertEquals("/exist/xmlrpc/db/shakespeare/plays/macbeth.xml", url.getPath());
             assertNull(url.getQuery());
             assertEquals("/db/shakespeare/plays/macbeth.xml", url.getCollectionPath());
+            assertEquals("/exist/xmlrpc", url.getContext());
             
         } catch (MalformedURLException ex) {
             fail(ex.getMessage());

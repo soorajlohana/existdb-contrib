@@ -3,9 +3,15 @@
 
 = Custom protocol handler "xmldb:exist://" =
 
-Under certain conditions it is handy to be able to access data stored in eXist via a *xmldb:exist://* type URL, straight out of javacode. The code below shows how to do this.
-
 [http://www.exist-db.org/ http://www.exist-db.org/logo.jpg]
+
+== In short ==
+
+Classes to deal with xmldb:exist// style URL's. With these classes it is possible to download (get) and upload (put) documents from/to the eXist-db using standard Java classes (java.net.URL).
+
+== Introduction ==
+
+Under certain conditions it is handy to be able to access data stored in eXist via a *xmldb:exist://* type URL, straight out of javacode. The code below shows how to do this.
 
 To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
@@ -89,5 +95,6 @@ The code is fully functional for both embedded and remote URLs. It is also possi
 == Known Issues ==
  * URL parsing is not yet perfect :-)
   * but good enough right now
+
 
 

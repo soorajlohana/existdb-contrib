@@ -43,12 +43,12 @@ public class XmlrpcDownloadThread extends Thread {
     /**
      *  Constructor of XmlrpcDownloadThread.
      * 
-     * @param xmldbURL Document location in database.
-     * @param os Stream to which the document is written.
+     * @param url Document location in database.
+     * @param bos Stream to which the document is written.
      */
-    public XmlrpcDownloadThread(XmldbURL url, BlockingOutputStream os) {
+    public XmlrpcDownloadThread(XmldbURL url, BlockingOutputStream bos) {
         xmldbURL=url;
-        bos=os;
+        this.bos=bos;
     }
     
     /**

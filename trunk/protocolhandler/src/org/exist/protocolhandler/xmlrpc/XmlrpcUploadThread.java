@@ -41,9 +41,9 @@ public class XmlrpcUploadThread extends Thread {
     private BlockingInputStream bis;
     
     
-    public XmlrpcUploadThread(XmldbURL url, BlockingInputStream is) {
+    public XmlrpcUploadThread(XmldbURL url, BlockingInputStream bis) {
         xmldbURL=url;
-        bis=is;
+        this.bis=bis;
     }
     
     /**

@@ -45,11 +45,11 @@ public class EmbeddedDownloadThread extends Thread {
      *  Constructor of EmbeddedDownloadThread.
      * 
      * @param url Document location in database.
-     * @param os Stream to which the document is written.
+     * @param bos Stream to which the document is written.
      */
-    public EmbeddedDownloadThread(XmldbURL url, BlockingOutputStream os) {
+    public EmbeddedDownloadThread(XmldbURL url, BlockingOutputStream bos) {
         xmldbURL = url;
-        bos = os;
+        this.bos = bos;
     }
     
     /**

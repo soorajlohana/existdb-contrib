@@ -41,9 +41,9 @@ public class EmbeddedUploadThread extends Thread {
     private XmldbURL xmldbURL;
     private BlockingInputStream bis;
     
-    public EmbeddedUploadThread(XmldbURL url, BlockingInputStream is) {
+    public EmbeddedUploadThread(XmldbURL url, BlockingInputStream bis) {
         xmldbURL=url;
-        bis=is;
+        this.bis=bis;
     }
     
     /**

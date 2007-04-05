@@ -85,9 +85,7 @@ public class XmlrpcURLsTest extends TestCase {
             os.write(buf, 0, len);
         }
     }
-    
-    // =====================================
-    // TODO add test for xmldb:exist://localhost:8080/db/build_testURLToDB.xml ?
+
     // =====================================
     
     public void testURLToDB() {

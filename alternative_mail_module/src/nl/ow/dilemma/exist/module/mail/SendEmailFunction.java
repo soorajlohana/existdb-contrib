@@ -24,14 +24,19 @@ package nl.ow.dilemma.exist.module.mail;
 
 import java.io.StringWriter;
 import java.util.Properties;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 
 import javax.xml.transform.dom.DOMSource;
@@ -122,7 +127,7 @@ public class SendEmailFunction extends BasicFunction {
             MimeMessage message = new MimeMessage(mailSession);
             
             ParseMailXML( ((NodeValue)args[0].itemAt(0)).getNode(), message );
-             
+            
             transport.connect();
             transport.sendMessage(message,
                     message.getRecipients(Message.RecipientType.TO));
@@ -159,8 +164,10 @@ public class SendEmailFunction extends BasicFunction {
      * @param mailNode	The XML mail Node
      * @return A mail Object representing the XML mail Node
      */
-    private void ParseMailXML(Node mailNode, Message message) throws Exception {
+    private void ParseMailXML(Node mailNode, MimeMessage message) throws Exception {
         
+        // Create an "Alternative" Multipart message
+        Multipart mp = new MimeMultipart("alternative");
         
         //Make sure that mailNode has a Mail node
         if(mailNode.getNodeType() == Node.ELEMENT_NODE && mailNode.getLocalName().equals("mail")) {
@@ -202,9 +209,15 @@ public class SendEmailFunction extends BasicFunction {
                         //If the mailNode node, then parse the child text and xhtml nodes
                         Node bodyPart = child.getFirstChild();
                         while(bodyPart != null) {
+                            
                             if(bodyPart.getLocalName().equals("text")) {
-                                String value=child.getFirstChild().getNodeValue();
-                                message.setText( value );
+                                String value=bodyPart.getFirstChild().getNodeValue();
+                                
+                                MimeBodyPart mbp = new MimeBodyPart();
+                                DataSource ds = new ByteArrayDataSource(value.getBytes(), "text/plain");
+                                mbp.setDataHandler(new DataHandler(ds));
+                                mp.addBodyPart(mbp);
+                                
                             } else if(bodyPart.getLocalName().equals("xhtml")) {
                                 //Convert everything inside <xhtml></xhtml> to text
                                 TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -214,7 +227,13 @@ public class SendEmailFunction extends BasicFunction {
                                 StreamResult result = new StreamResult(strWriter);
                                 transformer.transform(source, result);
                                 
-                                message.setText(strWriter.toString());
+                                //message.setText(strWriter.toString());
+                                MimeBodyPart mbp = new MimeBodyPart();
+                                DataSource ds = new ByteArrayDataSource(strWriter.toString(), "text/html");
+                                mbp.setDataHandler(new DataHandler(ds));
+                                mp.addBodyPart(mbp);
+                            } else {
+                                throw new Exception("FOund wrong localname "+bodyPart.getLocalName());
                             }
                             
                             //next body part
@@ -228,6 +247,7 @@ public class SendEmailFunction extends BasicFunction {
                 child = child.getNextSibling();
                 
             }
+            message.setContent(mp);
         }
     }
     

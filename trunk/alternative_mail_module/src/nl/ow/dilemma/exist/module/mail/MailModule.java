@@ -57,6 +57,6 @@ public class MailModule extends AbstractInternalModule {
     }
     
     public String getDescription() {
-        return "A module for performing email related functions";
+        return "A module for sending e-mail.";
     }
 }

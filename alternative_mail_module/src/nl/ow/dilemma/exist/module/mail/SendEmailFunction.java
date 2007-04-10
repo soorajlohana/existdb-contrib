@@ -53,12 +53,10 @@ import org.w3c.dom.Node;
 /**
  * eXist Mail Module Extension SendEmailFunction
  *
- * The email sending functionality of the eXist Mail Module Extension that
- * allows email to be sent from XQuery using either SMTP or Sendmail.
+ * An extension module for the eXist Native XML Database that allows email to
+ * be sent from XQuery using the JavaMail API.
  *
- * @author Adam Retter <adam.retter@devon.gov.uk>
- * @serial 2006-03-01
- * @version 1.11
+ * @author Dannes Wessels
  *
  * @see org.exist.xquery.BasicFunction#BasicFunction(org.exist.xquery.XQueryContext, org.exist.xquery.FunctionSignature)
  */

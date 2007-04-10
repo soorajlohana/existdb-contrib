@@ -17,7 +17,7 @@
  *  along with this program; if not, write to the Free Software Foundation
  *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  
- *  $Id: MailModule.java 4871 2006-11-22 16:27:22Z deliriumsky $
+ *  $Id$
  */
 
 package nl.ow.dilemma.exist.module.mail;

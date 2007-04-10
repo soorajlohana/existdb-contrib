@@ -20,7 +20,7 @@
  *  $Id: SendEmailFunction.java,v 1.12 2006/03/01 13:52:00 deliriumsky Exp $
  */
 
-package org.exist.xquery.modules.mail2;
+package nl.ow.dilemma.exist.module.mail;
 
 import java.io.StringWriter;
 import java.util.Properties;

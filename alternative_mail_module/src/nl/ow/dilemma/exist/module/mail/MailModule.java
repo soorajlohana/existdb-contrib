@@ -1,7 +1,7 @@
 /*
- *  eXist Mail Module Extension
- *  Copyright (C) 2006 Adam Retter <adam.retter@devon.gov.uk>
- *  www.adamretter.co.uk
+ *  eXist Open Source Native XML Database
+ *  Copyright (C) 2001-07 The eXist Project
+ *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -13,11 +13,9 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with this program; if not, write to the Free Software Foundation
- *  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- *  $Id$
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 package nl.ow.dilemma.exist.module.mail;
@@ -33,6 +31,7 @@ import org.exist.xquery.FunctionDef;
  * be sent from XQuery using the JavaMail API.
  *
  * @author Dannes Wessels
+ * @author Adam Retter (original code)
  *
  * @see org.exist.xquery.AbstractInternalModule#AbstractInternalModule(org.exist.xquery.FunctionDef[])
  */

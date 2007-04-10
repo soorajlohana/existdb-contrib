@@ -88,6 +88,7 @@ public class SendEmailFunction extends BasicFunction {
      */
     public SendEmailFunction(XQueryContext context) {
         super(context, signature);
+        LOG.info("Initialized");
     }
     
     /**

@@ -20,7 +20,7 @@
  *  $Id: MailModule.java 4871 2006-11-22 16:27:22Z deliriumsky $
  */
 
-package org.exist.xquery.modules.mail2;
+package nl.ow.dilemma.exist.module.mail;
 
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;

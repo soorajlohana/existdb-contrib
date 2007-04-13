@@ -217,9 +217,7 @@ public class XmldbURL {
     public String getDocumentName(){
         String serverPath=myUrl.getPath();
         String documentName=null;
-        if(serverPath.endsWith("/")){
-            documentName=null;
-        } else {
+        if(!serverPath.endsWith("/")){
             int lastSep=serverPath.lastIndexOf('/');
             if(lastSep==-1){
                 documentName=serverPath;
@@ -237,10 +235,7 @@ public class XmldbURL {
         String username = null;
         String password = null;
         
-        if(userInfo==null){
-            username=null;
-            password=null;
-        } else {
+        if(userInfo!=null){
             int separator = userInfo.indexOf(':');
             if(separator==-1){
                 username=userInfo;

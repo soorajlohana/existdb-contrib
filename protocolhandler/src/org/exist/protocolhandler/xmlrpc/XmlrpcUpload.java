@@ -97,8 +97,8 @@ public class XmlrpcUpload {
             // All data transported, now parse data on server
             params.clear();
             params.addElement(handle);
-            params.addElement( xmldbURL.getCollectionPath() );
-            params.addElement(new Boolean(true));
+            params.addElement(xmldbURL.getCollectionPath() );
+            params.addElement(Boolean.valueOf(true));
             params.addElement(contentType);
             Boolean result =(Boolean)xmlrpc.execute("parseLocal", params); 
             

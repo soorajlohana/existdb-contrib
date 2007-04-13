@@ -182,6 +182,7 @@ public class BlockingInputStream extends InputStream {
         return (tail >= head) ? tail - head : SIZE - head; 
     }
 
+    // DWES Never called?
     private int availablePart2() {
         return (tail >= head) ? 0 : tail;
     }
@@ -342,6 +343,7 @@ public class BlockingInputStream extends InputStream {
         return (prevhead >= tail) ? prevhead - tail : SIZE - tail;
     }
 
+    // DWES Never called?
     private int freePart2() {
         int prevhead = prev(head);
         return (prevhead >= tail) ? 0 : prevhead;

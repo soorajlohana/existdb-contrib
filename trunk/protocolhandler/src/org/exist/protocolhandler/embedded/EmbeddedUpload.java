@@ -181,13 +181,11 @@ public class EmbeddedUpload {
                 mime = MimeType.BINARY_TYPE;
             }
             
-            DocumentImpl doc = null;
             if(mime.isXMLType()) {
                 LOG.debug("storing XML resource");
-                
                 InputSource inputsource = new InputSource(tmp.toURI().toASCIIString());
                 IndexInfo info = collection.validateXMLResource(txn, broker, documentUri, inputsource);
-                doc = info.getDocument();
+                DocumentImpl doc = info.getDocument();
                 doc.getMetadata().setMimeType(contentType);
                 collection.release(Lock.READ_LOCK);
                 collectionLocked = false;
@@ -197,7 +195,7 @@ public class EmbeddedUpload {
             } else {
                 LOG.debug("storing Binary resource");
                 InputStream is = new FileInputStream(tmp);
-                doc = collection.addBinaryResource(txn, broker, documentUri, is, contentType, (int) tmp.length());
+                DocumentImpl doc = collection.addBinaryResource(txn, broker, documentUri, is, contentType, (int) tmp.length());
                 is.close();
                 LOG.debug("done");
             }

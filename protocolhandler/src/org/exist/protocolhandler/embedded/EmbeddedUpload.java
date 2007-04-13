@@ -67,9 +67,9 @@ public class EmbeddedUpload {
     
     /**
      *  Read document from stream and write data to database with specified user.
-     * 
-     * @param user Effective user for operation. If NULL the user information 
-     * is distilled from the URL. 
+     *
+     * @param user Effective user for operation. If NULL the user information
+     * is distilled from the URL.
      * @param xmldbURL Location in database.
      * @param is Stream containing document.
      * @throws IOException
@@ -80,21 +80,25 @@ public class EmbeddedUpload {
             tmp = File.createTempFile("EMBEDDED", "tmp");
             FileOutputStream fos = new FileOutputStream(tmp);
             
-            // Transfer bytes from in to out
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = is.read(buf)) > 0) {
-                fos.write(buf, 0, len);
+            try{
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = is.read(buf)) > 0) {
+                    fos.write(buf, 0, len);
+                }
+            } finally {
+                fos.close();
             }
             
-            fos.close(); // COFF: Not called on exception while copying to file!
-            
+            // Let database read file
             stream(xmldbURL, tmp, user);
             
         } catch(IOException ex){
             ex.printStackTrace();
             LOG.error(ex);
             throw ex;
+            
         } finally {
             if(tmp!=null){
                 tmp.delete();
@@ -107,7 +111,7 @@ public class EmbeddedUpload {
      *
      * @param xmldbURL Location in database.
      * @param tmp Document that is inserted.
-     * @throws IOException 
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, File tmp) throws IOException {
         stream(xmldbURL, tmp, null);
@@ -115,12 +119,12 @@ public class EmbeddedUpload {
     
     /**
      *  Read document and write data to database.
-     * 
-     * @param user  Effective user for operation. If NULL the user information 
+     *
+     * @param user  Effective user for operation. If NULL the user information
      * is distilled from the URL.
      * @param xmldbURL Location in database.
      * @param tmp Document that is inserted.
-     * @throws IOException 
+     * @throws IOException
      */
     public void stream(XmldbURL xmldbURL, File tmp, User user) throws IOException {
         LOG.debug("Begin document upload");

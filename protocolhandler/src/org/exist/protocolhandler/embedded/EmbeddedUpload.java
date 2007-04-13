@@ -204,7 +204,8 @@ public class EmbeddedUpload {
             transact.commit(txn);
             
         } catch (IOException ex) {
-            try { // COFF: added - trows an exception when the user is unknown!
+            try { 
+                // Throws an exception when the user is unknown!
                 transact.abort(txn);
             } catch (Exception abex) {
                 LOG.debug(abex);
@@ -214,7 +215,8 @@ public class EmbeddedUpload {
             throw ex;
             
         } catch (Exception ex) {
-            try { // COFF: added - trows an exception when the user is unknown!
+            try { 
+                // Throws an exception when the user is unknown!
                 transact.abort(txn);
             } catch (Exception abex) {
                 LOG.debug(abex);

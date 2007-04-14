@@ -19,15 +19,24 @@ import org.apache.log4j.Logger;
  *
  * @author wessels
  */
-public class GetThread implements Runnable {
+public class GetThread extends Thread {
     
     private static Logger LOG = Logger.getLogger(GetThread.class);
      
-    URL url;
+    private URL url;
     
-    int size=-1;
+    private int size=-1;
     
-    Exception exception;
+    private Exception exception;
+    
+    public Exception getException(){
+        return exception;
+    }
+    
+    public int getSize(){
+        return size;
+    }
+
     
     /**
      * Creates a new instance of PutThread

@@ -83,6 +83,8 @@ public class EmbeddedInOutputStreamTest extends TestCase {
             
             return BrokerPool.getInstance();
         } catch (Exception e) {
+            LOG.error(e);
+            e.printStackTrace();
             fail(e.getMessage());
         }
         return null;

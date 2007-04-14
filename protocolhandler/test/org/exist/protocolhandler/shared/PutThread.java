@@ -15,19 +15,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+
 import org.apache.log4j.Logger;
 
 /**
  *
- * @author wessels
+ * @author Dannes Wessels
  */
-public class PutThread implements Runnable {
+public class PutThread extends Thread {
     
     private static Logger LOG = Logger.getLogger(PutThread.class);
     
     private File file;
-    URL url;
-    Exception exception;
+    private URL url;
+    private Exception exception;
+    
+    public Exception getException(){
+        return exception;
+    }
     
     /**
      * Creates a new instance of PutThread

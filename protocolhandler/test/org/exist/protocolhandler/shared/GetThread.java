@@ -7,33 +7,32 @@
  * and open the template in the editor.
  */
 
-package org.exist.protocolhandler.xmldb;
+package org.exist.protocolhandler.shared;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 
 /**
  *
  * @author wessels
  */
-public class PutThread implements Runnable {
+public class GetThread implements Runnable {
     
-    private static Logger LOG = Logger.getLogger(PutThread.class);
-    
-    private File file;
+    private static Logger LOG = Logger.getLogger(GetThread.class);
+     
     URL url;
+    
+    int size=-1;
+    
     Exception exception;
     
     /**
      * Creates a new instance of PutThread
      */
-    public PutThread(File file, URL url) {
-        this.file=file;
+    public GetThread(URL url) {
         this.url=url;
     }
     
@@ -41,8 +40,8 @@ public class PutThread implements Runnable {
         
         try {
             LOG.info("thread started");
-            OutputStream os = url.openConnection().getOutputStream();
-            InputStream is = new FileInputStream( file );
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            InputStream is = url.openConnection().getInputStream();
             
             byte[] buf = new byte[4096];
             int len;
@@ -53,9 +52,11 @@ public class PutThread implements Runnable {
             is.close();
             os.close();
             
+            size=os.size();
+            
         } catch (IOException ex) {
-            ex.printStackTrace();
             LOG.error(ex);
+            ex.printStackTrace();
             exception=ex;
             
         } finally {

@@ -29,8 +29,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.xmldb.GetThread;
-import org.exist.protocolhandler.xmldb.PutThread;
+import org.exist.protocolhandler.shared.GetThread;
+import org.exist.protocolhandler.shared.PutThread;
 import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 /**

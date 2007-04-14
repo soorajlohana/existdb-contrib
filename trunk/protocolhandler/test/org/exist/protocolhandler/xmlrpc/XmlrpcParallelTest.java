@@ -59,17 +59,35 @@ public class XmlrpcParallelTest extends TestCase {
     }
     
     public void testRemoteParallelUpload(){
+        System.out.println(this.getName());
         File file=new File("samples/shakespeare/r_and_j.xml");
         try {
-            
-            for(int i=0; i<10 ; i++){
+            PutThread[] pt = new PutThread[10];
+            for(int i=0; i<pt.length ; i++){
+                LOG.info("Initializing URL "+i);
                 URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-"+i+".xml");
-
-                PutThread ct = new PutThread(file, url);
-                Thread thread = new Thread(ct);
                 
-                // Start the thread
-                thread.start();
+                pt[i] = new PutThread(file, url);
+            }
+            
+            for(int i=0; i<pt.length ; i++){
+                LOG.info("Starting thread "+i);
+                pt[i].start();
+            }
+            
+            for(int i=0; i<pt.length ; i++){
+                LOG.info("Joining thread "+i);
+                pt[i].join(25000);
+            }
+            
+            for(int i=0; i<pt.length ; i++){
+                LOG.info("Check thread "+i);
+                Exception ex = pt[i].getException();
+                if(ex!=null){
+                    LOG.error("Thread "+i , ex);
+                    ex.printStackTrace();
+                    fail(ex.getMessage());
+                }
             }
             
         } catch (Exception ex) {
@@ -80,19 +98,37 @@ public class XmlrpcParallelTest extends TestCase {
     }
     
     public void testRemoteParallelDownload(){
-        
+        System.out.println(this.getName());
         try {
             
-            for(int i=0; i<10 ; i++){
+            GetThread[] gt = new GetThread[10];
+            for(int i=0; i<gt.length ; i++){
+                LOG.info("Initializing URL "+i);
                 URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-"+i+".xml");
-
-                GetThread ct = new GetThread(url);
-                Thread thread = new Thread(ct);
-                
-                // Start the thread
-                thread.start();
+                gt[i] = new GetThread(url);
             }
             
+            for(int i=0; i<gt.length ; i++){
+                LOG.info("Starting thread "+i);
+                gt[i].start();
+            }
+            
+            for(int i=0; i<gt.length ; i++){
+                LOG.info("Joining thread "+i);
+                gt[i].join(25000);
+            }
+            
+            for(int i=0; i<gt.length ; i++){
+                LOG.info("Check thread "+i);
+                Exception ex = gt[i].getException();
+                if(ex!=null){
+                    LOG.error("Thread "+i , ex);
+                    ex.printStackTrace();
+                    fail(ex.getMessage());
+                }
+                assertTrue(gt[i].getSize()>0);
+                assertEquals(211575,gt[i].getSize());  // other number, indenting?
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);

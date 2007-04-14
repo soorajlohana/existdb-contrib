@@ -22,6 +22,7 @@
 
 package org.exist.protocolhandler.xmldb;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -118,9 +119,8 @@ public class MiscUrlTest extends TestCase {
             LOG.error(ex);
             fail(ex.getMessage());
         }
-        
-        
     }
  
+
 
 }

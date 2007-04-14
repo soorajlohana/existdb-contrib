@@ -1,0 +1,66 @@
+/*
+ * PutThread.java
+ *
+ * Created on April 10, 2007, 5:26 PM
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package org.exist.protocolhandler.xmldb;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import org.apache.log4j.Logger;
+
+/**
+ *
+ * @author wessels
+ */
+public class PutThread implements Runnable {
+    
+    private static Logger LOG = Logger.getLogger(PutThread.class);
+    
+    private File file;
+    URL url;
+    Exception exception;
+    
+    /**
+     * Creates a new instance of PutThread
+     */
+    public PutThread(File file, URL url) {
+        this.file=file;
+        this.url=url;
+    }
+    
+    public void run() {
+        
+        try {
+            LOG.info("thread started");
+            OutputStream os = url.openConnection().getOutputStream();
+            InputStream is = new FileInputStream( file );
+            
+            byte[] buf = new byte[4096];
+            int len;
+            while ((len = is.read(buf)) > 0) {
+                os.write(buf, 0, len);
+            }
+            
+            is.close();
+            os.close();
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            exception=ex;
+            
+        } finally {
+            LOG.info("thread stopped");
+        }
+    }
+    
+}

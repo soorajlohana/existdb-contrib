@@ -130,6 +130,7 @@ public class EmbeddedURLsTest extends TestCase {
             
         } catch (Exception ex) {
             LOG.error(ex);
+            ex.printStackTrace();
             fail(ex.getMessage());
         }
     }

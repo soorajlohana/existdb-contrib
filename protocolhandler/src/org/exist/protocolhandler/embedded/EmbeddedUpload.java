@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
-import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.storage.io.ExistIOException;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;

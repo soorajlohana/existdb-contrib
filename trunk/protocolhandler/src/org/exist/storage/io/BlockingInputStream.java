@@ -20,7 +20,7 @@
  * $Id$
  */
 
-package org.exist.protocolhandler.io;
+package org.exist.storage.io;
 
 import java.io.IOException;
 import java.io.InputStream;

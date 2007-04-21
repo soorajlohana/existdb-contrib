@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpc;
 import org.apache.xmlrpc.XmlRpcClient;
 
-import org.exist.protocolhandler.io.ExistIOException;
+import org.exist.storage.io.ExistIOException;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**

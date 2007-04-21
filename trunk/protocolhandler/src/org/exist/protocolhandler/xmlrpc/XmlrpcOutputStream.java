@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
-import org.exist.protocolhandler.io.BlockingInputStream;
-import org.exist.protocolhandler.io.BlockingOutputStream;
+import org.exist.storage.io.BlockingInputStream;
+import org.exist.storage.io.BlockingOutputStream;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
 /**

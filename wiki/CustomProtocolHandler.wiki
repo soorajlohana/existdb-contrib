@@ -15,7 +15,7 @@ Under certain conditions it is handy to be able to access data stored in eXist v
 
 To be able to use this special URL you can either
  * set the value 'org.exist.protocols' to (java) system property 'java.protocol.handler.pkgs'
- * call URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+ * call URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
 
 == Usage for JVM ==
 start jvm with {{{java -Djava.protocol.handler.pkgs=org.exist.protocolhandler.protocols -jar ......}}}
@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.exist.protocols.eXistURLStreamHandlerFactory;
+import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
 
 ...
 
@@ -43,7 +43,7 @@ BasicConfigurator.configure();
 System.setProperty( 'java.protocol.handler.pkgs', 'org.exist.protocolhandler.protocols' );
 
 // OR use this
-URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
 
 URL url = new URL('xmldb:exist://guest:guest@localhost:8080/exist/xmlrpc/db/shakespeare/plays/macbeth.xml');
 

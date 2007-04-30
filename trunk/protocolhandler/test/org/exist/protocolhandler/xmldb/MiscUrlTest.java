@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.exist.protocolhandler.protocols.xmldb.Handler;
 
 /**
@@ -49,7 +50,7 @@ public class MiscUrlTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstRun){
             PropertyConfigurator.configure("log4j.conf");
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             firstRun=false;
         }
     }

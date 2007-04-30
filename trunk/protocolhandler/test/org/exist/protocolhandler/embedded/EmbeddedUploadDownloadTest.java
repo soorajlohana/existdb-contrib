@@ -40,7 +40,7 @@ import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.util.Configuration;
 import org.exist.protocolhandler.xmldb.XmldbURL;
-import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 
@@ -61,7 +61,7 @@ public class EmbeddedUploadDownloadTest extends TestCase {
     protected void setUp() throws Exception {
         LOG.debug("setUp");
         if(firstTime){
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }

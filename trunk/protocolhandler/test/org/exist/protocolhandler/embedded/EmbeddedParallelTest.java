@@ -38,7 +38,7 @@ import org.exist.protocolhandler.shared.GetThread;
 import org.exist.protocolhandler.shared.PutThread;
 import org.exist.storage.BrokerPool;
 import org.exist.util.Configuration;
-import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 
@@ -61,7 +61,7 @@ public class EmbeddedParallelTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }

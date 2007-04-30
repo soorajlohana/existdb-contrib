@@ -31,10 +31,12 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 
 /**
- * jUnit test for the eXist XmldbURLStreamHandlerFactory class.
- *
+ * jUnit test for the eXist eXistURLStreamHandlerFactory class.
+ * 
+ * 
  * @author Dannes Wessels
  */
 public class XmldbURLStreamHandlerFactoryTest extends TestCase {
@@ -56,14 +58,20 @@ public class XmldbURLStreamHandlerFactoryTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }
     }
     
+    public void testInit(){
+         System.out.println("testInit");
+         eXistURLStreamHandlerFactory.init();
+         eXistURLStreamHandlerFactory.init();
+    }
+    
     /**
-     * Test of XmldbURLStreamHandlerFactory.
+     * Test of eXistURLStreamHandlerFactory.
      */
     public void testXMLDBURLStreamHandler() {
         System.out.println("testXMLDBURLStreamHandler");

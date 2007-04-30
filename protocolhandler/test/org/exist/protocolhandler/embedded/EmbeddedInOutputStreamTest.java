@@ -36,7 +36,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.exist.storage.BrokerPool;
 import org.exist.util.Configuration;
 import org.exist.protocolhandler.xmldb.XmldbURL;
-import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.xmldb.api.DatabaseManager;
 import org.xmldb.api.base.Database;
 
@@ -56,7 +56,7 @@ public class EmbeddedInOutputStreamTest extends TestCase {
     protected void setUp() throws Exception {
         if(firstTime){
             PropertyConfigurator.configure("log4j.conf");
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             firstTime=false;
         }
         pool = startDB();

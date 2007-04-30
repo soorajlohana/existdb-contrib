@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.exist.protocolhandler.xmldb.XmldbURLStreamHandlerFactory;
+import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 
 /**
  * @author Dannes Wessels
@@ -50,7 +50,7 @@ public class XmlrpcURLsTest extends TestCase {
     
     protected void setUp() throws Exception {
         if(firstTime){
-            URL.setURLStreamHandlerFactory(new XmldbURLStreamHandlerFactory());
+            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
             PropertyConfigurator.configure("log4j.conf");
             firstTime=false;
         }

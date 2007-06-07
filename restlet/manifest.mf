@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+X-COMMENT: Main-Class will be added automatically by build
+Export-Package: org.exist.restlet.helpers
+
+Name: org.exist.restlet.helpers
+Implementation-Title: org.exist.restlet.helpers_1.0
+Implementation-Version: 1.0
+Implementation-Vendor: Alex Milowski
+
+

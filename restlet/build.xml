@@ -70,12 +70,33 @@
 <property name="embedded.dir" location="../../../exist/embedded"/>
 <target name="import-embedded">
    <copy file="${embedded.dir}/lib/antlr-2.7.6.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/commons-collections-3.1.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/commons-logging-1.0.4.jar" todir="lib"/>
    <copy file="${embedded.dir}/lib/commons-pool-1.2.jar" todir="lib"/>
    <copy file="${embedded.dir}/lib/exist.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/jta.jar" todir="lib"/>
    <copy file="${embedded.dir}/lib/log4j-1.2.14.jar" todir="lib"/>
-   <copy file="${embedded.dir}/lib/resolver.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/quartz-1.6.0.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/resolver-1.2.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/stax-api-1.0.1.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/xercesImpl-2.9.0.jar" todir="lib"/>
    <copy file="${embedded.dir}/lib/xmldb.jar" todir="lib"/>
    <copy file="${embedded.dir}/lib/xmlrpc-1.2-patched.jar" todir="lib"/>
+</target>
+<target name="clean-embedded">
+   <delete file="lib/antlr-2.7.6.jar"/>
+   <delete file="lib/commons-collections-3.1.jar"/>
+   <delete file="lib/commons-logging-1.0.4.jar"/>
+   <delete file="lib/commons-pool-1.2.jar"/>
+   <delete file="lib/exist.jar"/>
+   <delete file="lib/jta.jar"/>
+   <delete file="lib/log4j-1.2.14.jar"/>
+   <delete file="lib/quartz-1.6.0.jar"/>
+   <delete file="lib/resolver-1.2.jar"/>
+   <delete file="lib/stax-api-1.0.1.jar"/>
+   <delete file="lib/xercesImpl-2.9.0.jar"/>
+   <delete file="lib/xmldb.jar"/>
+   <delete file="lib/xmlrpc-1.2-patched.jar"/>
 </target>
 
 </project>

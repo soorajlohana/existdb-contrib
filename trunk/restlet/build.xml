@@ -66,4 +66,16 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+<property name="embedded.dir" location="../../../exist/embedded"/>
+<target name="import-embedded">
+   <copy file="${embedded.dir}/lib/antlr-2.7.6.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/commons-pool-1.2.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/exist.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/log4j-1.2.14.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/resolver.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/xmldb.jar" todir="lib"/>
+   <copy file="${embedded.dir}/lib/xmlrpc-1.2-patched.jar" todir="lib"/>
+</target>
+
 </project>

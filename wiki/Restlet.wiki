@@ -1,0 +1,79 @@
+#summary A Description of the eXist/Restlet Integration
+
+= Introduction =
+
+The eXist-restlet subproject provides an integration with the [http://www.restlet.org Restlet] project.  It provides a simple way to integrate an embedded version of eXist into a web application.
+
+The handling of services, web interfaces, etc. is all handled via regular Restlet
+code and there is a special "exist" protocol for talking to the internal database as if
+it is its own service via the Client restlet API.
+
+= Examples =
+
+== Starting the Database ==
+
+{{
+   XMLDB xmldb = new XMLDB(new File("conf.xml"));
+   xmldb.start();
+}}
+
+
+== A Web Component for eXist Requests ==
+
+{{
+public class WebComponent extends Component {
+   
+   /** Creates a new instance of WebComponent */
+   public WebComponent(String hostname,String ipAddress, int port) {
+      getLogService().setLoggerName("org.exist.restlet.www");
+      
+      // ------------------
+      // Add the connectors
+      // ------------------
+      getServers().add(Protocol.HTTP, ipAddress, port);
+      getClients().add(Protocol.FILE);
+      getClients().add(XMLDBResource.EXIST);
+      
+      // ---------------
+      // Add the virtual host
+      // ---------------
+      VirtualHost host = new VirtualHost(getContext());
+      host.setHostDomain(hostname);
+      host.setHostPort("80|" + Integer.toString(port));
+      
+      host.attach(new XMLDBApplication(getContext()));
+      
+      getHosts().add(host);
+      
+   }
+   
+}
+}}
+
+== Getting a Document ==
+
+
+{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.get("exist:///foo.xml");
+}}
+
+== Storing a Document ==
+
+{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response =client.put("exist:///foo.xml",new StringRepresentation("<foo/>",MediaType.APPLICATION_XML));
+}}
+
+== Querying ==
+
+{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.post("exist:///",new StringRepresentation("//foo",MediaType.valueOf("application/xquery"))
+}}
+
+= Building =
+
+= API =
+
+

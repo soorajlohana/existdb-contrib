@@ -155,7 +155,7 @@ public class EXistClientHelper  extends ClientHelper {
    public void head(Request request, Response response)
    {
       try {
-         DBBroker broker = pool.get();
+         DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          try {
             String path = request.getResourceRef().getPath();
             DocumentImpl resource = null;
@@ -213,7 +213,7 @@ public class EXistClientHelper  extends ClientHelper {
    public void get(Request request, Response response)
    {
       try {
-         DBBroker broker = pool.get();
+         DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          boolean release = true;
          try {
             String path = request.getResourceRef().getPath();
@@ -307,7 +307,7 @@ public class EXistClientHelper  extends ClientHelper {
       DBBroker broker = null;
       try {
          try {
-            broker = pool.get();
+            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -575,7 +575,7 @@ public class EXistClientHelper  extends ClientHelper {
       DBBroker broker = null;
       try {
          try {
-            broker = pool.get();
+            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -647,7 +647,7 @@ public class EXistClientHelper  extends ClientHelper {
             if (charset==null) {
                charset = "UTF-8";
             }
-            getContext().getLogger().info("charset="+charset);
+            //getContext().getLogger().info("charset="+charset);
             try {
                InputStream is = rep.getStream();
 
@@ -810,7 +810,7 @@ public class EXistClientHelper  extends ClientHelper {
       DBBroker broker = null;
       try {
          try {
-            broker = pool.get();
+            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -847,6 +847,10 @@ public class EXistClientHelper  extends ClientHelper {
          } catch (TriggerException ex) {
             transact.abort(txn);
             getContext().getLogger().log(Level.SEVERE,"Trigger failed: "+ex.getMessage(),ex);
+            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+         } catch (IOException ex) {
+            transact.abort(txn);
+            getContext().getLogger().log(Level.SEVERE,"I/O error: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
          } catch (LockException ex) {
             transact.abort(txn);
@@ -920,7 +924,7 @@ public class EXistClientHelper  extends ClientHelper {
             int howmany, final int start, long queryTime,
             final Properties outputProperties, final boolean wrap,Response response) {        
       if (!results.isEmpty()) {
-         int rlen = results.getLength();
+         int rlen = results.getItemCount();
          if ((start < 1) || (start > rlen)) {
             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Start parameter "+start+" is out of range.");
             return;

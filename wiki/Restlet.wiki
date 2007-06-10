@@ -82,7 +82,7 @@ The restlet integration relies upon the embedded version of [http://www.exist-db
 Once you have the embedded version of eXist, you can build the restlet project by:
 
   # Checkout the `trunk/restlet` from this project's subversion.
-  # Execute the 'import-embedded' ant target.  You'll probably need to set the `embedded.dir` parameter to directory of your embedded version of eXist.
+  # Execute the `import-embedded` ant target.  You'll probably need to set the `embedded.dir` parameter to directory of your embedded version of eXist.
   # Build the project with the `jar` ant target.
 
 All of these projects (eXist, embedded eXist, and this project) are also [http://www.netbeans.org Netbeans] projects.

@@ -74,16 +74,16 @@ public class WebComponent extends Component {
 
 The restlet integration relies upon the embedded version of [http://www.exist-db.org eXist].  You can build the embedded version by the following instructions
 
-# Checkout the trunk/eXist and trunk/embedded directories of eXist from eXist's subversion
-# Build eXist.
-# Execute the `import-exist` ant target.
-# Build the embedded project via the `jar` ant target.
+  # Checkout the `trunk/eXist` and `trunk/embedded` directories of eXist from eXist's subversion
+  # Build eXist.
+  # Execute the `import-exist` ant target.
+  # Build the embedded project via the `jar` ant target.
 
 Once you have the embedded version of eXist, you can build the restlet project by:
 
-# Checkout the trunk/restlet from this project's subversion.
-# Execute the 'import-embedded' ant target.  You'll probably need to set the 'embedded.dir' parameter to directory of your embedded version of eXist.
-# Build the project with the 'jar' ant target.
+  # Checkout the `trunk/restlet` from this project's subversion.
+  # Execute the 'import-embedded' ant target.  You'll probably need to set the `embedded.dir` parameter to directory of your embedded version of eXist.
+  # Build the project with the `jar` ant target.
 
 All of these projects (eXist, embedded eXist, and this project) are also [http://www.netbeans.org Netbeans] projects.
 

@@ -183,9 +183,8 @@ For example:
 
 == 4.5 HEAD ==
 
-A HEAD request works very similar to a GET request exception that no entity body is returned.
+A HEAD request works very similar to a GET request exception that no entity body is returned.  The last-modified header is set as appropriate and the media type is also returned.
 
-*Note: Currently, the last modified header isn't set properly.*
 
 == 4.6 Other Class ==
 

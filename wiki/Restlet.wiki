@@ -20,12 +20,10 @@ it is its own service via the Client restlet API.
 
 == A Web Component for eXist Requests ==
 
-{{
+{{{
 public class WebComponent extends Component {
    
-   /** Creates a new instance of WebComponent */
    public WebComponent(String hostname,String ipAddress, int port) {
-      getLogService().setLoggerName("org.exist.restlet.www");
       
       // ------------------
       // Add the connectors
@@ -48,7 +46,7 @@ public class WebComponent extends Component {
    }
    
 }
-}}
+}}}
 
 == Getting a Document ==
 
@@ -75,5 +73,4 @@ public class WebComponent extends Component {
 = Building =
 
 = API =
-
 

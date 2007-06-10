@@ -88,3 +88,36 @@ Once you have the embedded version of eXist, you can build the restlet project b
 All of these projects (eXist, embedded eXist, and this project) are also [http://www.netbeans.org Netbeans] projects.
 
 = 4. API =
+
+The Restlet integration makes using eXist as an embedded database very simple.  The
+minimum you need to do is start the database and then access eXist with the "exist" protocol via the `Client` class.
+
+You can only start the database engine per process which is accomplished by:
+
+{{{
+   XMLDB xmldb = new XMLDB(new File("conf.xml"));
+   xmldb.start();
+}}}
+
+The file passed into the constructor is the path to the eXist configuration file (an XML document).  This is a regular eXist configuration.  All the features of eXist with the exception of the HTTP services are available via this configuration.
+
+Once you have the database started, you can access exist via REST methods:
+
+  * A PUT request stores a document into the database.
+  * A GET request retrieves a document representation.
+  * A POST request submits an XQuery to the database.
+  * A DELETE request removes a document or collection from the database.
+  * A HEAD request returns the modification time of a document.
+
+== 4.1 PUT ==
+
+== 4.2 GET ==
+
+== 4.3 POST ==
+
+== 4.4 DELETE ==
+
+== 4.5 PUT ==
+
+== 4.6 Other Class ==
+

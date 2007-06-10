@@ -10,7 +10,8 @@ There are three sets of jars in this directory.
    com.noelios.restlet.ext.simple_3.1.jar
    org.simpleframework.jar
 
-3. The asyncweb web server for HTTP/HTTPS protocols:
+3. The asyncweb web server for HTTP/HTTPS protocols (you'll need
+   to get these from a restlet distribution, see restlet.org):
 
    com.noelios.restlet.ext.asyncweb_0.8.jar
    edu.oswego.cs.dl.util.concurrent.jar

@@ -1,6 +1,6 @@
 #summary A Description of the eXist/Restlet Integration
 
-= Introduction =
+= 1. Introduction =
 
 The eXist-restlet subproject provides an integration with the [http://www.restlet.org Restlet] project.  It provides a simple way to integrate an embedded version of eXist into a web application.
 
@@ -8,9 +8,9 @@ The handling of services, web interfaces, etc. is all handled via regular Restle
 code and there is a special "exist" protocol for talking to the internal database as if
 it is its own service via the Client restlet API.
 
-= Examples =
+= 2. Examples =
 
-== Starting the Database ==
+== 2.1 Starting the Database ==
 
 {{{
    XMLDB xmldb = new XMLDB(new File("conf.xml"));
@@ -18,7 +18,7 @@ it is its own service via the Client restlet API.
 }}}
 
 
-== A Web Component for eXist Requests ==
+== 2.2 A Web Component for eXist Requests ==
 
 {{{
 public class WebComponent extends Component {
@@ -48,7 +48,7 @@ public class WebComponent extends Component {
 }
 }}}
 
-== Getting a Document ==
+== 2.3 Getting a Document ==
 
 
 {{{
@@ -56,20 +56,35 @@ public class WebComponent extends Component {
    Response response = client.get("exist:///foo.xml");
 }}}
 
-== Storing a Document ==
+== 2.4 Storing a Document ==
 
 {{{
    Client client = new Client(Protocol.valueOf("exist"));
    Response response =client.put("exist:///foo.xml",new StringRepresentation("<foo/>",MediaType.APPLICATION_XML));
 }}}
 
-== Querying ==
+== 2.5 Querying ==
 
 {{{
    Client client = new Client(Protocol.valueOf("exist"));
    Response response = client.post("exist:///",new StringRepresentation("//foo",MediaType.valueOf("application/xquery"))
 }}}
 
-= Building =
+= 3. Building =
 
-= API =
+The restlet integration relies upon the embedded version of [http://www.exist-db.org eXist].  You can build the embedded version by the following instructions
+
+# Checkout the trunk/eXist and trunk/embedded directories of eXist from eXist's subversion
+# Build eXist.
+# Execute the `import-exist` ant target.
+# Build the embedded project via the `jar` ant target.
+
+Once you have the embedded version of eXist, you can build the restlet project by:
+
+# Checkout the trunk/restlet from this project's subversion.
+# Execute the 'import-embedded' ant target.  You'll probably need to set the 'embedded.dir' parameter to directory of your embedded version of eXist.
+# Build the project with the 'jar' ant target.
+
+All of these projects (eXist, embedded eXist, and this project) are also [http://www.netbeans.org Netbeans] projects.
+
+= 4. API =

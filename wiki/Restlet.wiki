@@ -109,15 +109,87 @@ Once you have the database started, you can access exist via REST methods:
   * A DELETE request removes a document or collection from the database.
   * A HEAD request returns the modification time of a document.
 
+The embedded eXist database is treated like an HTTP protocol server in that requests are made to resources.  Internally, these request are handled locally by interactions with the database.  Externally, the Restlet `Client` class is used to interact with the embedded database.  This allows the programmer to treat eXist as any other REST-oriented server even tough the database runs locally.
+
 == 4.1 PUT ==
+
+A PUT request stores a document.  Any media type that is considered XML (i.e. text/xml, application/xml, and those with the "+xml" suffix) are stored as XML documents.  Otherwise, the document is stored as a binary resource.
+
+The media type used to store the document is associated with the resource in eXist.  This media type is used for future GET requests against the resource.
+
+If the collection reference in the resource path does not exist, that collection path is created.
+
+For example:
+
+{{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.put("exist:///foo.xml",StringRepresentation("<foo/>",MediaType.APPLICATION_XML));
+   if (response.getStatus().isSuccess()) {
+     ...
+   }
+}}}
 
 == 4.2 GET ==
 
+A GET request retrieves a resource from eXist.  If it exists, a Response is formulated with a representation of the resource (often a output stream from the database).
+
+Currently, a GET request on a collection is not supported.
+
+For example, to get an XML resource:
+
+{{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.get("exist:///foo.xml");
+   if (response.getStatus().isSuccess()) {
+     ...
+   }
+}}}
+
 == 4.3 POST ==
+
+All POST requests are interpreted as queries.  If the media type is "application/xquery", the entity of the post is interpreted as an XQuery.  If the media type is an XML media type, then the document is interpreted via the following rules:
+
+  # If the document element is {http://exist.sourceforge.net/NS/exist}query, then
+    same semantics as eXist's REST interface are applied.
+  # If the document element is in the XUpdate (`http://www.xmldb.org/xupdate`) namespace,
+    XUpdate process is performed with the same semantics as eXist's REST interface.
+  # Otherwise, the serialized document is compiled as an XQuery.
+
+The results are serialized and returned as an XML document with the `application/xml` media type.
+
+For example:
+
+{{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.post("exist:///",new StringRepresentation("<docs>{/foo}</docs>,MediaType.valueOf("application/xquery")));
+   if (response.getStatus().isSuccess()) {
+     ...
+   }
+}}}
 
 == 4.4 DELETE ==
 
-== 4.5 PUT ==
+A DELETE request on a collection or document resource deletes the resource.
+
+For example:
+
+{{{
+   Client client = new Client(Protocol.valueOf("exist"));
+   Response response = client.delete("exist:///foo.xml");
+   if (response.getStatus().isSuccess()) {
+     ...
+   }
+}}}
+
+== 4.5 HEAD ==
+
+A HEAD request works very similar to a GET request exception that no entity body is returned.
+
+*Note: Currently, the last modified header isn't set properly.*
 
 == 4.6 Other Class ==
 
+  * The `XMLDBApplication` proxies the eXist as resources served by the Restlet engine.
+  * The `XMLDBFinder` finds resources in the eXist database.
+  * The `XMLDBResource` represents a resource stored in the eXist database.
+  * The `WebComponent` is a component that wraps the Application and can be used to instantiate a server bound to a host address.

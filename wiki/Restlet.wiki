@@ -12,10 +12,10 @@ it is its own service via the Client restlet API.
 
 == Starting the Database ==
 
-{{
+{{{
    XMLDB xmldb = new XMLDB(new File("conf.xml"));
    xmldb.start();
-}}
+}}}
 
 
 == A Web Component for eXist Requests ==
@@ -51,26 +51,25 @@ public class WebComponent extends Component {
 == Getting a Document ==
 
 
-{{
+{{{
    Client client = new Client(Protocol.valueOf("exist"));
    Response response = client.get("exist:///foo.xml");
-}}
+}}}
 
 == Storing a Document ==
 
-{{
+{{{
    Client client = new Client(Protocol.valueOf("exist"));
    Response response =client.put("exist:///foo.xml",new StringRepresentation("<foo/>",MediaType.APPLICATION_XML));
-}}
+}}}
 
 == Querying ==
 
-{{
+{{{
    Client client = new Client(Protocol.valueOf("exist"));
    Response response = client.post("exist:///",new StringRepresentation("//foo",MediaType.valueOf("application/xquery"))
-}}
+}}}
 
 = Building =
 
 = API =
-

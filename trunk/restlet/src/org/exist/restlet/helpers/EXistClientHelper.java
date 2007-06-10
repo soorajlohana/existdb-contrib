@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
@@ -164,7 +165,9 @@ public class EXistClientHelper  extends ClientHelper {
                path = path.substring(0,path.length()-1);
                isCollection = true;
             }
-            getContext().getLogger().info("Head on: "+path);
+            if (getContext().getLogger().isLoggable(Level.FINE)) {
+               getContext().getLogger().info("Head on: "+path);
+            }
             XmldbURI pathUri = XmldbURI.create(path);
             try {
                resource = isCollection ? null : broker.getXMLResource(pathUri, Lock.READ_LOCK);
@@ -188,6 +191,10 @@ public class EXistClientHelper  extends ClientHelper {
                   }
                } else {
                   resource.getUpdateLock().release(Lock.READ_LOCK);
+                  MediaType type = MediaType.valueOf(resource.getMetadata().getMimeType());
+                  Representation rep = new StringRepresentation("",type);
+                  rep.setModificationDate(new Date(resource.getMetadata().getLastModified()));
+                  response.setEntity(rep);
                   response.setStatus(Status.SUCCESS_OK);
                }
             } catch(PermissionDeniedException ex) {

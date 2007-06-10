@@ -2,7 +2,7 @@
 
 = 1. Introduction =
 
-The eXist-restlet subproject provides an integration with the [http://www.restlet.org Restlet] project.  It provides a simple way to integrate an embedded version of eXist into a web application.
+The eXist-restlet subproject provides an integration with the [http://www.restlet.org Restlet] project.  It provides a simple way to integrate an embedded version of [http://www.existdb.org eXist] into a web application.
 
 The handling of services, web interfaces, etc. is all handled via regular Restlet
 code and there is a special "exist" protocol for talking to the internal database as if

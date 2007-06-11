@@ -4,7 +4,7 @@
     <cluster dbaPassword="" dbaUser="admin" exclude="/db/system,/db/system/config" journalDir="data/journal" protocol="UDP(mcast_addr=228.1.2.3;mcast_port=45566;ip_ttl=8;ip_mcast=true;mcast_send_buf_size=800000;mcast_recv_buf_size=150000;ucast_send_buf_size=800000;ucast_recv_buf_size=150000;loopback=true):PING(timeout=2000;num_initial_members=3;up_thread=true;down_thread=true):MERGE2(min_interval=10000;max_interval=20000):FD(shun=true;up_thread=true;down_thread=true;timeout=2500;max_tries=5):VERIFY_SUSPECT(timeout=3000;num_msgs=3;up_thread=true;down_thread=true):pbcast.NAKACK(gc_lag=50;retransmit_timeout=300,600,1200,2400,4800;max_xmit_size=8192;up_thread=true;down_thread=true):UNICAST(timeout=300,600,1200,2400,4800;window_size=100;min_threshold=10;down_thread=true):pbcast.STABLE(desired_avg_gossip=20000;up_thread=true;down_thread=true):FRAG(frag_size=8192;down_thread=true;up_thread=true):pbcast.GMS(join_timeout=5000;join_retry_timeout=2000;shun=true;print_local_addr=true)"/>
 
     
-    <db-connection cacheSize="48M" collectionCacheSize="128" database="native" files="data" free_mem_min="5" pageSize="4096">
+    <db-connection cacheSize="48M" collectionCacheSize="24M" database="native" files="data" free_mem_min="5" pageSize="4096">
         
         
         
@@ -27,7 +27,7 @@
     </db-connection>
    
     
-    <indexer caseSensitive="yes" index-depth="5" preserve-whitespace-mixed-content="no" stemming="no" suppress-whitespace="both" tokenizer="org.exist.storage.analysis.SimpleTokenizer" track-term-freq="yes" validation="auto">
+    <indexer caseSensitive="yes" index-depth="5" preserve-whitespace-mixed-content="no" stemming="no" suppress-whitespace="both" tokenizer="org.exist.storage.analysis.SimpleTokenizer" track-term-freq="yes">
         
         
         <stopwords file="stopword"/>
@@ -46,14 +46,20 @@
     </indexer>
        
     
-    <serializer add-exist-id="none" compress-output="no" enable-xinclude="yes" enable-xsl="no" indent="yes" match-tagging-attributes="no" match-tagging-elements="yes"/>
+    <serializer add-exist-id="none" compress-output="no" enable-xinclude="yes" enable-xsl="no" indent="yes" match-tagging-attributes="no" match-tagging-elements="no"/>
 
 	
     <transformer class="org.apache.xalan.processor.TransformerFactoryImpl"/>
     
     
+    <validation mode="auto">
+         <entity-resolver>
+             <catalog uri="catalog.xml"/>
+         </entity-resolver>
+    </validation>
+
     
-    <xquery enable-java-binding="no">
+    <xquery enable-java-binding="no" enable-query-rewriting="no" backwardCompatible="no">
         <builtin-modules>
             <module class="org.exist.xquery.functions.util.UtilModule" uri="http://exist-db.org/xquery/util"/>
             <module class="org.exist.xquery.functions.transform.TransformModule" uri="http://exist-db.org/xquery/transform"/>

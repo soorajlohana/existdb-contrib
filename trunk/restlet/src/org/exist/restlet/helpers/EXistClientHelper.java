@@ -151,7 +151,7 @@ public class EXistClientHelper  extends ClientHelper {
    {
       try {
          String name = request.getResourceRef().getHostDomain();
-         if (name==null) {
+         if (name==null || name.length()==0) {
             name = XMLDB.DEFAULT_DB;
          }
          BrokerPool pool = BrokerPool.getInstance(name);
@@ -226,7 +226,7 @@ public class EXistClientHelper  extends ClientHelper {
       BrokerPool pool = null;
       try {
          String name = request.getResourceRef().getHostDomain();
-         if (name==null) {
+         if (name==null || name.length()==0) {
             name = XMLDB.DEFAULT_DB;
          }
          pool = BrokerPool.getInstance(name);
@@ -332,7 +332,7 @@ public class EXistClientHelper  extends ClientHelper {
       BrokerPool pool = null;
       try {
          String name = request.getResourceRef().getHostDomain();
-         if (name==null) {
+         if (name==null || name.length()==0) {
             name = XMLDB.DEFAULT_DB;
          }
          try {
@@ -617,7 +617,7 @@ public class EXistClientHelper  extends ClientHelper {
       BrokerPool pool = null;
       try {
          String name = request.getResourceRef().getHostDomain();
-         if (name==null) {
+         if (name==null || name.length()==0) {
             name = XMLDB.DEFAULT_DB;
          }
          try {
@@ -869,7 +869,7 @@ public class EXistClientHelper  extends ClientHelper {
       BrokerPool pool = null;
       try {
          String name = request.getResourceRef().getHostDomain();
-         if (name==null) {
+         if (name==null || name.length()==0) {
             name = XMLDB.DEFAULT_DB;
          }
          try {

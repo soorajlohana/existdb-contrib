@@ -17,10 +17,6 @@ import org.exist.util.Configuration;
 import org.exist.util.DatabaseConfigurationException;
 import org.exist.xmldb.DatabaseInstanceManager;
 import org.exist.xmldb.ShutdownListener;
-import org.xmldb.api.DatabaseManager;
-import org.xmldb.api.base.Collection;
-import org.xmldb.api.base.Database;
-import org.xmldb.api.base.XMLDBException;
 
 /**
  *
@@ -28,6 +24,8 @@ import org.xmldb.api.base.XMLDBException;
  */
 public class XMLDB
 {
+   
+   public final static String DEFAULT_DB = "db";
    
    final static String DEFAULT_URI = "xmldb:exist://" + DBBroker.ROOT_COLLECTION;
    final static String DRIVER = "org.exist.xmldb.DatabaseImpl";
@@ -39,12 +37,15 @@ public class XMLDB
    }
    
    File configFile;
-   Collection top;
+   String name;
+   BrokerPool pool;
    
    /** Creates a new instance of Main */
-   public XMLDB(File configFile)
+   public XMLDB(String name,File configFile)
    {
+      this.name = name;
       this.configFile = configFile;
+      this.pool = null;
    }
    
    
@@ -63,30 +64,19 @@ public class XMLDB
          }
       }
       
-      System.setProperty("exist.home",configFile.getAbsoluteFile().getParent());
-      
       int threads = 5;
       // Configure the database
       Configuration config = new Configuration(configFile.getAbsolutePath());
-      BrokerPool.configure( 1, threads, config );
-      BrokerPool.getInstance().registerShutdownListener(new ShutdownListenerImpl());
+      BrokerPool.configure(name, 1, threads, config );
+      pool = BrokerPool.getInstance(name);
+      pool.registerShutdownListener(new ShutdownListenerImpl());
 
-      // Load the database & initiate
-      Class cl = Class.forName(DRIVER);
-      Database database = (Database)cl.newInstance();
-      database.setProperty("create-database", "true");
-      DatabaseManager.registerDatabase(database);
-
-      top = DatabaseManager.getCollection(DEFAULT_URI, "admin", null);
-         
    }
    
    public void stop() 
       throws Exception
    {
-      DatabaseInstanceManager manager = (DatabaseInstanceManager)top.getService("DatabaseInstanceManager","1.0");
-      manager.shutdown();
-      top.close();
+      pool.shutdown();
    }
    
 }

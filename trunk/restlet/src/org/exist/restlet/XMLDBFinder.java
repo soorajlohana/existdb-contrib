@@ -9,16 +9,11 @@
 
 package org.exist.restlet;
 
-import java.util.UUID;
-import java.util.logging.Level;
 import org.restlet.Application;
-import org.restlet.Context;
 import org.restlet.Finder;
-import org.restlet.data.MediaType;
-import org.restlet.data.Metadata;
+import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
-import org.restlet.data.Status;
 import org.restlet.resource.Resource;
 
 /**
@@ -28,15 +23,17 @@ import org.restlet.resource.Resource;
 public class XMLDBFinder extends Finder {
 
    Application app;
+   String dbname;
    
    /** Creates a new instance of ProtocolByIdFinder */
-   public XMLDBFinder(Application app) {
+   public XMLDBFinder(Application app,String dbname) {
       super(app.getContext());
       this.app = app;
+      this.dbname = dbname;
    }
    
    public Resource findTarget(Request request, Response response) {
-      return new XMLDBResource(app,request,response,request.getResourceRef().getRemainingPart());
+      return new XMLDBResource(app,request,response,new Reference("exist://"+dbname+request.getResourceRef().getRemainingPart()));
    }
    
 }

@@ -20,7 +20,7 @@ import org.restlet.data.Protocol;
 public class WebComponent extends Component {
    
    /** Creates a new instance of WebComponent */
-   public WebComponent(String hostname,String ipAddress, int port) {
+   public WebComponent(String dbname,String hostname,String ipAddress, int port) {
       getLogService().setLoggerName("org.exist.restlet.www");
       
       // ------------------
@@ -37,7 +37,7 @@ public class WebComponent extends Component {
       host.setHostDomain(hostname);
       host.setHostPort("80|" + Integer.toString(port));
       
-      host.attach(new XMLDBApplication(getContext()));
+      host.attach(new XMLDBApplication(getContext(),dbname));
       
       getHosts().add(host);
       

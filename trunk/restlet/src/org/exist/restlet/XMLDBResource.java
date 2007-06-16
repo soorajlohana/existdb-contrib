@@ -13,12 +13,14 @@ import org.restlet.Application;
 import org.restlet.Client;
 import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
+import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
+import org.restlet.util.WrapperRequest;
 
 /**
  *
@@ -27,15 +29,15 @@ import org.restlet.resource.Variant;
 public class XMLDBResource extends Resource {
    
    static Protocol EXIST = Protocol.valueOf("exist");
-   String path;
+   Reference reference;
    /** Creates a new instance of AtomResource */
-   public XMLDBResource(Application app,Request request,Response response,String path) {
+   public XMLDBResource(Application app,Request request,Response response,Reference ref) {
       super(app.getContext(),request,response);
-      this.path = path;
+      this.reference = ref;
    }
    
    public Representation getRepresentation(Variant v) {
-      getContext().getLogger().info("Getting representation for: "+path);
+      getContext().getLogger().info("Getting representation for: "+reference);
       return new StringRepresentation("OK",MediaType.TEXT_PLAIN);
    }
    
@@ -45,9 +47,12 @@ public class XMLDBResource extends Resource {
    public boolean allowDelete() { return true; }
    
    public void handleGet() {
-      getContext().getLogger().info("Handling Get...");
       Client client = new Client(EXIST);
-      Response response = client.handle(getRequest());
+      Response response = client.handle(new WrapperRequest(getRequest()) {
+         public Reference getResourceRef() {
+            return reference;
+         }
+      });
       Response outgoing = getResponse();
       outgoing.setEntity(response.getEntity());
       outgoing.setStatus(response.getStatus());
@@ -55,7 +60,11 @@ public class XMLDBResource extends Resource {
    
    public void handlePost() {
       Client client = new Client(EXIST);
-      Response response = client.handle(getRequest());
+      Response response = client.handle(new WrapperRequest(getRequest()) {
+         public Reference getResourceRef() {
+            return reference;
+         }
+      });
       Response outgoing = getResponse();
       outgoing.setEntity(response.getEntity());
       outgoing.setStatus(response.getStatus());
@@ -63,7 +72,11 @@ public class XMLDBResource extends Resource {
    
    public void handleDelete() {
       Client client = new Client(EXIST);
-      Response response = client.handle(getRequest());
+      Response response = client.handle(new WrapperRequest(getRequest()) {
+         public Reference getResourceRef() {
+            return reference;
+         }
+      });
       Response outgoing = getResponse();
       outgoing.setEntity(response.getEntity());
       outgoing.setStatus(response.getStatus());
@@ -71,7 +84,11 @@ public class XMLDBResource extends Resource {
    
    public void handlePut() {
       Client client = new Client(EXIST);
-      Response response = client.handle(getRequest());
+      Response response = client.handle(new WrapperRequest(getRequest()) {
+         public Reference getResourceRef() {
+            return reference;
+         }
+      });
       Response outgoing = getResponse();
       outgoing.setEntity(response.getEntity());
       outgoing.setStatus(response.getStatus());
@@ -79,7 +96,11 @@ public class XMLDBResource extends Resource {
    
    public void handleHead() {
       Client client = new Client(EXIST);
-      Response response = client.handle(getRequest());
+      Response response = client.handle(new WrapperRequest(getRequest()) {
+         public Reference getResourceRef() {
+            return reference;
+         }
+      });
       Response outgoing = getResponse();
       outgoing.setEntity(response.getEntity());
       outgoing.setStatus(response.getStatus());

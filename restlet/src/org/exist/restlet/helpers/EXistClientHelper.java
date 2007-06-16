@@ -41,6 +41,7 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
 import org.exist.dom.DocumentSet;
+import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
 import org.exist.security.xacml.AccessContext;
@@ -100,8 +101,6 @@ public class EXistClientHelper  extends ClientHelper {
         defaultProperties.setProperty(EXistOutputKeys.PROCESS_XSL_PI, "yes");
     }
     
-   BrokerPool pool;
-   
    /**
      * Constructor.
      * 
@@ -126,11 +125,6 @@ public class EXistClientHelper  extends ClientHelper {
    }
     
    public void start() {
-      try {
-         pool = BrokerPool.getInstance();
-      } catch (EXistException ex) {
-         getContext().getLogger().log(Level.SEVERE,"XMLDB request failed: "+ex.getMessage(),ex);
-      }
    }
    
    public void stop() {
@@ -156,6 +150,16 @@ public class EXistClientHelper  extends ClientHelper {
    public void head(Request request, Response response)
    {
       try {
+         String name = request.getResourceRef().getHostDomain();
+         if (name==null) {
+            name = XMLDB.DEFAULT_DB;
+         }
+         BrokerPool pool = BrokerPool.getInstance(name);
+         if (pool==null) {
+            getContext().getLogger().severe("eXist database "+name+" is not available.");
+            response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+            return;
+         }
          DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          try {
             String path = request.getResourceRef().getPath();
@@ -219,7 +223,18 @@ public class EXistClientHelper  extends ClientHelper {
      */
    public void get(Request request, Response response)
    {
+      BrokerPool pool = null;
       try {
+         String name = request.getResourceRef().getHostDomain();
+         if (name==null) {
+            name = XMLDB.DEFAULT_DB;
+         }
+         pool = BrokerPool.getInstance(name);
+         if (pool==null) {
+            getContext().getLogger().severe("eXist database "+name+" is not available.");
+            response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+            return;
+         }
          DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          boolean release = true;
          try {
@@ -247,6 +262,7 @@ public class EXistClientHelper  extends ClientHelper {
                   final DocumentImpl currentResource = resource;
                   if (resource.getResourceType() == DocumentImpl.BINARY_FILE) {
                      release = false;
+                     final BrokerPool currentPool = pool;
                      response.setEntity(new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
                         public void write(OutputStream os)
                            throws IOException
@@ -255,13 +271,14 @@ public class EXistClientHelper  extends ClientHelper {
                               currentBroker.readBinaryResource((BinaryDocument)currentResource,os);
                            } finally {
                               currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              pool.release(currentBroker);
+                              currentPool.release(currentBroker);
                            }
                         }
                      });
                      response.setStatus(Status.SUCCESS_OK);
                   } else {
                      release = false;
+                     final BrokerPool currentPool = pool;
                      Representation rep = new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
                         public void write(OutputStream os)
                            throws IOException
@@ -281,7 +298,7 @@ public class EXistClientHelper  extends ClientHelper {
                               }
                            } finally {
                               currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              pool.release(currentBroker);
+                              currentPool.release(currentBroker);
                            }
                         }
                      };
@@ -312,7 +329,24 @@ public class EXistClientHelper  extends ClientHelper {
       XmldbURI pathUri = XmldbURI.create(path);
       DocumentImpl resource = null;
       DBBroker broker = null;
+      BrokerPool pool = null;
       try {
+         String name = request.getResourceRef().getHostDomain();
+         if (name==null) {
+            name = XMLDB.DEFAULT_DB;
+         }
+         try {
+            pool = BrokerPool.getInstance(name);
+            if (pool==null) {
+               getContext().getLogger().severe("eXist database "+name+" is not available.");
+               response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+               return;
+            }
+         } catch (EXistException ex) {
+            getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
+            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+            return;
+         }
          try {
             broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {
@@ -580,7 +614,24 @@ public class EXistClientHelper  extends ClientHelper {
          return;
       }
       DBBroker broker = null;
+      BrokerPool pool = null;
       try {
+         String name = request.getResourceRef().getHostDomain();
+         if (name==null) {
+            name = XMLDB.DEFAULT_DB;
+         }
+         try {
+            pool = BrokerPool.getInstance(name);
+            if (pool==null) {
+               getContext().getLogger().severe("eXist database "+name+" is not available.");
+               response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+               return;
+            }
+         } catch (EXistException ex) {
+            getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
+            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+            return;
+         }
          try {
             broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {
@@ -815,7 +866,24 @@ public class EXistClientHelper  extends ClientHelper {
    public void delete(Request request, Response response)
    {
       DBBroker broker = null;
+      BrokerPool pool = null;
       try {
+         String name = request.getResourceRef().getHostDomain();
+         if (name==null) {
+            name = XMLDB.DEFAULT_DB;
+         }
+         try {
+            pool = BrokerPool.getInstance(name);
+            if (pool==null) {
+               getContext().getLogger().severe("eXist database "+name+" is not available.");
+               response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+               return;
+            }
+         } catch (EXistException ex) {
+            getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
+            response.setStatus(Status.SERVER_ERROR_INTERNAL);
+            return;
+         }
          try {
             broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          } catch (EXistException ex) {

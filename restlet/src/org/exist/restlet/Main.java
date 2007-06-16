@@ -36,10 +36,10 @@ public class Main {
          String ipAddress = args[1];
          int port = Integer.parseInt(args[2]);
          
-         XMLDB xmldb = new XMLDB(new File(args[3]));
+         XMLDB xmldb = new XMLDB(XMLDB.DEFAULT_DB,new File(args[3]));
          xmldb.start();
          
-         WebComponent www = new WebComponent(host,ipAddress,port);
+         WebComponent www = new WebComponent(XMLDB.DEFAULT_DB,host,ipAddress,port);
          www.start();
 
       } catch (Exception ex) {

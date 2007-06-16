@@ -22,14 +22,16 @@ import org.restlet.data.ChallengeScheme;
  */
 public class XMLDBApplication extends Application {
 
+   String dbname;
    /** Creates a new instance of AtomApplication */
-   public XMLDBApplication(Context context) {
+   public XMLDBApplication(Context context,String dbname) {
       super(context);
+      this.dbname = dbname;
    }
    
    @Override
    public Restlet createRoot() {   
-      return new XMLDBFinder(this);
+      return new XMLDBFinder(this,dbname);
    }
    
 }

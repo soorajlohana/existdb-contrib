@@ -9,17 +9,20 @@
 
 package xercestest;
 
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.MalformedURLException;
 import java.util.Properties;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.xerces.xni.grammars.Grammar;
 import org.apache.xerces.xni.grammars.XMLGrammarPool;
 import org.exist.Namespaces;
 import org.exist.util.XMLReaderObjectFactory;
@@ -27,7 +30,6 @@ import org.exist.util.serializer.SAXSerializer;
 import org.exist.validation.GrammarPool;
 import org.exist.validation.resolver.eXistXMLCatalogResolver;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
@@ -85,18 +87,24 @@ public class Main {
     }
     
     void parse(XMLReader reader, File in, File out){
+        
         MyErrorHandler report = new MyErrorHandler();
-        FileWriter fw = null;
-        BufferedWriter bw = null;
+        FileOutputStream fos = null;
+        BufferedOutputStream bos = null;
+        Writer writer = null;
         try {
             //FileOutputStream fos = new FileOutputStream(out);
-            fw = new FileWriter(out);
-            bw= new BufferedWriter(fw);
+            fos = new FileOutputStream(out);
+            bos= new BufferedOutputStream(fos);
+            
+            
             
             FileInputStream fis = new FileInputStream(in);
             
+            writer = new OutputStreamWriter(bos, "UTF-8");
+            
             Properties props = new Properties();
-            SAXSerializer serializer = new SAXSerializer(bw, props);
+            SAXSerializer serializer = new SAXSerializer(writer, props);
             
             reader.setContentHandler(serializer);
             reader.setErrorHandler( report );
@@ -105,9 +113,6 @@ public class Main {
             
             InputSource source = new InputSource(fis);
             reader.parse(source);
-            
-            // DWES the trick
-//            reader.setProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL, null);
             
             logger.debug("Validation stopped.");
             
@@ -120,8 +125,8 @@ public class Main {
         
         
         try {
-            bw.close();
-            fw.close();
+            writer.close();
+            fos.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -133,7 +138,13 @@ public class Main {
         grammarPool = new GrammarPool();
         //grammarPool = new XMLGrammarPoolImpl();
         resolver =  new eXistXMLCatalogResolver();
-        resolver.setCatalogList( new String[]{"grammar/catalog.xml"});
+        
+        File cat = new File("grammar/catalog.xml");
+        try {
+            resolver.setCatalogList( new String[]{cat.toURL().toString()});
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
     }
     
     /**
@@ -147,6 +158,18 @@ public class Main {
         System.out.println("#######1");
         XMLReader reader = mn.getReader();
         mn.parse( reader, new File("dblp.xml"), new File("out1.dat"));
+        
+        // DWES the trick **work around**
+        try {    
+            GrammarPool gp = (GrammarPool) reader.getProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL);
+            Grammar gr[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
+            gp.clear();
+            gp.cacheGrammars(Namespaces.SCHEMA_NS, gr);
+        } catch (SAXNotRecognizedException ex) {
+            ex.printStackTrace();
+        } catch (SAXNotSupportedException ex) {
+            ex.printStackTrace();
+        }
            
         System.out.println("#######2");
         reader = mn.getReader();

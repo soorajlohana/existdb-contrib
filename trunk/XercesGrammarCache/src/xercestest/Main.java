@@ -160,6 +160,7 @@ public class Main {
         mn.parse( reader, new File("dblp.xml"), new File("out1.dat"));
         
         // DWES the trick **work around**
+        // check grammarpoolimpl on http://www.jdocs.com/tab/12/org/apache/xerces/util/XMLGrammarPoolImpl.html
         try {
             GrammarPool gp = (GrammarPool) reader.getProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL);
             

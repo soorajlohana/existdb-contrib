@@ -166,9 +166,9 @@ public class Main {
             
             // todo: check for null
             Grammar dtds[] = gp.retrieveInitialGrammarSet("http://www.w3.org/TR/REC-xml");
-            Grammar schemas[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
             
             if(dtds.length>0){
+                Grammar schemas[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
                 gp.clear();
                 gp.cacheGrammars(Namespaces.SCHEMA_NS, schemas);
             }

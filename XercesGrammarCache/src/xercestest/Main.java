@@ -160,20 +160,26 @@ public class Main {
         mn.parse( reader, new File("dblp.xml"), new File("out1.dat"));
         
         // DWES the trick **work around**
-        try {    
+        try {
             GrammarPool gp = (GrammarPool) reader.getProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL);
-            Grammar gr[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
-            gp.clear();
-            gp.cacheGrammars(Namespaces.SCHEMA_NS, gr);
+            
+            // todo: check for null
+            Grammar dtds[] = gp.retrieveInitialGrammarSet("http://www.w3.org/TR/REC-xml");
+            Grammar schemas[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
+            
+            if(dtds.length>0){
+                gp.clear();
+                gp.cacheGrammars(Namespaces.SCHEMA_NS, schemas);
+            }
         } catch (SAXNotRecognizedException ex) {
             ex.printStackTrace();
         } catch (SAXNotSupportedException ex) {
             ex.printStackTrace();
         }
-           
+        
         System.out.println("#######2");
         reader = mn.getReader();
-                
+        
         mn.parse( reader, new File("dblp.xml"), new File("out2.dat"));
     }
     

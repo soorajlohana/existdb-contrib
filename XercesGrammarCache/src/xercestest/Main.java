@@ -106,14 +106,13 @@ public class Main {
             InputSource source = new InputSource(fis);
             reader.parse(source);
             
+            // DWES the trick
+//            reader.setProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL, null);
+            
             logger.debug("Validation stopped.");
             
             
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        } catch (SAXException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             System.out.println( "isValid="+report.isValid());
@@ -151,15 +150,7 @@ public class Main {
            
         System.out.println("#######2");
         reader = mn.getReader();
-        
-//        try {
-//            reader.setProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL, null);
-//        } catch (SAXNotRecognizedException ex) {
-//            ex.printStackTrace();
-//        } catch (SAXNotSupportedException ex) {
-//            ex.printStackTrace();
-//        }
-        
+                
         mn.parse( reader, new File("dblp.xml"), new File("out2.dat"));
     }
     

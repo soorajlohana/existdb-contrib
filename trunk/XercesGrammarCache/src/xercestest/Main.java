@@ -163,15 +163,10 @@ public class Main {
         // check grammarpoolimpl on http://www.jdocs.com/tab/12/org/apache/xerces/util/XMLGrammarPoolImpl.html
         try {
             GrammarPool gp = (GrammarPool) reader.getProperty(XMLReaderObjectFactory.PROPERTIES_INTERNAL_GRAMMARPOOL);
-            
-            // todo: check for null
-            Grammar dtds[] = gp.retrieveInitialGrammarSet("http://www.w3.org/TR/REC-xml");
-            
-            if(dtds.length>0){
-                Grammar schemas[] = gp.retrieveInitialGrammarSet(Namespaces.SCHEMA_NS);
-                gp.clear();
-                gp.cacheGrammars(Namespaces.SCHEMA_NS, schemas);
+            if(gp!=null){
+                gp.clearDTDs();
             }
+
         } catch (SAXNotRecognizedException ex) {
             ex.printStackTrace();
         } catch (SAXNotSupportedException ex) {

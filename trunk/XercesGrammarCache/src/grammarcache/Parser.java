@@ -23,8 +23,8 @@ import org.xml.sax.XMLReader;
  *
  * This file parses the same xml document twice. When the GrammarPool is
  * coupled to the parser, the second parse always fails. 
- * If the cached grammar is removed from the cache before the seconf parse, all just
- * work fine.
+ * If the cached grammar is removed from the cache before the third parse, all just
+ * work fine again.
  *
  * @author wessels
  */

@@ -5,7 +5,7 @@
   <person id="Big.Boss" >
     <name><family>Boss</family> <given>Big</given></name>
     <email>chief@foo.com</email>
-    <link subordinates="one.worker two.worker three.worker four.worker five.worker"/>
+    <linkAAA subordinates="one.worker two.worker three.worker four.worker five.worker"/>
   </person>
 
   <person id="one.worker">

@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package grammarcache;
+package existgrammarcache;
 
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;

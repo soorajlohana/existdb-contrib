@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <personnel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xsi:schemaLocation="http://myns/1.0 ../personal.xsd">
+	   xsi:schemaLocation="http://myns/1.0 ../../../../../../personal.xsd">
 
   <person id="Big.Boss" >
     <name><family>Boss</family> <given>Big</given></name>

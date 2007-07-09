@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package xercestest;
+package grammarcache;
 
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;

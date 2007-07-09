@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package xercestest;
+package grammarcache;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

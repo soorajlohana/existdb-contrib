@@ -19,6 +19,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 /**
+ * Example of the xerces issue with GrammarPool.
+ *
+ * This file parses the same xml document twice. When the GrammarPool is
+ * coupled to the parser, the second parse always fails. 
+ * If the cached grammar is removed from the cache before the seconf parse, all just
+ * work fine.
  *
  * @author wessels
  */
@@ -35,8 +41,8 @@ public class Parser {
     public final static String PROPERTIES_LOAD_EXT_DTD = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
     public final static String PROPERTIES_ENTITYRESOLVER = "http://apache.org/xml/properties/internal/entity-resolver";
     
-    private XMLGrammarPool grammarPool;
-    private XMLCatalogResolver resolver;
+    public XMLGrammarPool grammarPool;
+    public XMLCatalogResolver resolver;
     
     /** Creates a new instance of Parser */
     public Parser() {
@@ -116,11 +122,16 @@ public class Parser {
         
         System.out.println("#######1");
         XMLReader reader = p.getReader();
-        p.parse(reader, new File("dblp.xml") );
+        p.parse(reader, new File("dblp.xml") );  // OK
         
         System.out.println("#######2");
-        reader = p.getReader();
-        p.parse(reader, new File("dblp.xml") );
+        reader = p.getReader();  // not necessary
+        p.parse(reader, new File("dblp.xml") ); // Fail
+        
+        System.out.println("#######3");
+        reader = p.getReader();  
+        p.grammarPool.clear();
+        p.parse(reader, new File("dblp.xml") ); // OK
         
         
     }

@@ -105,7 +105,8 @@ public class Parser {
             fis.close();
             
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
+            System.out.println( ex.getMessage() );
             
         } finally {
             System.out.println( "isValid="+myhandler.isValid());

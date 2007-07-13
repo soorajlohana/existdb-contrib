@@ -123,7 +123,7 @@ public class Parser {
         
         System.out.println("#######1");
         XMLReader reader = p.getReader();
-        p.parse(reader, new File("personal/personal-noNSL.xml") );  // NOK
+        p.parse(reader, new File("personal/personal-noNSL.xml") );  // OK
         
         System.out.println("#######2");
         p = new Parser("personal/grammar/catalog.xml");

@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,11 +36,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import org.exist.EXistException;
+import org.exist.Namespaces;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
+import org.exist.dom.DocumentMetadata;
 import org.exist.dom.DocumentSet;
 import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
@@ -65,10 +68,12 @@ import org.exist.xquery.Option;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQuery;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xupdate.Modification;
 import org.exist.xupdate.XUpdateProcessor;
 import org.restlet.data.CharacterSet;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
@@ -235,9 +240,11 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
-         DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+         final DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
          boolean release = true;
          try {
+            Form headers = (Form)request.getAttributes().get("org.restlet.http.headers");
+            String xqueryPath = headers.getValues("xquery-path");
             String path = request.getResourceRef().getPath();
             if (getContext().getLogger().isLoggable(Level.FINE)) {
                getContext().getLogger().fine("Get on: "+path);
@@ -250,10 +257,50 @@ public class EXistClientHelper  extends ClientHelper {
                if (resource == null) {
 
                   // Must be a collection
-                  Collection collection = broker.getCollection(pathUri);
+                  final Collection collection = broker.getCollection(pathUri);
                   if (collection != null) {
-                     response.setEntity(new StringRepresentation("Browsing collections not implemented."));
-                     response.setStatus(Status.SUCCESS_OK);
+                     if (xqueryPath==null) {
+                        
+                        response.setEntity(new OutputRepresentation(MediaType.APPLICATION_XML) {
+                           public void write(OutputStream os)
+                              throws IOException
+                           {
+                              Writer out = new OutputStreamWriter(os,"UTF-8");
+                              out.write("<contents>\n");
+                              for (Iterator i = collection.collectionIterator(); i.hasNext();) {
+                                  XmldbURI child = (XmldbURI) i.next();
+                                  out.write("<collection name='"+child.toString()+"'/>\n");
+                              }
+
+                              for (Iterator i = collection.iterator(broker); i.hasNext();) {
+                                  DocumentImpl doc = (DocumentImpl) i.next();
+                                  XmldbURI resource = doc.getFileURI();
+                                  out.write("<resource name='"+resource.toString()+"'/>\n");
+                              }
+                              out.write("</contents>\n");
+                              out.flush();
+                           }
+                        });
+                        response.setStatus(Status.SUCCESS_OK);
+                        response.getEntity().setCharacterSet(CharacterSet.UTF_8);
+                     } else {
+                        DocumentImpl xqueryResource = (DocumentImpl) broker.getXMLResource(XmldbURI.create(xqueryPath), Lock.READ_LOCK);
+                        if (xqueryResource != null && xqueryResource.getResourceType() == DocumentImpl.BINARY_FILE &&
+                            "application/xquery".equals(xqueryResource.getMetadata().getMimeType())) {
+                           // found an XQuery resource
+                           Properties outputProperties = new Properties(defaultProperties);
+                           try {
+                              executeXQuery(broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { collection.getURI() },-1,1,request, response, outputProperties);
+                           } catch (XPathException ex) {
+                              response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
+                           }
+                           return;
+                        } else {
+                           response.setEntity(new StringRepresentation("Cannot find xquery "+xqueryPath+" or XQuery has wrong mime type."));
+                           response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                        }
+                        
+                     }
                   } else {
                      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                   }
@@ -362,7 +409,7 @@ public class EXistClientHelper  extends ClientHelper {
                 "application/xquery".equals(resource.getMetadata().getMimeType())) {
                // found an XQuery resource
                try {
-                  executeXQuery(broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,0,request, response, outputProperties);
+                  executeXQuery(broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
                } catch (XPathException ex) {
                   response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                }
@@ -956,6 +1003,10 @@ public class EXistClientHelper  extends ClientHelper {
            context = compiled.getContext();
         }
         
+        Form form = request.getResourceRef().getQueryAsForm();
+        for (String name : form.getNames()) {
+           context.declareVariable(name,form.getValues(name));
+        }
         //TODO: don't hardcode this?
         //context.setModuleLoadPath(XmldbURI.EMBEDDED_SERVER_URI.append(resource.getCollection().getURI()).toString());
         context.setStaticallyKnownDocuments(knownDocuments);

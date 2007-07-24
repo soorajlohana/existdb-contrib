@@ -36,13 +36,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import org.exist.EXistException;
-import org.exist.Namespaces;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
-import org.exist.dom.DocumentMetadata;
 import org.exist.dom.DocumentSet;
 import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
@@ -68,7 +66,6 @@ import org.exist.xquery.Option;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQuery;
 import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.DateTimeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xupdate.Modification;
 import org.exist.xupdate.XUpdateProcessor;
@@ -76,6 +73,7 @@ import org.restlet.data.CharacterSet;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.resource.OutputRepresentation;
 import org.restlet.resource.Representation;
@@ -244,7 +242,7 @@ public class EXistClientHelper  extends ClientHelper {
          boolean release = true;
          try {
             Form headers = (Form)request.getAttributes().get("org.restlet.http.headers");
-            String xqueryPath = headers.getValues("xquery-path");
+            String xqueryPath = headers==null ? null : headers.getValues("xquery-path");
             String path = request.getResourceRef().getPath();
             if (getContext().getLogger().isLoggable(Level.FINE)) {
                getContext().getLogger().fine("Get on: "+path);
@@ -284,6 +282,10 @@ public class EXistClientHelper  extends ClientHelper {
                         response.setStatus(Status.SUCCESS_OK);
                         response.getEntity().setCharacterSet(CharacterSet.UTF_8);
                      } else {
+                        if (xqueryPath.startsWith("exist:")) {
+                           Reference tmp = new Reference(xqueryPath);
+                           xqueryPath = tmp.getPath();
+                        }
                         DocumentImpl xqueryResource = (DocumentImpl) broker.getXMLResource(XmldbURI.create(xqueryPath), Lock.READ_LOCK);
                         if (xqueryResource != null && xqueryResource.getResourceType() == DocumentImpl.BINARY_FILE &&
                             "application/xquery".equals(xqueryResource.getMetadata().getMimeType())) {
@@ -324,34 +326,57 @@ public class EXistClientHelper  extends ClientHelper {
                      });
                      response.setStatus(Status.SUCCESS_OK);
                   } else {
-                     release = false;
-                     final BrokerPool currentPool = pool;
-                     Representation rep = new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
-                        public void write(OutputStream os)
-                           throws IOException
-                        {
-                           try {
-                              Serializer serializer = currentBroker.getSerializer();
-                              serializer.reset();
-
+                     if (xqueryPath==null) {
+                        release = false;
+                        final BrokerPool currentPool = pool;
+                        Representation rep = new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
+                           public void write(OutputStream os)
+                              throws IOException
+                           {
                               try {
-                                 //Serialize the document
-                                 Writer w = new OutputStreamWriter(os,"UTF-8");
-                                 serializer.serialize(currentResource,w);
-                                 w.flush();
-                                 //w.close();
-                              } catch (SAXException ex) {
-                                 throw new IOException(ex.getMessage());
+                                 Serializer serializer = currentBroker.getSerializer();
+                                 serializer.reset();
+
+                                 try {
+                                    //Serialize the document
+                                    Writer w = new OutputStreamWriter(os,"UTF-8");
+                                    serializer.serialize(currentResource,w);
+                                    w.flush();
+                                    //w.close();
+                                 } catch (SAXException ex) {
+                                    throw new IOException(ex.getMessage());
+                                 }
+                              } finally {
+                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                                 currentPool.release(currentBroker);
                               }
-                           } finally {
-                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              currentPool.release(currentBroker);
                            }
+                        };
+                        rep.setCharacterSet(CharacterSet.UTF_8);
+                        response.setEntity(rep);
+                        response.setStatus(Status.SUCCESS_OK);
+                     } else {
+                        if (xqueryPath.startsWith("exist:")) {
+                           Reference tmp = new Reference(xqueryPath);
+                           xqueryPath = tmp.getPath();
                         }
-                     };
-                     rep.setCharacterSet(CharacterSet.UTF_8);
-                     response.setEntity(rep);
-                     response.setStatus(Status.SUCCESS_OK);
+                        DocumentImpl xqueryResource = (DocumentImpl) broker.getXMLResource(XmldbURI.create(xqueryPath), Lock.READ_LOCK);
+                        if (xqueryResource != null && xqueryResource.getResourceType() == DocumentImpl.BINARY_FILE &&
+                            "application/xquery".equals(xqueryResource.getMetadata().getMimeType())) {
+                           // found an XQuery resource
+                           Properties outputProperties = new Properties(defaultProperties);
+                           try {
+                              executeXQuery(broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { resource.getURI() },-1,1,request, response, outputProperties);
+                           } catch (XPathException ex) {
+                              response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
+                           }
+                           return;
+                        } else {
+                           response.setEntity(new StringRepresentation("Cannot find xquery "+xqueryPath+" or XQuery has wrong mime type."));
+                           response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                        }
+                        
+                     }
                   }
                }
             } catch(PermissionDeniedException ex) {

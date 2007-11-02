@@ -127,7 +127,7 @@ public class XmlrpcParallelTest extends TestCase {
                     fail(ex.getMessage());
                 }
                 assertTrue(gt[i].getSize()>0);
-                assertEquals(211575,gt[i].getSize());  // other number, indenting?
+                assertEquals(211579,gt[i].getSize());  // other number, indenting?
             }
         } catch (Exception ex) {
             ex.printStackTrace();

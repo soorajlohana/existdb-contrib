@@ -19,151 +19,135 @@
  *
  *  $Id$
  */
-
 package org.exist.protocolhandler.xmldb;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *  jUnit tests for the XmldbURL class.
  *
  * @author Dannes Wessels
  */
-public class EmbeddedXmldbURLTest extends TestCase {
-    
+public class EmbeddedXmldbURLTest {
+
     private static Logger LOG = Logger.getLogger(EmbeddedXmldbURLTest.class);
-    
-    private static boolean firstRun=true;
-    
-    private static String XMLDB_URL_1=
+    private static String XMLDB_URL_1 =
             "xmldb:exist:///db/shakespeare/plays/macbeth.xml";
-    
-    private static String XMLDB_URL_2=
+    private static String XMLDB_URL_2 =
             "xmldb:exist:///db/shakespeare/plays/";
-    
-    private static String XMLDB_URL_3=
+    private static String XMLDB_URL_3 =
             "xmldb:exist:///db/macbeth.xml";
-    
-    private static String XMLDB_URL_4=
+    private static String XMLDB_URL_4 =
             "xmldb:exist:///db/";
-    
-    private static String XMLDB_URL_5=
+    private static String XMLDB_URL_5 =
             "xmldb:exist:///db";
-    
-    private static String XMLDB_URL_6=
+    private static String XMLDB_URL_6 =
             "xmldb:exist://foo:bar@/db/shakespeare/plays/macbeth.xml";
-    
-    public EmbeddedXmldbURLTest(String testName) {
-        super(testName);
+
+    @BeforeClass 
+    public static void setUp() throws Exception {
+        PropertyConfigurator.configure("log4j.conf");
+        System.setProperty("java.protocol.handler.pkgs", "org.exist.protocolhandler.protocols");
     }
-    
-    protected void setUp() throws Exception {
-        if(firstRun){
-            PropertyConfigurator.configure("log4j.conf");
-            System.setProperty( "java.protocol.handler.pkgs", "org.exist.protocolhandler.protocols" );
-            firstRun=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        //
-    }
-       
+
+    @Test
     public void testURL1() {
-        System.out.println(this.getName());
+        System.out.println("testURL1");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_1);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_1);
             assertNull(xmldbUrl.getHost());
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
             assertNull(xmldbUrl.getContext());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
+
+    @Test
     public void testURL2() {
-        System.out.println(this.getName());
+        System.out.println("testURL2");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_2);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_2);
             assertNull(xmldbUrl.getHost());
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
-            assertNull( xmldbUrl.getDocumentName() );
-            
+            assertNull(xmldbUrl.getDocumentName());
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
+
+    @Test
     public void testURL3() {
-        System.out.println(this.getName());
+        System.out.println("testURL3");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_3);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_3);
             assertNull(xmldbUrl.getHost());
             assertEquals("/db", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
+
+    @Test
     public void testURL4() {
-        System.out.println(this.getName());
+        System.out.println("testURL4");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_4);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_4);
             assertNull(xmldbUrl.getHost());
             assertEquals("/db", xmldbUrl.getCollection());
             assertNull(xmldbUrl.getDocumentName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
+
+    @Test
     public void testURL5() {
-        System.out.println(this.getName());
+        System.out.println("testURL5");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_5);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_5);
             assertNull(xmldbUrl.getHost());
             //assertNull(xmldbUrl.getCollection());
             assertEquals("/", xmldbUrl.getCollection());
             assertEquals("db", xmldbUrl.getDocumentName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
+
+    @Test
     public void testURL6() {
-        System.out.println(this.getName());
+        System.out.println("testURL6");
         try {
-            XmldbURL xmldbUrl=new XmldbURL(XMLDB_URL_6);
+            XmldbURL xmldbUrl = new XmldbURL(XMLDB_URL_6);
             assertNull(xmldbUrl.getHost());
             assertEquals("/db/shakespeare/plays", xmldbUrl.getCollection());
             assertEquals("macbeth.xml", xmldbUrl.getDocumentName());
-            
+
             // new compared to URL_1
-            assertTrue( xmldbUrl.hasUserInfo() );
+            assertTrue(xmldbUrl.hasUserInfo());
             assertEquals("foo", xmldbUrl.getUsername());
             assertEquals("bar", xmldbUrl.getPassword());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             fail(ex.getMessage());
         }
     }
-    
 }

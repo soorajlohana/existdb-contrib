@@ -30,69 +30,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.exist.protocolhandler.GenericTestcase;
 import org.exist.protocolhandler.shared.GetThread;
 import org.exist.protocolhandler.shared.PutThread;
-import org.exist.storage.BrokerPool;
-import org.exist.util.Configuration;
-import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
-import org.xmldb.api.DatabaseManager;
-import org.xmldb.api.base.Database;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author wessels
  */
-public class EmbeddedParallelTest extends TestCase {
+public class EmbeddedParallelTest extends GenericTestcase {
     
-    public EmbeddedParallelTest(String testName) {
-        super(testName);
-    }
     
     private static Logger LOG = Logger.getLogger(EmbeddedParallelTest.class);
-    
-    private static BrokerPool pool;
-    
-    private static boolean firstTime=true;
-    
-    
-    protected void setUp() throws Exception {
-        if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            PropertyConfigurator.configure("log4j.conf");
-            firstTime=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        BrokerPool.stopAll(false);
-    }
-    
-    protected BrokerPool startDB() {
-        try {
-            Configuration config = new Configuration();
-            BrokerPool.configure(1, 5, config);
-            
-            // initialize driver
-            Database database = (Database) Class.forName("org.exist.xmldb.DatabaseImpl").newInstance();
-            database.setProperty("create-database", "true");
-            DatabaseManager.registerDatabase(database);
-            
-            return BrokerPool.getInstance();
-        } catch (Exception e) {
-            LOG.error(e);
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-        return null;
-    }
-    
+        
     private void sendToURL(String URL, String file) throws Exception {
         
-        pool = startDB();
         URL url = new URL(URL);
         InputStream is = new BufferedInputStream( new FileInputStream(file) );
         OutputStream os = url.openConnection().getOutputStream();
@@ -104,7 +60,6 @@ public class EmbeddedParallelTest extends TestCase {
     
     private void getFromURL(String URL, OutputStream os) throws Exception {
         
-        pool = startDB();
         URL url = new URL(URL);
         InputStream is = url.openConnection().getInputStream();
         copyDocument(is,os);
@@ -125,12 +80,13 @@ public class EmbeddedParallelTest extends TestCase {
     
     // ======================================================================
     
-    public void testEmbeddedParallelUpload(){
-        System.out.println(this.getName());
+    @Test
+    public void embeddedParallelUpload(){
+        System.out.println("testEmbeddedParallelUpload");
         File file=new File("samples/shakespeare/r_and_j.xml");
         try {
             PutThread[] pt = new PutThread[10];
-            pool = startDB();
+
             for(int i=0; i<pt.length ; i++){
                 LOG.info("Initializing URL "+i);
                 URL url = new URL("xmldb:exist:///db/r_and_j-"+i+".xml");
@@ -165,11 +121,12 @@ public class EmbeddedParallelTest extends TestCase {
         }
     }
     
-    public void testEmbeddedParallelDownload(){
-        System.out.println(this.getName());
+    @Test
+    public void embeddedParallelDownload(){
+        System.out.println("testEmbeddedParallelDownload");
         try {
             GetThread[] gt = new GetThread[10];
-            pool = startDB();
+
             for(int i=0; i<gt.length ; i++){
                 LOG.info("Initializing URL "+i);
                 URL url = new URL("xmldb:exist:///db/r_and_j-"+i+".xml");

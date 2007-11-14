@@ -19,7 +19,6 @@
  *
  * $Id$
  */
-
 package org.exist.protocolhandler.embedded;
 
 import java.io.BufferedInputStream;
@@ -28,361 +27,278 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.exist.EXistException;
-import org.exist.security.SecurityManager;
-import org.exist.storage.BrokerPool;
-import org.exist.storage.DBBroker;
-import org.exist.util.Configuration;
+import org.exist.protocolhandler.GenericTestcase;
 import org.exist.protocolhandler.xmldb.XmldbURL;
-import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
-import org.xmldb.api.DatabaseManager;
-import org.xmldb.api.base.Database;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author Dannes Wessels
  */
-public class EmbeddedUploadDownloadTest extends TestCase {
-    
+public class EmbeddedUploadDownloadTest extends GenericTestcase {
+
     private static Logger LOG = Logger.getLogger(EmbeddedURLsTest.class);
-    
-    private static boolean firstTime=true;
-    
-    public EmbeddedUploadDownloadTest(String testName) {
-        super(testName);
-    }
-    
-    protected void setUp() throws Exception {
-        LOG.debug("setUp");
-        if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            PropertyConfigurator.configure("log4j.conf");
-            firstTime=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        LOG.debug("tearDown");
-    }
-    
-    protected BrokerPool startDB() {
+
+    @Test
+    public void toDB() {
+        System.out.println("toDB");
+
         try {
-            Configuration config = new Configuration();
-            BrokerPool.configure(1, 5, config);
-            
-            // initialize driver
-            Database database = (Database) Class.forName("org.exist.xmldb.DatabaseImpl").newInstance();
-            database.setProperty("create-database", "true");
-            DatabaseManager.registerDatabase(database);
-            
-            return BrokerPool.getInstance();
-        } catch (Exception e) {
-            LOG.error(e);
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-        return null;
-    }
-    
-    
-    public void testToDB() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
-        try {
-            pool = startDB();
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testEmbeddedUploadToDB.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            InputStream is = new BufferedInputStream(new FileInputStream("build.xml"));
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
-            
-        } finally {
-            pool.release(broker);
+
         }
     }
-    
-    public void testFromDB() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
+
+    @Test
+    public void fromDB() {
+        System.out.println("fromDB");
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
+
         try {
-            pool = startDB();
-            
+
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/build_testEmbeddedUploadToDB.xml");
-            
+
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, baos);
-            
+
             baos.close();
-            
-            assertTrue( baos.size()>0 );
-            
+
+            assertTrue(baos.size() > 0);
+
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
-            
-        } finally {
-            pool.release(broker);
+
         }
     }
-    
+
     //ToDB_NotExistingCollection
-    public void testToDB_NotExistingCollection() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
+
+    @Test
+    public void toDB_NotExistingCollection() {
+        System.out.println("toDB_NotExistingCollection");
+
         try {
-            pool = startDB();
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/testToDB_NotExistingCollection.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/toDB_NotExistingCollection.xml");
+            InputStream is = new BufferedInputStream(new FileInputStream("build.xml"));
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
-            
+
             fail("Not existing collection: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Resource /db/foobar is not a collection.*")){
+            if (!ex.getMessage().matches(".*Resource /db/foobar is not a collection.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
     }
-    
+
     //FromDB_NotExistingCollection
-    public void testFromDB_NotExistingCollection() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
+
+    @Test
+    public void fromDB_NotExistingCollection() {
+        System.out.println("fromDB_NotExistingCollection");
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
+
         try {
-            pool = startDB();
-            
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/testToDB_NotExistingCollection.xml");
-            
+
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/foobar/toDB_NotExistingCollection.xml");
+
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
-            
+
             os.close();
-            
+
             fail("Not existing collection: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Resource .* not found.*")){
+            if (!ex.getMessage().matches(".*Resource .* not found.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
     }
-    
+
     //ToDB_NotExistingUser
-    public void testToDB_NotExistingUser() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
+
+    @Test
+    public void toDB_NotExistingUser() {
+        System.out.println("toDB_NotExistingUser");
+
         try {
-            pool = startDB();
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist://foo:bar@/db/testToDB_NotExistingUser.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist://foo:bar@/db/toDB_NotExistingUser.xml");
+            InputStream is = new BufferedInputStream(new FileInputStream("build.xml"));
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
-            
+
             fail("Not existing user: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
+            if (!ex.getMessage().matches(".*Unauthorized .* foo.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
     }
-    
+
     //FromDB_NotExistingUser
-    public void testFromDB_NotExistingUser() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
+
+    @Test
+    public void fromDB_NotExistingUser() {
+        System.out.println("fromDB_NotExistingUser");
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
+
         try {
-            pool = startDB();
-            
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist://foo:bar@/db/foobar/testFromDB_NotExistingUser.xml");
-            
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist://foo:bar@/db/foobar/fromDB_NotExistingUser.xml");
+
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
-            
+
             os.close();
-            
+
             fail("Not existing user: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Unauthorized .* foo.*")){
+            if (!ex.getMessage().matches(".*Unauthorized .* foo.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
+
     }
-    
+
     //ToDB_NotAuthorized
-    public void testToDB_NotAuthorized() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
+
+    @Test
+    public void toDB_NotAuthorized() {
+        System.out.println("toDB_NotAuthorized");
+
         try {
-            pool = startDB();
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/testToDB_NotAuthorized.xml");
-            InputStream is = new BufferedInputStream( new FileInputStream("build.xml") );
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/toDB_NotAuthorized.xml");
+            InputStream is = new BufferedInputStream(new FileInputStream("build.xml"));
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
-            
+
             fail("User not authorized: Exception expected");
-            
+
         } catch (Exception ex) {
-            
-            if(!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")){
+
+            if (!ex.getCause().getMessage().matches(".*User .* not allowed to write to collection.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
     }
-    
+
     //FromDB_NotAuthorized
-    public void testFromDB_NotAuthorized() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
+
+    @Test
+    public void fromDB_NotAuthorized() {
+        System.out.println("fromDB_NotAuthorized");
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        
+
         try {
-            pool = startDB();
-            
+
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/system/users.xml");
-            
+
             EmbeddedDownload instance = new EmbeddedDownload();
             instance.stream(xmldbURL, os);
-            
+
             os.close();
-            
+
             fail("User not authorized: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getMessage().matches(".*Permission denied to read collection .*")){
+            if (!ex.getMessage().matches(".*Permission denied to read collection .*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
-        } finally {
-            pool.release(broker);
         }
     }
-    
-    
-    public void testCleanUp(){
-        System.out.println(this.getName());
-        BrokerPool.stopAll(false);
-    }
-    
+
     // Transfer bytes from inputstream to outputstream
-    private void copyDocument(InputStream is, OutputStream os) throws IOException{
+
+    private void copyDocument(InputStream is, OutputStream os) throws IOException {
         byte[] buf = new byte[4096];
         int len;
         while ((len = is.read(buf)) > 0) {
             os.write(buf, 0, len);
         }
     }
-    
+
     /*
      * Additional tests binary documents
      */
-    
-    public void testToDB_binaryDoc() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        
+    @Test
+    public void toDB_binaryDoc() {
+        System.out.println("toDB_binaryDoc");
+
         try {
-            pool = startDB();
             XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/manifest.txt");
-            InputStream is = new BufferedInputStream( new FileInputStream("manifest.mf") );
+            InputStream is = new BufferedInputStream(new FileInputStream("manifest.mf"));
             EmbeddedUpload instance = new EmbeddedUpload();
             instance.stream(xmldbURL, is);
             is.close();
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
-            
-        } finally {
-            pool.release(broker);
-        }
-    }
-    
-    public void testFromDB_binaryDoc() {
-        System.out.println(this.getName());
-        BrokerPool pool = null;
-        DBBroker broker = null;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
-        try {
-            pool = startDB();
-            
-            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/manifest.txt");
-            
-            EmbeddedDownload instance = new EmbeddedDownload();
-            instance.stream(xmldbURL, baos);
-            
-            baos.close();
-            
-            assertTrue( baos.size()>0 );
-            assertEquals(85, baos.size());
-            
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LOG.error(ex);
-            fail(ex.getMessage());
-            
-        } finally {
-            pool.release(broker);
+
         }
     }
 
+    @Test
+    public void fromDB_binaryDoc() {
+        System.out.println("fromDB_binaryDoc");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        try {
+            XmldbURL xmldbURL = new XmldbURL("xmldb:exist:///db/manifest.txt");
+
+            EmbeddedDownload instance = new EmbeddedDownload();
+            instance.stream(xmldbURL, baos);
+
+            baos.close();
+
+            assertTrue(baos.size() > 0);
+            assertEquals(85, baos.size());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
+
+        }
+    }
 }

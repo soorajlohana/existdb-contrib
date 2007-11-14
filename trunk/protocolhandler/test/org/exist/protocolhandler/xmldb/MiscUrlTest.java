@@ -19,109 +19,101 @@
  *
  *  $Id$
  */
-
 package org.exist.protocolhandler.xmldb;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.exist.protocolhandler.protocols.xmldb.Handler;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *  Set of tests that could not be put somewhere else
  *
  * @author Dannes Wessels
  */
-public class MiscUrlTest extends TestCase {
+public class MiscUrlTest {
 
     private static Logger LOG = Logger.getLogger(MiscUrlTest.class);
-     private static boolean firstRun=true;
-    
-    public MiscUrlTest(String testName) {
-        super(testName);
+
+    @BeforeClass
+    public static void start() throws Exception {
+        PropertyConfigurator.configure("log4j.conf");
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+
     }
 
-    protected void setUp() throws Exception {
-        if(firstRun){
-            PropertyConfigurator.configure("log4j.conf");
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            firstRun=false;
-        }
-    }
+    @Test
+    public void testRegularExpressions() {
+        System.out.println("testRegularExpressions");
 
-    protected void tearDown() throws Exception {
-    }
-    
-    
-    public void testRegularExpressions(){
-        System.out.println(this.getName());
-        
         String PATTERN = Handler.PATTERN;
-        String txt1="xmldb:justatext://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+        String txt1 = "xmldb:justatext://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
         assertTrue(txt1.matches(PATTERN));
-        
-        String txt2="xmldb:://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+
+        String txt2 = "xmldb:://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
         assertFalse(txt2.matches(PATTERN));
-        
-        String txt3="xmldb:abd%^&*efg://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+
+        String txt3 = "xmldb:abd%^&*efg://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
         assertFalse(txt3.matches(PATTERN));
-        
-        String txt4="xmldb: ://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
+
+        String txt4 = "xmldb: ://fobar:8080/exist/xmlrpc/db/foo/bar.txt";
         assertFalse(txt4.matches(PATTERN));
-        
+
         // =================
-        String splits[] = txt1.split(":",3);
+        String splits[] = txt1.split(":", 3);
         assertEquals(3, splits.length);
-        
+
         String instance = splits[1];
         assertEquals("justatext", instance);
-        
+
         int seperator = txt1.indexOf("//");
         assertEquals(16, seperator);
     }
-    
-    public void testURLclass(){
-        System.out.println(this.getName());
-        
+
+    @Test
+    public void testURLclass() {
+        System.out.println("testURLclass");
+
         try {
             URL urla = new URL("xmldb:justatext://fobar1:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
             assertEquals("fobar1", urla.getHost());
-            
+
             URL urlb = new URL("xmldb:exist://fobar2:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
             assertEquals("fobar2", urlb.getHost());
-            
+
             URL urlc = new URL("xmldb:://fobar3:8080/exist/xmlrpc/db/foo/bar.txt#foobar");
             assertEquals("fobar3", urlc.getHost());
-            
+
         } catch (MalformedURLException ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
         }
-        
+
     }
-    
-    public void testDemoServerURLs(){
+
+    @Test
+    public void testDemoServerURLs() {
         try {
+            System.out.println("testDemoServerURLs");
             XmldbURL urla = new XmldbURL("xmldb:exist://demo.exist-db.org/xmlrpc/db/foo/bar.xml?a=b#cc");
             assertEquals("demo.exist-db.org", urla.getHost());
             assertEquals(-1, urla.getPort());
             assertEquals("bar.xml", urla.getDocumentName());
             assertEquals("/db/foo", urla.getCollection());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
         }
     }
- 
-
-
 }

@@ -35,34 +35,30 @@ import org.apache.log4j.PropertyConfigurator;
 import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *  jUnit tests for XmlrpcOutputStream class.
  *
  * @author Dannes Wessels.
  */
-public class XmlrpcInOutputStreamTest extends TestCase {
+public class XmlrpcInOutputStreamTest {
     
     private static Logger LOG = Logger.getLogger(XmlrpcInOutputStreamTest.class);
     
     private String TESTCASENAME= getClass().getName();
     
-    private static boolean firstTime=true;
     
-    public XmlrpcInOutputStreamTest(String testName) {
-        super(testName);
+    @BeforeClass
+    public static void start() throws Exception {
+
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        PropertyConfigurator.configure("log4j.conf");
+
     }
     
-    protected void setUp() throws Exception {
-        if(firstTime){
-            PropertyConfigurator.configure("log4j.conf");
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            firstTime=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        //
-    }
     
     // ***************************************
     
@@ -102,6 +98,7 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     
     // ***********************
     
+    @Test
     public void testCreateCollection(){
         try {
             URL url = new URL("http://localhost:8080/exist/rest/db?_query="
@@ -116,12 +113,13 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //ToDB
-    public void testToDB() {
-        System.out.println(this.getName());
+    @Test
+    public void toDB() {
+        System.out.println("toDB");
         try{
             FileInputStream fis = new FileInputStream("conf.xml");
             String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
-                    +TESTCASENAME+"/conf_testToDB.xml";
+                    +TESTCASENAME+"/conf_toDB.xml";
             XmldbURL xmldbUri = new XmldbURL(url);
             sendDocument( xmldbUri, fis);
             fis.close();
@@ -134,11 +132,12 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //FromDB
-    public void testFromDB() {
-        System.out.println(this.getName());
+    @Test
+    public void fromDB() {
+        System.out.println("fromDB");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
-                +TESTCASENAME+"/conf_testToDB.xml";
+                +TESTCASENAME+"/conf_toDB.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(url);
@@ -153,12 +152,13 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //ToDB_NotExistingCollection
-    public void testToDB_NotExistingCollection() {
-        System.out.println(this.getName());
+    @Test
+    public void toDB_NotExistingCollection() {
+        System.out.println("toDB_NotExistingCollection");
         try{
             FileInputStream fis = new FileInputStream("conf.xml");
             String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
-                    +TESTCASENAME+"/foobar/conf_testToDB.xml";
+                    +TESTCASENAME+"/foobar/conf_toDB.xml";
             XmldbURL xmldbUri = new XmldbURL(url);
             sendDocument( xmldbUri, fis);
             fis.close();
@@ -174,11 +174,12 @@ public class XmlrpcInOutputStreamTest extends TestCase {
         }
     }
     //FromDB_NotExistingCollection
-    public void testFromDB_NotExistingCollection() {
-        System.out.println(this.getName());
+    @Test
+    public void fromDB_NotExistingCollection() {
+        System.out.println("fromDB_NotExistingCollection");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
-                +TESTCASENAME+"/foobar/conf_testToDB.xml";
+                +TESTCASENAME+"/foobar/conf_toDB.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(url);
@@ -196,12 +197,13 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //ToDB_NotExistingUser
-    public void testToDB_NotExistingUser() {
-        System.out.println(this.getName());
+    @Test
+    public void toDB_NotExistingUser() {
+        System.out.println("toDB_NotExistingUser");
         try{
             FileInputStream fis = new FileInputStream("conf.xml");
             String url = "xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/"
-                    +TESTCASENAME+"/conf_testToDB.xml";
+                    +TESTCASENAME+"/conf_toDB.xml";
             XmldbURL xmldbUri = new XmldbURL(url);
             sendDocument( xmldbUri, fis);
             fis.close();
@@ -218,11 +220,12 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //FromDB_NotExistingUser
-    public void testFromDB_NotExistingUser() {
-        System.out.println(this.getName());
+    @Test
+    public void fromDB_NotExistingUser() {
+        System.out.println("fromDB_NotExistingUser");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String url = "xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/"
-                +TESTCASENAME+"/conf_testToDB.xml";
+                +TESTCASENAME+"/conf_toDB.xml";
         
         try {
             XmldbURL xmldbUri = new XmldbURL(url);
@@ -239,8 +242,9 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //ToDB_NotAuthorized
-    public void testToDB_NotAuthorized() {
-        System.out.println(this.getName());
+    @Test
+    public void toDB_NotAuthorized() {
+        System.out.println("toDB_NotAuthorized");
         try{
             FileInputStream fis = new FileInputStream("build.xml");
             String url = "xmldb:exist://guest:guest@localhost:8080"
@@ -261,8 +265,9 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //FromDB_NotAuthorized
-    public void testFromDB_NotAuthorized() {
-        System.out.println(this.getName());
+    @Test
+    public void fromDB_NotAuthorized() {
+        System.out.println("fromDB_NotAuthorized");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String url = "xmldb:exist://guest:guest@localhost:8080"
                     +"/exist/xmlrpc/db/system/users.xml";
@@ -287,8 +292,9 @@ public class XmlrpcInOutputStreamTest extends TestCase {
      */
     
     //ToDB
-    public void testToDB_binaryDoc() {
-        System.out.println(this.getName());
+    @Test
+    public void toDB_binaryDoc() {
+        System.out.println("toDB_binaryDoc");
         try{
             FileInputStream fis = new FileInputStream("manifest.mf");
             String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
@@ -305,8 +311,9 @@ public class XmlrpcInOutputStreamTest extends TestCase {
     }
     
     //FromDB
-    public void testFromDB_binaryDoc() {
-        System.out.println(this.getName());
+    @Test
+    public void fromDB_binaryDoc() {
+        System.out.println("fromDB_binaryDoc");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         String url = "xmldb:exist://localhost:8080/exist/xmlrpc/db/"
                 +TESTCASENAME+"/manifest.txt";

@@ -75,6 +75,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
+import org.restlet.data.Tag;
 import org.restlet.resource.OutputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.StringRepresentation;
@@ -324,6 +325,8 @@ public class EXistClientHelper  extends ClientHelper {
                            }
                         }
                      });
+                     long tstamp = currentResource.getMetadata().getLastModified();
+                     response.getEntity().setTag(new Tag(Long.toString(tstamp),false));
                      response.setStatus(Status.SUCCESS_OK);
                   } else {
                      if (xqueryPath==null) {
@@ -352,7 +355,9 @@ public class EXistClientHelper  extends ClientHelper {
                               }
                            }
                         };
+                        long tstamp = resource.getMetadata().getLastModified();
                         rep.setCharacterSet(CharacterSet.UTF_8);
+                        rep.setTag(new Tag(Long.toString(tstamp),false));
                         response.setEntity(rep);
                         response.setStatus(Status.SUCCESS_OK);
                      } else {

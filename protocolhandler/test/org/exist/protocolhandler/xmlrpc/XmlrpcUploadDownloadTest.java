@@ -33,40 +33,35 @@ import org.apache.log4j.PropertyConfigurator;
 import org.exist.protocolhandler.xmldb.XmldbURL;
 import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *  jUnit tests for XmlrpcUpload class
  * .
  * 
  * @author Dannes Wessels
  */
-public class XmlrpcUploadDownloadTest extends TestCase {
+public class XmlrpcUploadDownloadTest{
     
-    private static Logger LOG = Logger.getLogger(XmlrpcUploadDownloadTest.class);
-    
-    private static boolean firstTime=true;
-    
-    public XmlrpcUploadDownloadTest(String testName) {
-        super(testName);
-    }
-    
-    protected void setUp() throws Exception {
-        if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            PropertyConfigurator.configure("log4j.conf");
-            firstTime=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        // -/-
+    private static Logger LOG = Logger.getLogger(XmlrpcUploadDownloadTest.class); 
+
+    @BeforeClass
+    public static void start() throws Exception {
+
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        PropertyConfigurator.configure("log4j.conf");
+
     }
 
     /**
      * Test upload of file
      */
-    public void testToDB()  {
+    @Test
+    public void toDB()  {
         
-        System.out.println("testToDB");
+        System.out.println("toDB");
          
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -87,9 +82,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test download of file.
      */
-    public void testFromDB() {
+    @Test
+    public void fromDB() {
         
-        System.out.println("testFromDB");
+        System.out.println("fromDB");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -114,8 +110,9 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test upload of file to non existing collection
      */
-    public void testToDB_NotExistingCollection() {
-        System.out.println("testToDB_NotExistingCollection");
+    @Test
+    public void toDB_NotExistingCollection() {
+        System.out.println("toDB_NotExistingCollection");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
@@ -141,9 +138,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test download of file from not existing collection.
      */
-    public void testFromDB_NotExistingCollection() {
+    @Test
+    public void fromDB_NotExistingCollection() {
         
-        System.out.println("testFromDB_NotExistingCollection");
+        System.out.println("fromDB_NotExistingCollection");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/foobar/build.xml";
@@ -171,8 +169,9 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test upload of file as non existing user
      */
-    public void testToDB_NotExistingUser() {
-        System.out.println("testToDB_NotExistingUser");
+    @Test
+    public void toDB_NotExistingUser() {
+        System.out.println("toDB_NotExistingUser");
         
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -197,9 +196,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test download of file as non existing user.
      */
-    public void testFromDB_NotExistingUser() {
+    @Test
+    public void fromDB_NotExistingUser() {
         
-        System.out.println("testFromDB_NotExistingUser");
+        System.out.println("fromDB_NotExistingUser");
         
         String url = "xmldb:exist://foo:bar@localhost:8080"
                 +"/exist/xmlrpc/db/build.xml";
@@ -225,8 +225,9 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test upload of file to a forbidden collection
      */
-    public void testToDB_NotAuthorized() {
-        System.out.println("testToDB_NotAuthorized");
+    @Test
+    public void toDB_NotAuthorized() {
+        System.out.println("toDB_NotAuthorized");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/build.xml";
@@ -252,9 +253,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test download of file to a forbidden collection
      */
-    public void testFromDB_NotAuthorized() {
+    @Test
+    public void fromDB_NotAuthorized() {
         
-        System.out.println("testFromDB_NotAuthorized");
+        System.out.println("fromDB_NotAuthorized");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/system/users.xml";
@@ -284,9 +286,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test upload of file
      */
-    public void testToDB_BinaryDoc()  {
+    @Test
+    public void toDB_BinaryDoc()  {
         
-        System.out.println("testToDB_BinaryDoc");
+        System.out.println("toDB_BinaryDoc");
          
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/manifest.txt";
@@ -307,9 +310,10 @@ public class XmlrpcUploadDownloadTest extends TestCase {
     /**
      * Test download of file.
      */
-    public void testFromDB_BinaryDoc() {
+    @Test
+    public void fromDB_BinaryDoc() {
         
-        System.out.println("testFromDB_BinaryDoc");
+        System.out.println("fromDB_BinaryDoc");
         
         String url = "xmldb:exist://guest:guest@localhost:8080"
                 +"/exist/xmlrpc/db/manifest.txt";

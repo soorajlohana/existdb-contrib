@@ -19,7 +19,6 @@
  *
  *  $Id$
  */
-
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.BufferedInputStream;
@@ -30,55 +29,49 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  * @author Dannes Wessels
  */
-public class XmlrpcURLsTest extends TestCase {
-    
+public class XmlrpcURLsTest {
+
     private static Logger LOG = Logger.getLogger(XmlrpcURLsTest.class);
-    private static boolean firstTime=true;
-    
-    public XmlrpcURLsTest(String testName) {
-        super(testName);
+
+    @BeforeClass
+    public static void start() throws Exception {
+
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        PropertyConfigurator.configure("log4j.conf");
+
     }
-    
-    protected void setUp() throws Exception {
-        if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            PropertyConfigurator.configure("log4j.conf");
-            firstTime=false;
-        }
-    }
-    
-    protected void tearDown() throws Exception {
-        // empty
-    }
-    
+
     private void sendToURL(String URL, String file) throws Exception {
         URL url = new URL(URL);
-        InputStream is = new BufferedInputStream( new FileInputStream(file) );
+        InputStream is = new BufferedInputStream(new FileInputStream(file));
         OutputStream os = url.openConnection().getOutputStream();
-        copyDocument(is,os);
+        copyDocument(is, os);
         is.close();
         os.close();
     }
-    
+
     private void getFromURL(String URL, OutputStream os) throws Exception {
         URL url = new URL(URL);
         InputStream is = url.openConnection().getInputStream();
-        copyDocument(is,os);
+        copyDocument(is, os);
         is.close();
         os.close();
     }
-    
+
     // Transfer bytes from inputstream to outputstream
-    private void copyDocument(InputStream is, OutputStream os) throws IOException{
+
+    private void copyDocument(InputStream is, OutputStream os) throws IOException {
         byte[] buf = new byte[4096];
         int len;
         while ((len = is.read(buf)) > 0) {
@@ -87,131 +80,136 @@ public class XmlrpcURLsTest extends TestCase {
     }
 
     // =====================================
-    
-    public void testURLToDB() {
-        System.out.println("testURLToDB");
+
+    @Test
+    public void urlToDB() {
+        System.out.println("urlToDB");
         try {
-            sendToURL(
-                    "xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml",
-                    "build.xml" );
+            sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_urlToDB.xml",
+                    "build.xml");
 
         } catch (Exception ex) {
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
-    
-    public void testURLFromDB() {
-        System.out.println("testURLFromDB");
+
+    @Test
+    public void urlFromDB() {
+        System.out.println("urlFromDB");
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_testURLToDB.xml", os);
-            
-            assertTrue(os.size()>0);
+            getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/build_urlToDB.xml", os);
+
+            assertTrue(os.size() > 0);
 
         } catch (Exception ex) {
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
-    
-    public void testURLToDB_notExistingCollection() {
-        System.out.println("testURLToDB_notExistingCollection");
+
+    @Test
+    public void urlToDB_notExistingCollection() {
+        System.out.println("urlToDB_notExistingCollection");
         try {
             sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml",
                     "build.xml");
             fail("Not existing collection: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
+            if (!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
     }
-    
-    public void testURLFromDB_notExistingCollection() {
-        System.out.println("testURLFromDB_notExistingCollection");
+
+    @Test
+    public void urlFromDB_notExistingCollection() {
+        System.out.println("urlFromDB_notExistingCollection");
         try {
             OutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/foo/bar.xml", os);
             fail("Not existing collection: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")){
+            if (!ex.getCause().getMessage().matches(".*Collection /db/foo not found.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
     }
-    
-    public void testURLToDB_NotExistingUser() {
-        System.out.println("testURLToDB_NotExistingUser");
+
+    @Test
+    public void urlToDB_NotExistingUser() {
+        System.out.println("urlToDB_NotExistingUser");
         try {
-            sendToURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLToDB_NotExistingUser.xml",
+            sendToURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/urlToDB_NotExistingUser.xml",
                     "build.xml");
             fail("Not existing user: Exception expected");
 
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*User foo unknown.*")){
+            if (!ex.getCause().getMessage().matches(".*User foo unknown.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
     }
-    
-    public void testURLFromDB_NotExistingUser() {
-        System.out.println("testURLFromDB_NotExistingUser");
+
+    @Test
+    public void urlFromDB_NotExistingUser() {
+        System.out.println("urlFromDB_NotExistingUser");
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            getFromURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/testURLFromDB_NotExistingUser.xml", os);
-            
+            getFromURL("xmldb:exist://foo:bar@localhost:8080/exist/xmlrpc/db/urlFromDB_NotExistingUser.xml", os);
+
             fail("Not existing user: Exception expected");
-            
+
         } catch (Exception ex) {
-            if(!ex.getCause().getMessage().matches(".*User .* unknown.*")){
+            if (!ex.getCause().getMessage().matches(".*User .* unknown.*")) {
                 ex.printStackTrace();
                 LOG.error(ex);
                 fail(ex.getMessage());
             }
         }
     }
-    
+
     /*
      * Binary files
      */
-    
-    public void testURLToDB_binaryDoc() {
-        System.out.println("testURLToDB_binaryDoc");
+    @Test
+    public void urlToDB_binaryDoc() {
+        System.out.println("urlToDB_binaryDoc");
         try {
-            sendToURL(
-                    "xmldb:exist://localhost:8080/exist/xmlrpc/db/manifest.txt",
-                    "manifest.mf" );
+            sendToURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/manifest.txt",
+                    "manifest.mf");
 
         } catch (Exception ex) {
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
-    
-    public void testURLFromDB_binaryDoc() {
-        System.out.println("testURLFromDB_binaryDoc");
+
+    @Test
+    public void urlFromDB_binaryDoc() {
+        System.out.println("urlFromDB_binaryDoc");
         try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             getFromURL("xmldb:exist://localhost:8080/exist/xmlrpc/db/manifest.txt", os);
-            
-            assertTrue(os.size()>0);
+
+            assertTrue(os.size() > 0);
 
         } catch (Exception ex) {
-                ex.printStackTrace();
-                LOG.error(ex);
-                fail(ex.getMessage());
+            ex.printStackTrace();
+            LOG.error(ex);
+            fail(ex.getMessage());
         }
     }
 }

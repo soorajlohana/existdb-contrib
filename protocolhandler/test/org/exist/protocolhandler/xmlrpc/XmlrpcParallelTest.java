@@ -19,13 +19,11 @@
  *
  * $Id: EmbeddedURLsTest.java 191 2007-03-30 15:49:34Z dizzzz $
  */
-
 package org.exist.protocolhandler.xmlrpc;
 
 import java.io.File;
 import java.net.URL;
 
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -33,101 +31,98 @@ import org.exist.protocolhandler.shared.GetThread;
 import org.exist.protocolhandler.shared.PutThread;
 import org.exist.protocolhandler.eXistURLStreamHandlerFactory;
 
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *
  * @author Dannes Wessels
  */
-public class XmlrpcParallelTest extends TestCase {
-    
+public class XmlrpcParallelTest {
+
     private static Logger LOG = Logger.getLogger(XmlrpcParallelTest.class);
-    private static boolean firstTime=true;
-    
-    protected void setUp() throws Exception {
-        if(firstTime){
-            URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
-            PropertyConfigurator.configure("log4j.conf");
-            firstTime=false;
-        }
+
+    @BeforeClass
+    public static void start() throws Exception {
+
+        URL.setURLStreamHandlerFactory(new eXistURLStreamHandlerFactory());
+        PropertyConfigurator.configure("log4j.conf");
+
     }
-    
-    protected void tearDown() throws Exception {
-        // empty
-    }
-    
-    public XmlrpcParallelTest(String testName) {
-        super(testName);
-    }
-    
-    public void testRemoteParallelUpload(){
-        System.out.println(this.getName());
-        File file=new File("samples/shakespeare/r_and_j.xml");
+
+    @Test
+    public void testRemoteParallelUpload() {
+        System.out.println("testRemoteParallelUpload");
+        File file = new File("samples/shakespeare/r_and_j.xml");
         try {
             PutThread[] pt = new PutThread[10];
-            for(int i=0; i<pt.length ; i++){
-                LOG.info("Initializing URL "+i);
-                URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-"+i+".xml");
-                
+            for (int i = 0; i < pt.length; i++) {
+                LOG.info("Initializing URL " + i);
+                URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-" + i + ".xml");
+
                 pt[i] = new PutThread(file, url);
             }
-            
-            for(int i=0; i<pt.length ; i++){
-                LOG.info("Starting thread "+i);
+
+            for (int i = 0; i < pt.length; i++) {
+                LOG.info("Starting thread " + i);
                 pt[i].start();
             }
-            
-            for(int i=0; i<pt.length ; i++){
-                LOG.info("Joining thread "+i);
+
+            for (int i = 0; i < pt.length; i++) {
+                LOG.info("Joining thread " + i);
                 pt[i].join(25000);
             }
-            
-            for(int i=0; i<pt.length ; i++){
-                LOG.info("Check thread "+i);
+
+            for (int i = 0; i < pt.length; i++) {
+                LOG.info("Check thread " + i);
                 Exception ex = pt[i].getException();
-                if(ex!=null){
-                    LOG.error("Thread "+i , ex);
+                if (ex != null) {
+                    LOG.error("Thread " + i, ex);
                     ex.printStackTrace();
                     fail(ex.getMessage());
                 }
             }
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error(ex);
             fail(ex.getMessage());
         }
     }
-    
-    public void testRemoteParallelDownload(){
-        System.out.println(this.getName());
+
+    @Test
+    public void testRemoteParallelDownload() {
+        System.out.println("testRemoteParallelDownload");
         try {
-            
+
             GetThread[] gt = new GetThread[10];
-            for(int i=0; i<gt.length ; i++){
-                LOG.info("Initializing URL "+i);
-                URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-"+i+".xml");
+            for (int i = 0; i < gt.length; i++) {
+                LOG.info("Initializing URL " + i);
+                URL url = new URL("xmldb:exist://localhost:8080/exist/xmlrpc/db/r_and_j-" + i + ".xml");
                 gt[i] = new GetThread(url);
             }
-            
-            for(int i=0; i<gt.length ; i++){
-                LOG.info("Starting thread "+i);
+
+            for (int i = 0; i < gt.length; i++) {
+                LOG.info("Starting thread " + i);
                 gt[i].start();
             }
-            
-            for(int i=0; i<gt.length ; i++){
-                LOG.info("Joining thread "+i);
+
+            for (int i = 0; i < gt.length; i++) {
+                LOG.info("Joining thread " + i);
                 gt[i].join(25000);
             }
-            
-            for(int i=0; i<gt.length ; i++){
-                LOG.info("Check thread "+i);
+
+            for (int i = 0; i < gt.length; i++) {
+                LOG.info("Check thread " + i);
                 Exception ex = gt[i].getException();
-                if(ex!=null){
-                    LOG.error("Thread "+i , ex);
+                if (ex != null) {
+                    LOG.error("Thread " + i, ex);
                     ex.printStackTrace();
                     fail(ex.getMessage());
                 }
-                assertTrue(gt[i].getSize()>0);
-                assertEquals(211579,gt[i].getSize());  // other number, indenting?
+                assertTrue(gt[i].getSize() > 0);
+                assertEquals(211579, gt[i].getSize());  // other number, indenting?
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -135,5 +130,4 @@ public class XmlrpcParallelTest extends TestCase {
             fail(ex.getMessage());
         }
     }
-    
 }

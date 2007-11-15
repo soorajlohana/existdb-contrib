@@ -202,6 +202,8 @@ public class EXistClientHelper  extends ClientHelper {
                   MediaType type = MediaType.valueOf(resource.getMetadata().getMimeType());
                   Representation rep = new StringRepresentation("",type);
                   rep.setModificationDate(new Date(resource.getMetadata().getLastModified()));
+                  long tstamp = resource.getMetadata().getLastModified();
+                  rep.setTag(new Tag(Long.toString(tstamp),false));
                   response.setEntity(rep);
                   response.setStatus(Status.SUCCESS_OK);
                }

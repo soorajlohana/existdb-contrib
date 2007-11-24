@@ -9,6 +9,7 @@
 
 package org.exist.restlet;
 
+import java.util.logging.Level;
 import org.restlet.Component;
 import org.restlet.VirtualHost;
 import org.restlet.data.Protocol;
@@ -26,7 +27,7 @@ public class WebComponent extends Component {
       // ------------------
       // Add the connectors
       // ------------------
-      getServers().add(Protocol.HTTP, ipAddress, port);
+      getServers().add(Protocol.HTTP, ipAddress.equals("*") ? null : ipAddress, port);
       getClients().add(Protocol.FILE);
       getClients().add(XMLDBResource.EXIST);
       
@@ -34,10 +35,16 @@ public class WebComponent extends Component {
       // www.restlet.org
       // ---------------
       VirtualHost host = new VirtualHost(getContext());
-      host.setHostDomain(hostname);
-      host.setHostPort("80|" + Integer.toString(port));
+      if (!hostname.equals("*")) {
+         host.setHostDomain(hostname);
+      }
+      host.setHostPort(Integer.toString(port));
       
-      host.attach(new XMLDBApplication(getContext(),dbname));
+      try {
+         host.attach(new XMLDBApplication(getContext(),dbname));
+      } catch (Exception ex) {
+         getLogger().log(Level.SEVERE,"Cannot attach XMLDB application.",ex);
+      }
       
       getHosts().add(host);
       

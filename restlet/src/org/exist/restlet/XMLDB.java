@@ -27,6 +27,7 @@ public class XMLDB
    
    public final static String DEFAULT_DB = "db";
    
+   public final static String USER_ATTR = "org.exist.xmldb.user";
    final static String DEFAULT_URI = "xmldb:exist://" + DBBroker.ROOT_COLLECTION;
    final static String DRIVER = "org.exist.xmldb.DatabaseImpl";
    static class ShutdownListenerImpl implements ShutdownListener {

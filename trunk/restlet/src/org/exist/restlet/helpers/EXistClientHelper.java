@@ -45,6 +45,7 @@ import org.exist.dom.DocumentSet;
 import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
+import org.exist.security.User;
 import org.exist.security.xacml.AccessContext;
 import org.exist.source.DBSource;
 import org.exist.source.Source;
@@ -164,10 +165,11 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
-         DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+         User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+         DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+         DocumentImpl resource = null;
          try {
             String path = request.getResourceRef().getPath();
-            DocumentImpl resource = null;
             boolean isCollection = false;
             if (path.length()>0 && path.charAt(path.length()-1)=='/') {
                path = path.substring(0,path.length()-1);
@@ -198,7 +200,6 @@ public class EXistClientHelper  extends ClientHelper {
                      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                   }
                } else {
-                  resource.getUpdateLock().release(Lock.READ_LOCK);
                   MediaType type = MediaType.valueOf(resource.getMetadata().getMimeType());
                   Representation rep = new StringRepresentation("",type);
                   rep.setModificationDate(new Date(resource.getMetadata().getLastModified()));
@@ -208,9 +209,12 @@ public class EXistClientHelper  extends ClientHelper {
                   response.setStatus(Status.SUCCESS_OK);
                }
             } catch(PermissionDeniedException ex) {
-               response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
             }
          } finally {
+            if (resource!=null) {
+               resource.getUpdateLock().release(Lock.READ_LOCK);
+            }
             pool.release(broker);
          }
       } catch (EXistException ex) {
@@ -241,7 +245,8 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
-         final DBBroker broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+         User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+         final DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          boolean release = true;
          try {
             Form headers = (Form)request.getAttributes().get("org.restlet.http.headers");
@@ -260,6 +265,9 @@ public class EXistClientHelper  extends ClientHelper {
                   // Must be a collection
                   final Collection collection = broker.getCollection(pathUri);
                   if (collection != null) {
+                     if (!collection.getPermissions().validate(broker.getUser(), Permission.READ)) {
+                        throw new PermissionDeniedException("Not allowed to read collection");
+                     }
                      if (xqueryPath==null) {
                         
                         response.setEntity(new OutputRepresentation(MediaType.APPLICATION_XML) {
@@ -316,12 +324,28 @@ public class EXistClientHelper  extends ClientHelper {
                      release = false;
                      final BrokerPool currentPool = pool;
                      response.setEntity(new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
+                        boolean released = false;
                         public void write(OutputStream os)
                            throws IOException
                         {
                            try {
                               currentBroker.readBinaryResource((BinaryDocument)currentResource,os);
                            } finally {
+                              released = true;
+                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                              currentPool.release(currentBroker);
+                           }
+                        }
+                        public void release() {
+                           if (!released) {
+                              released = true;
+                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                              currentPool.release(currentBroker);
+                           }
+                        }
+                        public void finalize() {
+                           if (!released) {
+                              released = true;
                               currentResource.getUpdateLock().release(Lock.READ_LOCK);
                               currentPool.release(currentBroker);
                            }
@@ -335,6 +359,7 @@ public class EXistClientHelper  extends ClientHelper {
                         release = false;
                         final BrokerPool currentPool = pool;
                         Representation rep = new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
+                           boolean released = false;
                            public void write(OutputStream os)
                               throws IOException
                            {
@@ -352,6 +377,21 @@ public class EXistClientHelper  extends ClientHelper {
                                     throw new IOException(ex.getMessage());
                                  }
                               } finally {
+                                 released = true;
+                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                                 currentPool.release(currentBroker);
+                              }
+                           }
+                           public void release() {
+                              if (!released) {
+                                 released = true;
+                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                                 currentPool.release(currentBroker);
+                              }
+                           }
+                           public void finalize() {
+                              if (!released) {
+                                 released = true;
                                  currentResource.getUpdateLock().release(Lock.READ_LOCK);
                                  currentPool.release(currentBroker);
                               }
@@ -387,7 +427,10 @@ public class EXistClientHelper  extends ClientHelper {
                   }
                }
             } catch(PermissionDeniedException ex) {
-               response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
+               if (resource!=null) {
+                  resource.getUpdateLock().release(Lock.READ_LOCK);
+               }
             }
          } finally {
             if (release) {
@@ -427,7 +470,8 @@ public class EXistClientHelper  extends ClientHelper {
             return;
          }
          try {
-            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+            User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -448,7 +492,7 @@ public class EXistClientHelper  extends ClientHelper {
                return;
             }
          } catch (PermissionDeniedException ex) {
-            response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED,"Unauthorized access: "+ex.getMessage());
+            response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Unauthorized to access: "+ex.getMessage());
          } finally {
             if (resource != null) {
                resource.getUpdateLock().release(Lock.READ_LOCK);
@@ -581,7 +625,7 @@ public class EXistClientHelper  extends ClientHelper {
                        if (xupdateDoc != null) {
                            if (!xupdateDoc.getPermissions().validate(
                                    broker.getUser(), Permission.READ)) {
-                              response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED,"Not allowed to read collection.");
+                              response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Not allowed to read collection.");
                               return;
                            }
                            docs.add(xupdateDoc);
@@ -589,7 +633,7 @@ public class EXistClientHelper  extends ClientHelper {
                           broker.getAllXMLResources(docs);
                        }
                     } catch (PermissionDeniedException ex) {
-                       response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED,"Permission denied to document "+pathUri+": "+ex.getMessage());
+                       response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Permission denied to document "+pathUri+": "+ex.getMessage());
                        return;
                     }
                  }
@@ -642,7 +686,7 @@ public class EXistClientHelper  extends ClientHelper {
                     return;
                  } catch (PermissionDeniedException ex) {
                     transact.abort(transaction);
-                    response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED,"Permission denied for update to "+pathUri+": "+ex.getMessage());
+                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Permission denied for update to "+pathUri+": "+ex.getMessage());
                     return;
                  }
             } else {
@@ -661,6 +705,10 @@ public class EXistClientHelper  extends ClientHelper {
             Collection collection = broker.getCollection(pathUri);
             if (collection==null) {
                response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+               return;
+            }
+            if (!collection.getPermissions().validate(broker.getUser(), Permission.READ)) {
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Unauthorized to read collection.");
                return;
             }
          }
@@ -712,7 +760,8 @@ public class EXistClientHelper  extends ClientHelper {
             return;
          }
          try {
-            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+            User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -745,7 +794,7 @@ public class EXistClientHelper  extends ClientHelper {
                broker.saveCollection(transaction, collection);
             } catch (PermissionDeniedException ex) {
                transact.abort(transaction);
-               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,"Unauthorized to read colleciton "+collectionUri);
                return;
             } catch (Exception ex) {
                transact.abort(transaction);
@@ -757,6 +806,10 @@ public class EXistClientHelper  extends ClientHelper {
          
          // Check for XML media type
          MediaType type = rep.getMediaType();
+         if (type==null) {
+            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Media type is missing on content body.");
+            return;
+         }
          /*
          getContext().getLogger().info(type.toString());
          getContext().getLogger().info(type.getName());
@@ -813,15 +866,15 @@ public class EXistClientHelper  extends ClientHelper {
                }           
             } catch (PermissionDeniedException ex) {
                transact.abort(transaction);
-               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                return;
             } catch (LockException ex) {
                transact.abort(transaction);
-               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                return;
             } catch (TriggerException ex) {
                transact.abort(transaction);
-               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                return;
             }
             try {
@@ -847,7 +900,7 @@ public class EXistClientHelper  extends ClientHelper {
                return;
             } catch (PermissionDeniedException ex) {
                transact.abort(transaction);
-               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                return;
             } catch (SAXException ex) {
                transact.abort(transaction);
@@ -855,7 +908,7 @@ public class EXistClientHelper  extends ClientHelper {
                return;
             } catch (Exception ex) {
                transact.abort(transaction);
-               getContext().getLogger().log(Level.SEVERE,"Failed to store xml into eXist: "+ex.getMessage(),ex);
+               getContext().getLogger().log(Level.SEVERE,"Failed to store xml into eXist at "+path+" : "+ex.getMessage(),ex);
                response.setStatus(Status.SERVER_ERROR_INTERNAL);
                return;
             }
@@ -901,11 +954,11 @@ public class EXistClientHelper  extends ClientHelper {
                   return;
                } catch (PermissionDeniedException ex) {
                   transact.abort(transaction);
-                  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                   return;
                } catch (Exception ex) {
                   transact.abort(transaction);
-                  getContext().getLogger().log(Level.SEVERE,"Failed to store binary into eXist: "+ex.getMessage(),ex);
+                  getContext().getLogger().log(Level.SEVERE,"Failed to store binary into eXist at" +path+" : "+ex.getMessage(),ex);
                   response.setStatus(Status.SERVER_ERROR_INTERNAL);
                   return;
                }
@@ -924,11 +977,11 @@ public class EXistClientHelper  extends ClientHelper {
                   return;
                } catch (PermissionDeniedException ex) {
                   transact.abort(transaction);
-                  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
                   return;
                } catch (Exception ex) {
                   transact.abort(transaction);
-                  getContext().getLogger().log(Level.SEVERE,"Failed to store binary into eXist: "+ex.getMessage(),ex);
+                  getContext().getLogger().log(Level.SEVERE,"Failed to store binary into eXist at "+path+" : "+ex.getMessage(),ex);
                   response.setStatus(Status.SERVER_ERROR_INTERNAL);
                   return;
                }
@@ -964,7 +1017,8 @@ public class EXistClientHelper  extends ClientHelper {
             return;
          }
          try {
-            broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+            User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -997,7 +1051,7 @@ public class EXistClientHelper  extends ClientHelper {
             transact.commit(txn);
          } catch (PermissionDeniedException ex) {
             transact.abort(txn);
-            response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+            response.setStatus(Status.CLIENT_ERROR_FORBIDDEN,ex.getMessage());
          } catch (TriggerException ex) {
             transact.abort(txn);
             getContext().getLogger().log(Level.SEVERE,"Trigger failed: "+ex.getMessage(),ex);

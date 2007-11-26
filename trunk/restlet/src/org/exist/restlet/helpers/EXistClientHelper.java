@@ -200,9 +200,23 @@ public class EXistClientHelper  extends ClientHelper {
                      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                   }
                } else {
-                  MediaType type = MediaType.valueOf(resource.getMetadata().getMimeType());
+                  String mediaTypeS = resource.getMetadata().getMimeType();
+                  int semicolon = mediaTypeS.indexOf(';');
+                  String charset = null;
+                  if (semicolon>0) {
+                     String rest = mediaTypeS.substring(semicolon);
+                     rest = rest.trim();
+                     if (rest.startsWith("charset=")) {
+                        charset = rest.substring(8);
+                     }
+                     mediaTypeS = mediaTypeS.substring(0,semicolon);
+                  }
+                  MediaType type = MediaType.valueOf(mediaTypeS);
                   Representation rep = new StringRepresentation("",type);
                   rep.setModificationDate(new Date(resource.getMetadata().getLastModified()));
+                  if (charset!=null) {
+                     rep.setCharacterSet(CharacterSet.valueOf(charset));
+                  }
                   long tstamp = resource.getMetadata().getLastModified();
                   rep.setTag(new Tag(Long.toString(tstamp),false));
                   response.setEntity(rep);
@@ -298,8 +312,10 @@ public class EXistClientHelper  extends ClientHelper {
                            xqueryPath = tmp.getPath();
                         }
                         DocumentImpl xqueryResource = (DocumentImpl) broker.getXMLResource(XmldbURI.create(xqueryPath), Lock.READ_LOCK);
+                        String xqueryType = xqueryResource!=null ? xqueryResource.getMetadata().getMimeType() : null;
                         if (xqueryResource != null && xqueryResource.getResourceType() == DocumentImpl.BINARY_FILE &&
-                            "application/xquery".equals(xqueryResource.getMetadata().getMimeType())) {
+                            xqueryType!=null &&
+                            xqueryType.startsWith("application/xquery")) {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
@@ -309,7 +325,8 @@ public class EXistClientHelper  extends ClientHelper {
                            }
                            return;
                         } else {
-                           response.setEntity(new StringRepresentation("Cannot find xquery "+xqueryPath+" or XQuery has wrong mime type."));
+                           response.setEntity(new StringRepresentation(xqueryResource==null ? "Cannot find xquery "+xqueryPath : "XQuery "+xqueryPath+" has wrong mime type "+xqueryType));
+                           response.setEntity(new StringRepresentation("Cannot find xquery "+xqueryPath+" or XQuery has wrong mime type ("+xqueryResource.getMetadata().getMimeType()+")"));
                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                         
@@ -408,8 +425,10 @@ public class EXistClientHelper  extends ClientHelper {
                            xqueryPath = tmp.getPath();
                         }
                         DocumentImpl xqueryResource = (DocumentImpl) broker.getXMLResource(XmldbURI.create(xqueryPath), Lock.READ_LOCK);
+                        String xqueryType = xqueryResource!=null ? xqueryResource.getMetadata().getMimeType() : null;
                         if (xqueryResource != null && xqueryResource.getResourceType() == DocumentImpl.BINARY_FILE &&
-                            "application/xquery".equals(xqueryResource.getMetadata().getMimeType())) {
+                            xqueryType!=null &&
+                            xqueryType.startsWith("application/xquery")) {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
@@ -419,7 +438,7 @@ public class EXistClientHelper  extends ClientHelper {
                            }
                            return;
                         } else {
-                           response.setEntity(new StringRepresentation("Cannot find xquery "+xqueryPath+" or XQuery has wrong mime type."));
+                           response.setEntity(new StringRepresentation(xqueryResource==null ? "Cannot find xquery "+xqueryPath : "XQuery "+xqueryPath+" has wrong mime type "+xqueryType));
                            response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                         }
                         
@@ -482,7 +501,8 @@ public class EXistClientHelper  extends ClientHelper {
             // if yes, the resource is loaded and the XQuery executed.
             resource = (DocumentImpl) broker.getXMLResource(pathUri, Lock.READ_LOCK);
             if (resource != null && resource.getResourceType() == DocumentImpl.BINARY_FILE &&
-                "application/xquery".equals(resource.getMetadata().getMimeType())) {
+                resource.getMetadata().getMimeType()!=null &&
+                resource.getMetadata().getMimeType().startsWith("application/xquery")) {
                // found an XQuery resource
                try {
                   executeXQuery(broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
@@ -507,7 +527,7 @@ public class EXistClientHelper  extends ClientHelper {
          String mime = "text/xml";
          String query = null;
          String incomingMediaType = request.getEntity().getMediaType().getName();
-         if (incomingMediaType.equals("application/xquery")) {
+         if (incomingMediaType.startsWith("application/xquery")) {
             try {
                query = request.getEntity().getText();
             } catch (IOException ex) {

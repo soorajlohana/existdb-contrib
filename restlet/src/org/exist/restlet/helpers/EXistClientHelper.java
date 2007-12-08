@@ -346,15 +346,22 @@ public class EXistClientHelper  extends ClientHelper {
                            throws IOException
                         {
                            try {
+                              if (getLogger().isLoggable(Level.FINE)) {
+                                 getLogger().fine("Reading binary resource "+currentResource.getBaseURI());
+                              }
                               currentBroker.readBinaryResource((BinaryDocument)currentResource,os);
+                              if (getLogger().isLoggable(Level.FINE)) {
+                                 getLogger().fine("Finsihed reading binary resource "+currentResource.getBaseURI());
+                              }
                            } finally {
-                              released = true;
-                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              currentPool.release(currentBroker);
+                              release();
                            }
                         }
                         public void release() {
                            if (!released) {
+                              if (getLogger().isLoggable(Level.FINE)) {
+                                 getLogger().fine("Releasing resource "+currentResource.getBaseURI());
+                              }
                               released = true;
                               currentResource.getUpdateLock().release(Lock.READ_LOCK);
                               currentPool.release(currentBroker);
@@ -362,9 +369,7 @@ public class EXistClientHelper  extends ClientHelper {
                         }
                         public void finalize() {
                            if (!released) {
-                              released = true;
-                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              currentPool.release(currentBroker);
+                              release();
                            }
                         }
                      });

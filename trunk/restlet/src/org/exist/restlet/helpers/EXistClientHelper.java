@@ -52,6 +52,7 @@ import org.exist.source.Source;
 import org.exist.source.StringSource;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
+import org.exist.storage.NativeBroker;
 import org.exist.storage.XQueryPool;
 import org.exist.storage.lock.Lock;
 import org.exist.storage.serializers.EXistOutputKeys;

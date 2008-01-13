@@ -96,6 +96,10 @@
         <appender-ref ref="exist.validation"/>
     </category>
     
+    <category name="org.exist.storage.lock" additivity="false">
+        <priority value="debug"/>
+        <appender-ref ref="exist.core"/>
+    </category>
     
 
     

@@ -1,5 +1,5 @@
 /*
- * Parser.java
+ * OldTestOfParser.java
  *
  * Created on July 9, 2007, 9:05 PM
  *
@@ -28,7 +28,7 @@ import org.xml.sax.XMLReader;
  *
  * @author wessels
  */
-public class Parser {
+public class OldTestOfParser {
     
     public final static String SAX_LEXICAL_HANDLER = "http://xml.org/sax/properties/lexical-handler";
     public final static String SAX_NAMESPACES = "http://xml.org/sax/features/namespaces";
@@ -44,8 +44,8 @@ public class Parser {
     public XMLGrammarPool grammarPool;
     public XMLCatalogResolver resolver;
     
-    /** Creates a new instance of Parser */
-    public Parser() {
+    /** Creates a new instance of OldTestOfParser */
+    public OldTestOfParser() {
         grammarPool=new XMLGrammarPoolImpl();
         try {
             resolver=new XMLCatalogResolver( new String[]{new File("grammar/catalog.xml").toURL().toString()});
@@ -118,7 +118,7 @@ public class Parser {
      */
     public static void main(String[] args) {
 
-        Parser p = new Parser();
+        OldTestOfParser p = new OldTestOfParser();
         
         System.out.println("#######1");
         XMLReader reader = p.getReader();

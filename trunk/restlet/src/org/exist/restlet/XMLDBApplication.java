@@ -9,6 +9,7 @@
 
 package org.exist.restlet;
 
+import org.exist.restlet.admin.XMLDBAdminApplication;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 import org.restlet.Application;
@@ -16,6 +17,7 @@ import org.restlet.Context;
 import org.restlet.Finder;
 import org.restlet.Guard;
 import org.restlet.Restlet;
+import org.restlet.Router;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -38,7 +40,7 @@ public class XMLDBApplication extends Application {
    }
    
    @Override
-   public Restlet createRoot() {  
+   public Restlet createRoot() {
       Guard userGuard = new Guard(getContext(),ChallengeScheme.HTTP_BASIC,"eXist Users") {
          public boolean checkSecret(String identity,char [] secret)
          {
@@ -61,7 +63,10 @@ public class XMLDBApplication extends Application {
       };
       
       Finder next = new XMLDBFinder(this,dbname);
-      userGuard.setNext(next);
+      Router router = new Router(getContext());
+      userGuard.setNext(router);
+      router.attachDefault(next);
+      router.attach("/_/admin/",new XMLDBAdminApplication(getContext(),dbname,manager));
       return userGuard;
    }
    

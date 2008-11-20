@@ -9,7 +9,6 @@
 
 package org.exist.restlet.helpers;
 
-import java.net.URI;
 
 import org.restlet.Client;
 import org.restlet.data.Protocol;
@@ -40,8 +39,9 @@ import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.BinaryDocument;
+import org.exist.dom.DefaultDocumentSet;
 import org.exist.dom.DocumentImpl;
-import org.exist.dom.DocumentSet;
+import org.exist.dom.MutableDocumentSet;
 import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
@@ -52,7 +52,6 @@ import org.exist.source.Source;
 import org.exist.source.StringSource;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
-import org.exist.storage.NativeBroker;
 import org.exist.storage.XQueryPool;
 import org.exist.storage.lock.Lock;
 import org.exist.storage.serializers.EXistOutputKeys;
@@ -641,7 +640,7 @@ public class EXistClientHelper  extends ClientHelper {
                 }
              }
            } else if (rootNS != null && rootNS.equals(XUPDATE_NS)) {
-                 DocumentSet docs = new DocumentSet();
+                 MutableDocumentSet docs = new DefaultDocumentSet();
                  Collection collection = broker.getCollection(pathUri);
                  if (collection != null) {
                     collection.allDocs(broker, docs, true, true);

@@ -30,10 +30,12 @@ public class XMLDBResource extends Resource {
    
    static Protocol EXIST = Protocol.valueOf("exist");
    Reference reference;
+   Client client;
    /** Creates a new instance of AtomResource */
-   public XMLDBResource(Application app,Request request,Response response,Reference ref) {
+   public XMLDBResource(Application app,Client client,Request request,Response response,Reference ref) {
       super(app.getContext(),request,response);
       this.reference = ref;
+      this.client = client;
    }
    
    public Representation getRepresentation(Variant v) {
@@ -47,7 +49,6 @@ public class XMLDBResource extends Resource {
    public boolean allowDelete() { return true; }
    
    public void handleGet() {
-      Client client = new Client(EXIST);
       Response response = client.handle(new WrapperRequest(getRequest()) {
          public Reference getResourceRef() {
             return reference;
@@ -59,7 +60,6 @@ public class XMLDBResource extends Resource {
    }
    
    public void handlePost() {
-      Client client = new Client(EXIST);
       Response response = client.handle(new WrapperRequest(getRequest()) {
          public Reference getResourceRef() {
             return reference;
@@ -71,7 +71,6 @@ public class XMLDBResource extends Resource {
    }
    
    public void handleDelete() {
-      Client client = new Client(EXIST);
       Response response = client.handle(new WrapperRequest(getRequest()) {
          public Reference getResourceRef() {
             return reference;
@@ -83,7 +82,6 @@ public class XMLDBResource extends Resource {
    }
    
    public void handlePut() {
-      Client client = new Client(EXIST);
       Response response = client.handle(new WrapperRequest(getRequest()) {
          public Reference getResourceRef() {
             return reference;
@@ -95,7 +93,6 @@ public class XMLDBResource extends Resource {
    }
    
    public void handleHead() {
-      Client client = new Client(EXIST);
       Response response = client.handle(new WrapperRequest(getRequest()) {
          public Reference getResourceRef() {
             return reference;

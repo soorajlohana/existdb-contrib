@@ -40,7 +40,6 @@ public class XMLDBAdminApplication extends Application {
          {
             User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
             if (user!=null && user.hasDbaRole()) {
-               getLogger().info("OK!!!");
                return Guard.AUTHENTICATION_VALID;
             } else {
                getLogger().info("User "+user.getName()+" is not a database administrator.");

@@ -28,7 +28,7 @@ import org.restlet.util.WrapperRequest;
  */
 public class XMLDBResource extends Resource {
    
-   static Protocol EXIST = Protocol.valueOf("exist");
+   public static Protocol EXIST = Protocol.valueOf("exist");
    Reference reference;
    Client client;
    /** Creates a new instance of AtomResource */

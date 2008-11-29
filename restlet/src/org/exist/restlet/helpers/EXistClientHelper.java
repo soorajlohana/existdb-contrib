@@ -165,6 +165,7 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
+         //getLogger().info("active="+pool.active()+", available="+pool.available());
          User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
          DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          DocumentImpl resource = null;
@@ -259,9 +260,9 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
-         User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
+         //getLogger().info("active="+pool.active()+", available="+pool.available());
+         final User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
          final DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
-         boolean release = true;
          try {
             Form headers = (Form)request.getAttributes().get("org.restlet.http.headers");
             String xqueryPath = headers==null ? null : headers.getValues("xquery-path");
@@ -270,7 +271,7 @@ public class EXistClientHelper  extends ClientHelper {
                getContext().getLogger().fine("Get on: "+path);
             }
             DocumentImpl resource = null;
-            XmldbURI pathUri = XmldbURI.create(path);
+            final XmldbURI pathUri = XmldbURI.create(path);
             try {
                resource = broker.getXMLResource(pathUri, Lock.READ_LOCK);
 
@@ -319,7 +320,7 @@ public class EXistClientHelper  extends ClientHelper {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
-                              executeXQuery(broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { collection.getURI() },-1,1,request, response, outputProperties);
+                              executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { collection.getURI() },-1,1,request, response, outputProperties);
                            } catch (XPathException ex) {
                               response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                            }
@@ -335,58 +336,52 @@ public class EXistClientHelper  extends ClientHelper {
                      response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                   }
                } else {
-                  final DBBroker currentBroker = broker;
-                  final DocumentImpl currentResource = resource;
+                  final BrokerPool currentPool = pool;
                   if (resource.getResourceType() == DocumentImpl.BINARY_FILE) {
-                     release = false;
-                     final BrokerPool currentPool = pool;
                      response.setEntity(new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
-                        boolean released = false;
                         public void write(OutputStream os)
                            throws IOException
                         {
+                           DBBroker broker = null;
+                           DocumentImpl currentResource = null;
                            try {
+                              broker = currentPool.get(user);
+                              currentResource = broker.getXMLResource(pathUri, Lock.READ_LOCK);
                               if (getLogger().isLoggable(Level.FINE)) {
                                  getLogger().fine("Reading binary resource "+currentResource.getBaseURI());
                               }
-                              currentBroker.readBinaryResource((BinaryDocument)currentResource,os);
+                              broker.readBinaryResource((BinaryDocument)currentResource,os);
                               if (getLogger().isLoggable(Level.FINE)) {
                                  getLogger().fine("Finsihed reading binary resource "+currentResource.getBaseURI());
                               }
+                           } catch (Exception ex) {
+                              getLogger().log(Level.SEVERE,"Cannot get document for serialization.",ex);
                            } finally {
-                              release();
-                           }
-                        }
-                        public void release() {
-                           if (!released) {
-                              if (getLogger().isLoggable(Level.FINE)) {
-                                 getLogger().fine("Releasing resource "+currentResource.getBaseURI());
+                              if (currentResource!=null) {
+                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
                               }
-                              released = true;
-                              currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                              currentPool.release(currentBroker);
-                           }
-                        }
-                        public void finalize() {
-                           if (!released) {
-                              release();
+                              if (broker!=null) {
+                                 currentPool.release(broker);
+                              }
                            }
                         }
                      });
-                     long tstamp = currentResource.getMetadata().getLastModified();
+                     long tstamp = resource.getMetadata().getLastModified();
                      response.getEntity().setTag(new Tag(Long.toString(tstamp),false));
                      response.setStatus(Status.SUCCESS_OK);
                   } else {
                      if (xqueryPath==null) {
-                        release = false;
-                        final BrokerPool currentPool = pool;
+                        resource.getUpdateLock().release(Lock.READ_LOCK);
                         Representation rep = new OutputRepresentation(MediaType.valueOf(resource.getMetadata().getMimeType())) {
-                           boolean released = false;
                            public void write(OutputStream os)
                               throws IOException
                            {
+                              DBBroker broker = null;
+                              DocumentImpl currentResource = null;
                               try {
-                                 Serializer serializer = currentBroker.getSerializer();
+                                 broker = currentPool.get(user);
+                                 currentResource = broker.getXMLResource(pathUri, Lock.READ_LOCK);
+                                 Serializer serializer = broker.getSerializer();
                                  serializer.reset();
 
                                  try {
@@ -398,24 +393,15 @@ public class EXistClientHelper  extends ClientHelper {
                                  } catch (SAXException ex) {
                                     throw new IOException(ex.getMessage());
                                  }
+                              } catch (Exception ex) {
+                                 getLogger().log(Level.SEVERE,"Cannot get document for serialization.",ex);
                               } finally {
-                                 released = true;
-                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                                 currentPool.release(currentBroker);
-                              }
-                           }
-                           public void release() {
-                              if (!released) {
-                                 released = true;
-                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                                 currentPool.release(currentBroker);
-                              }
-                           }
-                           public void finalize() {
-                              if (!released) {
-                                 released = true;
-                                 currentResource.getUpdateLock().release(Lock.READ_LOCK);
-                                 currentPool.release(currentBroker);
+                                 if (currentResource!=null) {
+                                    currentResource.getUpdateLock().release(Lock.READ_LOCK);
+                                 }
+                                 if (broker!=null) {
+                                    currentPool.release(broker);
+                                 }
                               }
                            }
                         };
@@ -437,7 +423,7 @@ public class EXistClientHelper  extends ClientHelper {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
-                              executeXQuery(broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { resource.getURI() },-1,1,request, response, outputProperties);
+                              executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { resource.getURI() },-1,1,request, response, outputProperties);
                            } catch (XPathException ex) {
                               response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                            }
@@ -457,9 +443,7 @@ public class EXistClientHelper  extends ClientHelper {
                }
             }
          } finally {
-            if (release) {
-               pool.release(broker);
-            }
+            pool.release(broker);
          }
       } catch (EXistException ex) {
          getContext().getLogger().log(Level.SEVERE,"XMLDB request failed: "+ex.getMessage(),ex);
@@ -488,6 +472,7 @@ public class EXistClientHelper  extends ClientHelper {
                response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
                return;
             }
+            //getLogger().info("active="+pool.active()+", available="+pool.available());
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -510,7 +495,7 @@ public class EXistClientHelper  extends ClientHelper {
                 resource.getMetadata().getMimeType().startsWith("application/xquery")) {
                // found an XQuery resource
                try {
-                  executeXQuery(broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
+                  executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
                } catch (XPathException ex) {
                   response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                }
@@ -538,6 +523,8 @@ public class EXistClientHelper  extends ClientHelper {
             } catch (IOException ex) {
                response.setStatus(Status.SERVER_ERROR_INTERNAL,"I/O error processing request: "+ex.getMessage());
                return;
+            } finally {
+               request.getEntity().release();
             }
          } else if (incomingMediaType.equals("text/xml") ||
                     incomingMediaType.equals("application/xml") ||
@@ -550,6 +537,8 @@ public class EXistClientHelper  extends ClientHelper {
             } catch (IOException ex) {
                response.setStatus(Status.SERVER_ERROR_INTERNAL,"I/O error processing request: "+ex.getMessage());
                return;
+            } finally {
+               request.getEntity().release();
             }
 
             InputSource src = new InputSource(new StringReader(content));
@@ -742,7 +731,7 @@ public class EXistClientHelper  extends ClientHelper {
          try {
              // execute query
              try {
-                executeXQuery(broker, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,request, response, outputProperties);
+                executeXQuery(pool,broker, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,request, response, outputProperties);
              } catch (XPathException ex) {
                 response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
              }
@@ -757,7 +746,7 @@ public class EXistClientHelper  extends ClientHelper {
          }
       }
    }
-   
+
    public void put(Request request, Response response)
    {
       Representation rep = request.getEntity();
@@ -779,6 +768,7 @@ public class EXistClientHelper  extends ClientHelper {
                response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
                return;
             }
+            //getLogger().info("active="+pool.active()+", available="+pool.available());
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -1101,7 +1091,7 @@ public class EXistClientHelper  extends ClientHelper {
       }
    }
    
-    private void executeXQuery(DBBroker broker,Source source,XmldbURI [] knownDocuments,int howmany,int start,Request request, Response response,Properties outputProperties) 
+    private boolean executeXQuery(BrokerPool brokerPool,DBBroker broker,Source source,XmldbURI [] knownDocuments,int howmany,int start,Request request, Response response,Properties outputProperties)
        throws XPathException 
     {
         XQuery xquery = broker.getXQueryService();
@@ -1128,16 +1118,17 @@ public class EXistClientHelper  extends ClientHelper {
            } catch (IOException ex) {
               getContext().getLogger().log(Level.SEVERE,"Failed to compile xquery: "+ex.getMessage(),ex);
               response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE,"Failed to compile xquery: "+ex.getMessage());
-              return;
+              return false;
             }
         }
         checkPragmas(context, outputProperties);
         try {
             Sequence result = xquery.execute(compiled, null);
-            makeResultRepresentation(broker, result, howmany, start, 0, outputProperties, false,response);
+            makeResultRepresentation(brokerPool,broker, result, howmany, start, 0, outputProperties, false,response);
         } finally {
             pool.returnCompiledXQuery(source, compiled);
         }
+        return true;
     }
        
     protected void checkPragmas(XQueryContext context, Properties properties)
@@ -1157,7 +1148,7 @@ public class EXistClientHelper  extends ClientHelper {
             properties.setProperty(pair[0], pair[1]);
         }
     }
-   protected void makeResultRepresentation(DBBroker broker, final Sequence results,
+   protected void makeResultRepresentation(final BrokerPool brokerPool,final DBBroker broker, final Sequence results,
             int howmany, final int start, long queryTime,
             final Properties outputProperties, final boolean wrap,Response response) {        
       if (!results.isEmpty()) {
@@ -1177,6 +1168,7 @@ public class EXistClientHelper  extends ClientHelper {
       final Serializer serializer = broker.getSerializer();
       serializer.reset();
       final int currentHowmany = howmany;
+      //getLogger().info("active="+brokerPool.active()+", available="+brokerPool.available());
       OutputRepresentation rep = new OutputRepresentation(MediaType.APPLICATION_XML) {
          public void write(OutputStream os)
             throws IOException

@@ -260,6 +260,7 @@ public class EXistClientHelper  extends ClientHelper {
             response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
             return;
          }
+         //getLogger().info("Get on: "+request.getResourceRef());
          //getLogger().info("active="+pool.active()+", available="+pool.available());
          final User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
          final DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
@@ -733,12 +734,14 @@ public class EXistClientHelper  extends ClientHelper {
              try {
                 executeXQuery(pool,broker, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,request, response, outputProperties);
              } catch (XPathException ex) {
-                response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
+                getLogger().log(Level.WARNING,"Exception while processing query.",ex);
+                response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Exception while processing query: "+ex.getMessage());
              }
              transact.commit(transaction);
          } catch (EXistException e) {
             transact.abort(transaction);
             response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,e.getMessage());
+            getLogger().log(Level.WARNING,"Exception while processing query.",e);
          }
       } finally {
          if (broker!=null) {

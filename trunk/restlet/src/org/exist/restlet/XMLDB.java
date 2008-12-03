@@ -10,13 +10,11 @@
 package org.exist.restlet;
 
 import java.io.File;
-import org.exist.EXistException;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.util.Configuration;
-import org.exist.util.DatabaseConfigurationException;
-import org.exist.xmldb.DatabaseInstanceManager;
 import org.exist.xmldb.ShutdownListener;
+import org.exist.xmldb.XmldbURI;
 
 /**
  *
@@ -72,6 +70,20 @@ public class XMLDB
       pool = BrokerPool.getInstance(name);
       pool.registerShutdownListener(new ShutdownListenerImpl());
 
+   }
+
+   public void reindex(String path)
+      throws Exception
+   {
+      DBBroker broker = null;
+      try {
+         broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+         broker.reindexCollection(XmldbURI.create(path));
+      } finally {
+         if (broker!=null) {
+            pool.release(broker);
+         }
+      }
    }
    
    public void stop() 

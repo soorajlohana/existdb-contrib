@@ -9,8 +9,8 @@
 
 package org.exist.restlet;
 
-import org.restlet.Application;
 import org.restlet.Client;
+import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
@@ -32,8 +32,8 @@ public class XMLDBResource extends Resource {
    Reference reference;
    Client client;
    /** Creates a new instance of AtomResource */
-   public XMLDBResource(Application app,Client client,Request request,Response response,Reference ref) {
-      super(app.getContext(),request,response);
+   public XMLDBResource(Context context,Client client,Request request,Response response,Reference ref) {
+      super(context,request,response);
       this.reference = ref;
       this.client = client;
    }

@@ -62,7 +62,7 @@ public class XMLDBApplication extends Application {
          }
       };
       
-      Finder next = new XMLDBFinder(this,dbname);
+      Finder next = new XMLDBFinder(getContext(),dbname);
       Router router = new Router(getContext());
       userGuard.setNext(router);
       router.attachDefault(next);

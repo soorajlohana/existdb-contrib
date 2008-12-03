@@ -11,6 +11,7 @@ package org.exist.restlet;
 
 import org.restlet.Application;
 import org.restlet.Client;
+import org.restlet.Context;
 import org.restlet.Finder;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
@@ -25,19 +26,26 @@ public class XMLDBFinder extends Finder {
 
    Application app;
    String dbname;
+   String collectionPath;
    Client client;
    
    /** Creates a new instance of ProtocolByIdFinder */
-   public XMLDBFinder(Application app,String dbname) {
-      super(app.getContext());
-      this.app = app;
+   public XMLDBFinder(Context context,String dbname) {
+      this(context,dbname,"");
+   }
+   public XMLDBFinder(Context context,String dbname,String collectionPath) {
+      super(context);
       this.dbname = dbname;
       this.client = new Client(XMLDBResource.EXIST);
-      this.client.setContext(app.getContext());
+      this.client.setContext(getContext());
+      this.collectionPath = collectionPath;
+      if (this.collectionPath==null) {
+         this.collectionPath = "";
+      }
    }
    
    public Resource findTarget(Request request, Response response) {
-      return new XMLDBResource(app,client,request,response,new Reference("exist://"+dbname+request.getResourceRef().getRemainingPart()));
+      return new XMLDBResource(getContext(),client,request,response,new Reference("exist://"+dbname+collectionPath+request.getResourceRef().getRemainingPart()));
    }
    
 }

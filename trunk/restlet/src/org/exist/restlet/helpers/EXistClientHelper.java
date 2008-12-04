@@ -262,8 +262,9 @@ public class EXistClientHelper  extends ClientHelper {
          }
          //getLogger().info("Get on: "+request.getResourceRef());
          //getLogger().info("active="+pool.active()+", available="+pool.available());
-         final User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
-         final DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+         final User user = request.getAttributes().get(XMLDB.USER_ATTR)==null ? pool.getSecurityManager().SYSTEM_USER : (User)request.getAttributes().get(XMLDB.USER_ATTR);
+
+         final DBBroker broker = pool.get(user);
          try {
             Form headers = (Form)request.getAttributes().get("org.restlet.http.headers");
             String xqueryPath = headers==null ? null : headers.getValues("xquery-path");
@@ -321,7 +322,7 @@ public class EXistClientHelper  extends ClientHelper {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
-                              executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { collection.getURI() },-1,1,request, response, outputProperties);
+                              executeXQuery(pool,broker,user, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { collection.getURI() },-1,1,request, response, outputProperties);
                            } catch (XPathException ex) {
                               response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                            }
@@ -424,7 +425,7 @@ public class EXistClientHelper  extends ClientHelper {
                            // found an XQuery resource
                            Properties outputProperties = new Properties(defaultProperties);
                            try {
-                              executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { resource.getURI() },-1,1,request, response, outputProperties);
+                              executeXQuery(pool,broker,user, new DBSource(broker, (BinaryDocument)xqueryResource, true), new XmldbURI[] { resource.getURI() },-1,1,request, response, outputProperties);
                            } catch (XPathException ex) {
                               response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                            }
@@ -461,6 +462,7 @@ public class EXistClientHelper  extends ClientHelper {
       DocumentImpl resource = null;
       DBBroker broker = null;
       BrokerPool pool = null;
+      User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
       try {
          String name = request.getResourceRef().getHostDomain();
          if (name==null || name.length()==0) {
@@ -473,6 +475,9 @@ public class EXistClientHelper  extends ClientHelper {
                response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
                return;
             }
+            if (user==null) {
+               user = pool.getSecurityManager().SYSTEM_USER;
+            }
             //getLogger().info("active="+pool.active()+", available="+pool.available());
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"eXist database "+name+" is not available.",ex);
@@ -480,8 +485,7 @@ public class EXistClientHelper  extends ClientHelper {
             return;
          }
          try {
-            User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
-            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+            broker = pool.get(user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -496,7 +500,7 @@ public class EXistClientHelper  extends ClientHelper {
                 resource.getMetadata().getMimeType().startsWith("application/xquery")) {
                // found an XQuery resource
                try {
-                  executeXQuery(pool,broker, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
+                  executeXQuery(pool,broker,user, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,request, response, outputProperties);
                } catch (XPathException ex) {
                   response.setStatus(Status.SERVER_ERROR_INTERNAL,"Exception while processing query: "+ex.getMessage());
                }
@@ -732,7 +736,7 @@ public class EXistClientHelper  extends ClientHelper {
          try {
              // execute query
              try {
-                executeXQuery(pool,broker, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,request, response, outputProperties);
+                executeXQuery(pool,broker,user, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,request, response, outputProperties);
              } catch (XPathException ex) {
                 getLogger().log(Level.WARNING,"Exception while processing query.",ex);
                 response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Exception while processing query: "+ex.getMessage());
@@ -1094,7 +1098,7 @@ public class EXistClientHelper  extends ClientHelper {
       }
    }
    
-    private boolean executeXQuery(BrokerPool brokerPool,DBBroker broker,Source source,XmldbURI [] knownDocuments,int howmany,int start,Request request, Response response,Properties outputProperties)
+    private boolean executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Request request, Response response,Properties outputProperties)
        throws XPathException 
     {
         XQuery xquery = broker.getXQueryService();
@@ -1127,7 +1131,7 @@ public class EXistClientHelper  extends ClientHelper {
         checkPragmas(context, outputProperties);
         try {
             Sequence result = xquery.execute(compiled, null);
-            makeResultRepresentation(brokerPool,broker, result, howmany, start, 0, outputProperties, false,response);
+            makeResultRepresentation(brokerPool,user, result, howmany, start, 0, outputProperties, false,response);
         } finally {
             pool.returnCompiledXQuery(source, compiled);
         }
@@ -1151,7 +1155,7 @@ public class EXistClientHelper  extends ClientHelper {
             properties.setProperty(pair[0], pair[1]);
         }
     }
-   protected void makeResultRepresentation(final BrokerPool brokerPool,final DBBroker broker, final Sequence results,
+   protected void makeResultRepresentation(final BrokerPool brokerPool,final User user,final Sequence results,
             int howmany, final int start, long queryTime,
             final Properties outputProperties, final boolean wrap,Response response) {        
       if (!results.isEmpty()) {
@@ -1168,16 +1172,17 @@ public class EXistClientHelper  extends ClientHelper {
          howmany = 0;
       }
       outputProperties.setProperty(Serializer.GENERATE_DOC_EVENTS, "false");
-      final Serializer serializer = broker.getSerializer();
-      serializer.reset();
       final int currentHowmany = howmany;
       //getLogger().info("active="+brokerPool.active()+", available="+brokerPool.available());
       OutputRepresentation rep = new OutputRepresentation(MediaType.APPLICATION_XML) {
          public void write(OutputStream os)
             throws IOException
          {
+            DBBroker broker = null;
             try {
-
+               broker = brokerPool.get(user);
+               Serializer serializer = broker.getSerializer();
+               serializer.reset();
                //Serialize the document
                Writer w = new OutputStreamWriter(os,"UTF-8");
 
@@ -1191,6 +1196,12 @@ public class EXistClientHelper  extends ClientHelper {
                //w.close();
             } catch (SAXException ex) {
                throw new IOException("Cannot serialize query result due to: "+ex.getMessage());
+            } catch (EXistException ex) {
+               throw new IOException("Cannot serialize query result due to: "+ex.getMessage());
+            } finally {
+               if (broker!=null) {
+                  brokerPool.release(broker);
+               }
             }
          }
       };

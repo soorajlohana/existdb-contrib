@@ -1205,6 +1205,7 @@ public class EXistClientHelper  extends ClientHelper {
             }
          }
       };
+      rep.setCharacterSet(CharacterSet.UTF_8);
       response.setEntity(rep);
     }
 }

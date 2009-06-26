@@ -39,9 +39,8 @@ import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.BinaryDocument;
-import org.exist.dom.DefaultDocumentSet;
+import org.exist.dom.DocumentSet;
 import org.exist.dom.DocumentImpl;
-import org.exist.dom.MutableDocumentSet;
 import org.exist.restlet.XMLDB;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
@@ -634,7 +633,7 @@ public class EXistClientHelper  extends ClientHelper {
                 }
              }
            } else if (rootNS != null && rootNS.equals(XUPDATE_NS)) {
-                 MutableDocumentSet docs = new DefaultDocumentSet();
+                 DocumentSet docs = new DocumentSet();
                  Collection collection = broker.getCollection(pathUri);
                  if (collection != null) {
                     collection.allDocs(broker, docs, true, true);

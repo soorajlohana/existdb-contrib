@@ -14,11 +14,11 @@ and
 
  * SVN tasks, e.g. to determine revision.
 
-You'll need Java5+ to compile it, the tasks are developed for Apache Ant 1.6.5. The Tasks will be used for Java1.4 too, so additional availability tests of Classes need to be performed.
+You'll need Java5+ to compile it, the tasks are developed for Apache Ant 1.7.1. 
 
-As expected, an Ant build.xml file is provided. The code has been developped with Netbeans 5.5 (nbproject folder is provided too)
+As expected, an Ant build.xml file is provided. The code has been developped with Netbeans 6.5 (nbproject folder is provided as well)
 
-Note; the jUnit jar must be installed as wel, either in your ant install or in your favourite IDE.......
+Note; the jUnit jar must be installed, either in your ant install or in your favourite IDE.......
 
 
 = Example code =

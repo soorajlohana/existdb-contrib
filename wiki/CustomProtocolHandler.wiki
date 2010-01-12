@@ -9,7 +9,7 @@
 
 Classes to deal with xmldb:exist// style URL's. With these classes it is possible to download (get) and upload (put) documents from/to the eXist-db using standard Java classes (java.net.URL).
 
-*As of 20070430 this code has been integrated into the core of eXist-db (not released yet)*
+*As of 20070430 this code has been integrated into the core of eXist-db - 1.2+*
 
 == Introduction ==
 

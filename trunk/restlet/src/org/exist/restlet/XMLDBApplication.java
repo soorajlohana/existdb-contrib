@@ -74,15 +74,27 @@ public class XMLDBApplication extends Application{
       // the default proxy to the database
       router.attachDefault(new Restlet() {
          public void handle(Request request, Response response) {
+            // The reference to the resource
             Reference ref = request.getResourceRef();
+            // The remaining part after the matching prefix
             String path = ref.getRemainingPart();
+
+            // Create a RIAP scheme reference to the database
             Reference dbRef = LocalReference.createRiapReference(LocalReference.RIAP_COMPONENT, "/exist/"+dbName+"/"+path);
             dbRef.setQuery(ref.getQuery());
             dbRef.setFragment(ref.getFragment());
+
+            // Create a database request with the same method
             Request dbRequest = new Request(request.getMethod(),dbRef);
+            // Set the entity both from the request
             dbRequest.setEntity(request.getEntity());
+            // Copy the headers from the request
             dbRequest.getAttributes().put("org.restlet.http.headers",request.getAttributes().get("org.restlet.http.headers"));
+
+            // Interact with eXist
             Response dbResponse = getContext().getClientDispatcher().handle(dbRequest);
+
+            // Copy the results to the response
             response.setEntity(dbResponse.getEntity());
             response.setStatus(dbResponse.getStatus());
             response.getAttributes().put("org.restlet.http.headers",dbResponse.getAttributes().get("org.restlet.http.headers"));

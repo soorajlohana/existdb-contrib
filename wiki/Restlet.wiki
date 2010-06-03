@@ -8,7 +8,7 @@ The handling of services, web interfaces, etc. is all handled via regular Restle
 code.  You can then attach exist services either directly or indirectly using the XMLDBResource
 class that is an instance of [http://www.restlet.org/documentation/2.0/jse/api/index.html?org/restlet/resource/ServerResource.html ServerResource].
 
-Interactions with the eXist database can all be performed with internal requests as if you are client of the database but with optimized local routing via the internals of Restlet.
+Interactions with the eXist database are usually performed with internal requests as if you are client of the database but with optimized local routing via the internals of Restlet.
 
 = 2. API Overview =
 

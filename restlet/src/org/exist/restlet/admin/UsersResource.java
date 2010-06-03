@@ -15,17 +15,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.exist.security.Group;
-import org.restlet.Context;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.resource.Resource;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
+import org.exist.security.UserImpl;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.resource.OutputRepresentation;
-import org.restlet.resource.Representation;
+import org.restlet.representation.OutputRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ServerResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,14 +36,14 @@ import org.xml.sax.SAXException;
  *
  * @author alex
  */
-public class UsersResource extends Resource {
+public class UsersResource extends ServerResource {
 
-   public UsersResource(Context context, Request request, Response response) {
-      super(context, request, response);
+   public UsersResource() {
+      setNegotiated(false);
    }
 
-   public void handleGet() {
-      getResponse().setEntity(new OutputRepresentation(MediaType.APPLICATION_XML) {
+   protected Representation get() {
+      Representation entity = new OutputRepresentation(MediaType.APPLICATION_XML) {
 
          public void write(OutputStream os)
             throws IOException {
@@ -76,20 +75,16 @@ public class UsersResource extends Resource {
             w.flush();
             w.close();
          }
-      });
-      getResponse().getEntity().setCharacterSet(CharacterSet.UTF_8);
+      };
+      entity.setCharacterSet(CharacterSet.UTF_8);
       getResponse().setStatus(Status.SUCCESS_OK);
+      return entity;
    }
 
-   public boolean allowPost() {
-      return true;
-   }
-
-   public void handlePost() {
-      Representation entity = getRequest().getEntity();
+   protected Representation post(Representation entity) {
       if (!entity.getMediaType().equals(MediaType.APPLICATION_XML,true) && !entity.getMediaType().equals(MediaType.TEXT_XML,true)) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Invalid media type.");
-         return;
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Invalid media type: "+entity.getMediaType());
       }
       try {
          DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -100,15 +95,15 @@ public class UsersResource extends Resource {
          
          Element top = doc.getDocumentElement();
          if (!top.getLocalName().equals("user") || top.getNamespaceURI()!=null) {
-            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Unrecognized doument element.");
-            return;
+            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            return new StringRepresentation("Unrecognized doument element.");
          }
          String name = top.getAttribute("name");
          String password = top.getAttribute("password");
 
          SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
 
-         User user = new User(name);
+         User user = new UserImpl(name);
          user.setPassword(password);
 
          NodeList children = top.getChildNodes();
@@ -131,12 +126,16 @@ public class UsersResource extends Resource {
          }
          manager.setUser(user);
          getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+         return null;
       } catch (ParserConfigurationException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Parse error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Parse error: "+ex.getMessage());
       } catch (SAXException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Parse error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Parse error: "+ex.getMessage());
       } catch (IOException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"I/O error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("I/O error: "+ex.getMessage());
       }
    }
 }

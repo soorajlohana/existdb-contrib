@@ -5,16 +5,18 @@
 
 package org.exist.restlet.admin;
 
-import org.exist.restlet.XMLDB;
+import org.exist.restlet.XMLDBResource;
 import org.exist.security.User;
 import org.restlet.Application;
 import org.restlet.Context;
-import org.restlet.Guard;
+import org.restlet.Request;
+import org.restlet.Response;
 import org.restlet.Restlet;
-import org.restlet.Router;
+import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
+import org.restlet.routing.Filter;
+import org.restlet.routing.Router;
+import org.restlet.security.ChallengeAuthenticator;
 
 /**
  *
@@ -35,21 +37,33 @@ public class XMLDBAdminApplication extends Application {
 
    @Override
    public Restlet createRoot() {
-      Guard userGuard = new Guard(getContext(),ChallengeScheme.HTTP_BASIC,"eXist Administrators") {
-         public int authenticate(Request request)
-         {
-            User user = (User)request.getAttributes().get(XMLDB.USER_ATTR);
-            if (user!=null && user.hasDbaRole()) {
-               return Guard.AUTHENTICATION_VALID;
-            } else {
-               getLogger().info("User "+user.getName()+" is not a database administrator.");
-               return Guard.AUTHENTICATION_INVALID;
-            }
-         }
+      Filter userGuard = new ChallengeAuthenticator(getContext(),ChallengeScheme.HTTP_BASIC,"eXist Administrators") {
 
-         public boolean authorize(Request request) {
-            request.getAttributes().put(SECURITY_MANAGER_ATTR,manager);
-            return true;
+         public boolean authenticate(Request request,Response response)
+         {
+            ChallengeResponse authInfo = request.getChallengeResponse();
+            if (authInfo==null) {
+               return false;
+            }
+            String identity = authInfo.getIdentifier();
+            char [] secret = authInfo.getSecret();
+            if (identity==null || secret==null) {
+               return false;
+            }
+            User user = manager.getUser(identity);
+            if (user!=null && user.hasDbaRole()) {
+               boolean valid = user.authenticate(new String(secret));
+               request.getAttributes().put(XMLDBResource.USER_ATTR,user);
+               request.getAttributes().put(SECURITY_MANAGER_ATTR,manager);
+               return valid;
+            } else {
+               if (user!=null) {
+                  getLogger().info("User "+user.getName()+" is not a database administrator.");
+               } else {
+                  getLogger().info("User "+identity+" not found.");
+               }
+               return false;
+            }
          }
 
       };

@@ -1,9 +1,5 @@
 /*
- * Main.java
- *
- * Created on March 29, 2007, 3:04 PM
- *
- * To change this template, choose Tools | Template Manager
+ * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 
@@ -22,11 +18,7 @@ import org.exist.xmldb.XmldbURI;
  */
 public class XMLDB
 {
-   
-   public final static String DEFAULT_DB = "db";
-   
-   public final static String USER_ATTR = "org.exist.xmldb.user";
-   final static String DEFAULT_URI = "xmldb:exist://" + DBBroker.ROOT_COLLECTION;
+
    final static String DRIVER = "org.exist.xmldb.DatabaseImpl";
    static class ShutdownListenerImpl implements ShutdownListener {
 
@@ -34,11 +26,11 @@ public class XMLDB
          System.err.println("Shutdown of "+dbname+", remaining="+remainingInstances);
       }
    }
-   
+
    File configFile;
    String name;
    BrokerPool pool;
-   
+
    /** Creates a new instance of Main */
    public XMLDB(String name,File configFile)
    {
@@ -46,8 +38,8 @@ public class XMLDB
       this.configFile = configFile;
       this.pool = null;
    }
-   
-   
+
+
    /**
     * @param args the command line arguments
     */
@@ -62,7 +54,7 @@ public class XMLDB
             System.setProperty("log4j.configuration", lf.toURI().toASCIIString());
          }
       }
-      
+
       int threads = 5;
       // Configure the database
       Configuration config = new Configuration(configFile.getAbsolutePath());
@@ -85,11 +77,12 @@ public class XMLDB
          }
       }
    }
-   
-   public void stop() 
+
+   public void stop()
       throws Exception
    {
       pool.shutdown();
    }
-   
+
 }
+

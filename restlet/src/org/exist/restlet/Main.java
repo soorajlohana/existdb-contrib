@@ -25,8 +25,8 @@ public class Main {
     * @param args the command line arguments
     */
    public static void main(String[] args) {
-      if (args.length!=4) {
-         System.err.println("org.exist.restlet.Main hostname ipaddress port conf.xml");
+      if (args.length<4) {
+         System.err.println("org.exist.restlet.Main hostname ipaddress port name=conf.xml ...");
          System.exit(1);
       }
       
@@ -36,10 +36,17 @@ public class Main {
          String ipAddress = args[1];
          int port = Integer.parseInt(args[2]);
          
-         XMLDB xmldb = new XMLDB(XMLDB.DEFAULT_DB,new File(args[3]));
-         xmldb.start();
-         
-         WebComponent www = new WebComponent(XMLDB.DEFAULT_DB,host,ipAddress,port);
+         WebComponent www = new WebComponent(host,ipAddress,port);
+         for (int i=3; i<args.length; i++) {
+            int eqPos = args[i].indexOf('=');
+            if (eqPos<=0) {
+               System.err.println("Bad database configuration: "+args[i]);
+               System.exit(1);
+            }
+            String name = args[i].substring(0,eqPos);
+            String ref = args[i].substring(eqPos+1);
+            www.addDatabase(name, new File(ref));
+         }
          www.start();
 
       } catch (Exception ex) {

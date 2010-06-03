@@ -48,7 +48,7 @@ This will allow you to access eXist using URI references as:
    riap://component/exist/db/doc.xml
 }}}
 
-The resource expects the first path segment to be the database name you used when you created and started your database using the `XMLDB` class.  The remaining path is the collection or resource path with which you are interacting.
+The resource expects the first path segment it receives to be the database name you used when you created and started your database using the `XMLDB` class.  The remaining path is the collection or resource path with which you are interacting.  The way this is parsed is the authority `component` tells Restlet to route using the internal router.  The next segment `exist` is what we specified when we attached the `XMLDBResource` class to the router.  The remaining path (`db/doc.xml`) is used by the XMLDBResource instance to find the content in the database.
 
 You can attach this to your internal component or application router however you like.  The subsequent path segments will be interpreted the same.   For example, using this code:
 

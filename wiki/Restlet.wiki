@@ -26,7 +26,7 @@ Once you've created your database, you can start you database in the appropriate
    xmldb.start();
 }}}
 
-You'll also want to add a call to `stop()` in the appropriate place as well so your database shutdown happens when the server is shutdown.
+You'll also want to add a call to `stop()` in the appropriate place so your database shutdown happens when the server is shutdown.
 
 Finally, you can reindex collections by the following:
 

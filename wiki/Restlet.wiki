@@ -103,7 +103,7 @@ changes the previous URI to:
 To get a resource out of eXist, just make a simple GET request in Restlet:
 
 {{{
-    Response response = getContex().getClientDispatcher().handle(new Request(Method.GET,"riap://component/exist/db/doc.xml"));
+    Response response = getContext().getClientDispatcher().handle(new Request(Method.GET,"riap://component/exist/db/doc.xml"));
 }}}
 
 If you want to apply a query to the resource or collection, you can add an attribute that points to the query:
@@ -111,7 +111,7 @@ If you want to apply a query to the resource or collection, you can add an attri
 {{{
     Request getWithQuery = new Request(Method.GET,"riap://component/exist/db/doc.xml");
     getWithQuery.getAttributes().put(XMLDBResource.XQUERY_ATTR,"riap://component/exist/db/query.xq");
-    Response response = getContex().getClientDispatcher().handle(getWithQuery);
+    Response response = getContext().getClientDispatcher().handle(getWithQuery);
 }}}
 
 Your xquery can be wherever you want as long as you can point to it by a URI.  The only current limitation is that you can't use an XQuery stored in a different database than the resource you are querying.  This limitation will be removed in the future.
@@ -125,7 +125,7 @@ Storing a document is accomplished by a PUT request:
 {{{
     Request storeRequest = new Request(Method.PUT,"riap://component/exist/db/doc.xml");
     storeRequest.setEntity(new StringRepresentation("<doc><title>Something</title></doc>",MediaType.APPLICATION_XML));
-    Response response = getContex().getClientDispatcher().handle(storeRequest);
+    Response response = getContext().getClientDispatcher().handle(storeRequest);
 }}}
 
 == 3.3 Querying ==
@@ -135,7 +135,7 @@ You can make adhoc queries via a POST request:
     MediaType queryType = MediaType.valueOf("application/xquery");
     Request queryRequest = new Request(Method.POST,"riap://component/exist/db/doc.xml");
     queryRequest.setEntity(new StringRepresentation("<doc><{//a}</doc>",queryType));
-    Response response = getContex().getClientDispatcher().handle(queryRequest);
+    Response response = getContext().getClientDispatcher().handle(queryRequest);
 }}}
 
 The XUpdate and eXist XML structures for querying and modifying your database are available as well via the same method.
@@ -144,7 +144,7 @@ The XUpdate and eXist XML structures for querying and modifying your database ar
 
 The DELETE method is used to delete resources (documents or collections).  For example:
 {{{
-    Response response = getContex().getClientDispatcher().handle(new Request(Method.DELETE,"riap://component/exist/db/doc.xml"));
+    Response response = getContext().getClientDispatcher().handle(new Request(Method.DELETE,"riap://component/exist/db/doc.xml"));
 }}}
 
 

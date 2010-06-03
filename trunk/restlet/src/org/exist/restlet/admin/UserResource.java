@@ -16,17 +16,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.exist.security.Group;
 import org.exist.security.PermissionDeniedException;
-import org.restlet.Context;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.resource.Resource;
 import org.exist.security.SecurityManager;
 import org.exist.security.User;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.resource.OutputRepresentation;
-import org.restlet.resource.Representation;
+import org.restlet.representation.OutputRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ServerResource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -38,20 +36,21 @@ import org.xml.sax.SAXException;
  *
  * @author alex
  */
-public class UserResource extends Resource {
+public class UserResource extends ServerResource {
 
-   public UserResource(Context context, Request request, Response response) {
-      super(context, request, response);
+   public UserResource() {
+      setNegotiated(false);
    }
 
-   public void handleGet() {
+   public Representation get() {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
       final User user = manager.getUser(name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+         return null;
       } else {
-         getResponse().setEntity(new OutputRepresentation(MediaType.APPLICATION_XML) {
+         Representation entity = new OutputRepresentation(MediaType.APPLICATION_XML) {
 
             public void write(OutputStream os)
                throws IOException {
@@ -77,22 +76,20 @@ public class UserResource extends Resource {
                w.flush();
                w.close();
             }
-         });
-         getResponse().getEntity().setCharacterSet(CharacterSet.UTF_8);
+         };
+         entity.setCharacterSet(CharacterSet.UTF_8);
          getResponse().setStatus(Status.SUCCESS_OK);
+         return entity;
       }
    }
 
-   public boolean allowDelete() {
-      return true;
-   }
-
-   public void handleDelete() {
+   public Representation delete() {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
       final User user = manager.getUser(name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+         return null;
       } else {
          try {
             manager.deleteUser(user);
@@ -100,25 +97,21 @@ public class UserResource extends Resource {
          } catch (PermissionDeniedException ex) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
          }
+         return null;
       }
    }
 
-   public boolean allowPost() {
-      return true;
-   }
-
-   public void handlePost() {
+   public Representation post(Representation entity) {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
       final User user = manager.getUser(name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-         return;
+         return null;
       }
-      Representation entity = getRequest().getEntity();
       if (!entity.getMediaType().equals(MediaType.APPLICATION_XML,true) && !entity.getMediaType().equals(MediaType.TEXT_XML,true)) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Invalid media type.");
-         return;
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Invalid media type: "+entity.getMediaType());
       }
       try {
          DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -131,8 +124,8 @@ public class UserResource extends Resource {
          if (top.getLocalName().equals("user") && top.getNamespaceURI()==null) {
             String checkName = top.getAttribute("name");
             if (checkName!=null && !checkName.equals(name)) {
-               getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"The user name does not match.");
-               return;
+               getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+               return new StringRepresentation("The user name does not match.");
             }
             String password = top.getAttribute("password");
 
@@ -160,6 +153,7 @@ public class UserResource extends Resource {
             }
             manager.setUser(user);
             getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            return null;
          } else if (top.getLocalName().equals("password") && top.getNamespaceURI()==null) {
             String password = top.getTextContent();
             if (password.length()==0) {
@@ -168,15 +162,20 @@ public class UserResource extends Resource {
             user.setPassword(password);
             manager.setUser(user);
             getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            return null;
          } else {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Unrecognized doument element.");
+            return null;
          }
       } catch (ParserConfigurationException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Parse error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Parse error: "+ex.getMessage());
       } catch (SAXException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Parse error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("Parse error: "+ex.getMessage());
       } catch (IOException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"I/O error: "+ex.getMessage());
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return new StringRepresentation("I/O error: "+ex.getMessage());
       }
    }
 }

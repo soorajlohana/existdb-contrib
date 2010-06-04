@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,7 +67,6 @@ import org.exist.xupdate.XUpdateProcessor;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
-import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.data.Tag;
@@ -94,6 +94,7 @@ public class XMLDBResource extends ServerResource {
 
    public final static String USER_ATTR = "org.exist.xmldb.user";
    public final static String XQUERY_ATTR = "org.exist.xmldb.xquery";
+   public final static String DBNAME_ATTR = "org.exist.xmldb.dbname";
    
    protected final static String DEFAULT_DB = "db";
    protected final static Properties defaultProperties = new Properties();
@@ -120,10 +121,19 @@ public class XMLDBResource extends ServerResource {
    }
 
    protected void doInit() {
-      String [] dbRef = getDBRef(getRequest().getResourceRef().getRemainingPart());
-      dbName = dbRef[0];
-      dbPath = dbRef[1];
-      boolean isCollection = false;
+      Object name = getContext().getAttributes().get(DBNAME_ATTR);
+      if (name==null) {
+         name = getRequest().getAttributes().get(DBNAME_ATTR);
+      }
+      if (name!=null) {
+         dbName = name.toString();
+         dbPath = getRequest().getResourceRef().getRemainingPart();
+      } else {
+         String [] dbRef = getDBRef(getRequest().getResourceRef().getRemainingPart());
+         dbName = dbRef[0];
+         dbPath = dbRef[1];
+      }
+      isCollection = false;
       if (dbPath.length()>0 && dbPath.charAt(dbPath.length()-1)=='/') {
          dbPath = dbPath.substring(0,dbPath.length()-1);
          isCollection = true;
@@ -226,6 +236,11 @@ public class XMLDBResource extends ServerResource {
    protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Reference xqueryRef,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties)
       throws XPathException,PermissionDeniedException
    {
+      Logger log = getLogger();
+      boolean isFineLog = log.isLoggable(Level.FINE);
+      if (isFineLog) {
+         log.fine("Using query resource: "+xqueryRef);
+      }
       DocumentImpl xqueryResource = null;
       try {
          Reference xqueryDBRef = xqueryRef.getRelativeRef(getRequest().getResourceRef().getBaseRef());
@@ -248,6 +263,9 @@ public class XMLDBResource extends ServerResource {
          return executeXQuery(brokerPool,broker,user,source,knownDocuments,howmany,start,outputProperties);
       } finally {
          if (xqueryResource!=null) {
+            if (isFineLog) {
+               log.fine("Unlocking query resource: "+xqueryRef);
+            }
             xqueryResource.getUpdateLock().release(Lock.READ_LOCK);
          }
       }
@@ -255,6 +273,11 @@ public class XMLDBResource extends ServerResource {
    protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties)
       throws XPathException,PermissionDeniedException
    {
+      Logger log = getLogger();
+      boolean isFineLog = log.isLoggable(Level.FINE);
+      if (isFineLog) {
+         log.fine("Query source, getting compiled.");
+      }
       XQuery xquery = broker.getXQueryService();
       XQueryPool pool = xquery.getXQueryPool();
       CompiledXQuery compiled = pool.borrowCompiledXQuery(broker, source);
@@ -264,6 +287,9 @@ public class XMLDBResource extends ServerResource {
       } else {
          context = compiled.getContext();
       }
+      if (isFineLog) {
+         log.fine("Compiled found: "+(compiled!=null ? "yes" : "no"));
+      }
 
       Form form = getRequest().getResourceRef().getQueryAsForm();
       for (String name : form.getNames()) {
@@ -272,6 +298,9 @@ public class XMLDBResource extends ServerResource {
       context.setStaticallyKnownDocuments(knownDocuments);
 
       if (compiled == null) {
+         if (isFineLog) {
+            log.fine("Compiling source.");
+         }
          try {
             compiled = xquery.compile(context, source);
          } catch (IOException ex) {
@@ -280,12 +309,18 @@ public class XMLDBResource extends ServerResource {
             return new StringRepresentation("Failed to compile xquery: "+ex.getMessage());
          }
       }
+      if (isFineLog) {
+         log.fine("Running query.");
+      }
       checkPragmas(context, outputProperties);
       try {
          Sequence result = xquery.execute(compiled, null);
          return makeResultRepresentation(brokerPool,user, result, howmany, start, 0, outputProperties, false);
       } finally {
          pool.returnCompiledXQuery(source, compiled);
+         if (isFineLog) {
+            log.fine("Query finished");
+         }
       }
     }
 
@@ -472,6 +507,10 @@ public class XMLDBResource extends ServerResource {
                            getLogger().log(Level.SEVERE,"Exception while processing query",ex);
                            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
                            return new StringRepresentation("Error while executing query: "+ex.getMessage());
+                        } finally {
+                           if (resource!=null) {
+                              resource.getUpdateLock().release(Lock.READ_LOCK);
+                           }
                         }
                         
                      }

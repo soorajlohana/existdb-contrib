@@ -1,0 +1,16 @@
+<component xmlns="http://www.restlet.org/schemas/2.0/Component">
+    <client protocol="CLAP" />
+    <client protocol="FILE" />
+    <client protocols="HTTP HTTPS" />
+    <server protocols="HTTP" port='8080'/>
+    <server protocols="HTTPS" port='8081'/>
+    <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
+    <host hostDomain="localhost" hostPort='8080'>
+       <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+    </host>
+    <internalRouter>
+       <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>
+    </internalRouter>
+</component>

@@ -20,8 +20,11 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
@@ -36,6 +39,7 @@ import org.exist.dom.BinaryDocument;
 import org.exist.dom.DefaultDocumentSet;
 import org.exist.dom.DocumentImpl;
 import org.exist.dom.MutableDocumentSet;
+import org.exist.dom.QName;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
 import org.exist.security.User;
@@ -56,12 +60,24 @@ import org.exist.storage.txn.Txn;
 import org.exist.util.LockException;
 import org.exist.util.serializer.SAXSerializer;
 import org.exist.xmldb.XmldbURI;
+import org.exist.xquery.AbstractExpression;
+import org.exist.xquery.AnalyzeContextInfo;
+import org.exist.xquery.Cardinality;
 import org.exist.xquery.CompiledXQuery;
+import org.exist.xquery.Expression;
+import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.Option;
+import org.exist.xquery.UserDefinedFunction;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQuery;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.util.ExpressionDumper;
+import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceType;
+import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.Type;
+import org.exist.xquery.value.ValueSequence;
 import org.exist.xupdate.Modification;
 import org.exist.xupdate.XUpdateProcessor;
 import org.restlet.data.CharacterSet;
@@ -92,14 +108,20 @@ import org.xml.sax.SAXException;
  */
 public class XMLDBResource extends ServerResource {
 
-   public final static String USER_ATTR = "org.exist.xmldb.user";
-   public final static String XQUERY_ATTR = "org.exist.xmldb.xquery";
-   public final static String DBNAME_ATTR = "org.exist.xmldb.dbname";
+   public final static String USER_NAME = "org.exist.xmldb.user";
+   public final static String XQUERY_NAME = "org.exist.xmldb.xquery";
+   public final static String DBNAME_NAME = "org.exist.xmldb.db.name";
+   public final static String DBPATH_NAME = "org.exist.xmldb.db.path";
    
+   protected final static String PARAMETER_NAME = "org.exist.xmldb.request.parameters";
    protected final static String DEFAULT_DB = "db";
    protected final static Properties defaultProperties = new Properties();
+   protected final static String FUNC_NS = "http://code.google.com/p/existdb-contrib";
    protected final static String NS = "http://exist.sourceforge.net/NS/exist";
    protected final static String XUPDATE_NS = "http://www.xmldb.org/xupdate";
+
+   protected final static QName PARAMETER_NAMES_QNAME = new QName("parameter-names",FUNC_NS);
+   protected final static QName GET_PARAMETER_QNAME = new QName("get-parameter",FUNC_NS);
 
    static {
       defaultProperties.setProperty(OutputKeys.INDENT, "no");
@@ -109,6 +131,72 @@ public class XMLDBResource extends ServerResource {
       defaultProperties.setProperty(EXistOutputKeys.PROCESS_XSL_PI, "yes");
    }
 
+   static class ParameterNamesExpression extends AbstractExpression {
+      ParameterNamesExpression(XQueryContext context) {
+         super(context);
+      }
+
+      public int returnsType() {
+         return Type.ITEM;
+      }
+      public void analyze(AnalyzeContextInfo contextInfo) throws XPathException {}
+
+      public Sequence eval(Sequence contextSequence,Item contextItem)
+         throws XPathException
+      {
+         Form [] parameterSets = (Form [])context.getAttribute(PARAMETER_NAME);
+			ValueSequence result = new ValueSequence();
+         Set<String> nameSet = new HashSet<String>();
+         for (int i=0; i<parameterSets.length; i++) {
+            for (String name : parameterSets[i].getNames()) {
+               nameSet.add(name);
+            }
+         }
+         for (String name : nameSet) {
+            result.add(new StringValue(name));
+         }
+         return result;
+      }
+   	public void dump(ExpressionDumper dumper) {
+         dumper.display("{"+FUNC_NS+"}parameter-names()");
+      }
+   }
+
+   static class GetParameterExpression extends AbstractExpression {
+      static QName NAME = new QName("name",null);
+      GetParameterExpression(XQueryContext context) {
+         super(context);
+      }
+
+      public int returnsType() {
+         return Type.ITEM;
+      }
+      public void analyze(AnalyzeContextInfo contextInfo) throws XPathException {}
+
+      public Sequence eval(Sequence contextSequence,Item contextItem)
+         throws XPathException
+      {
+         Form [] parameterSets = (Form [])context.getAttribute(PARAMETER_NAME);
+         String parameterName = context.getVariables().get(NAME).getValue().getStringValue();
+         String [] values = null;
+         for (int i=0; i<parameterSets.length; i++) {
+            String [] temp = parameterSets[i].getValuesArray(parameterName);
+            if (temp!=null && temp.length>0) {
+               values = temp;
+            }
+         }
+			ValueSequence result = new ValueSequence();
+         if (values!=null) {
+            for (int i=0; i<values.length; i++) {
+               result.add(new StringValue(values[i]));
+            }
+         }
+         return result;
+      }
+   	public void dump(ExpressionDumper dumper) {
+         dumper.display("{"+FUNC_NS+"}get-parameter()");
+      }
+   }
    String dbName;
    String dbPath;
    boolean isCollection;
@@ -121,12 +209,23 @@ public class XMLDBResource extends ServerResource {
    }
 
    protected void doInit() {
-      Object name = getContext().getAttributes().get(DBNAME_ATTR);
+      Object name = getContext().getAttributes().get(DBNAME_NAME);
       if (name==null) {
-         name = getRequest().getAttributes().get(DBNAME_ATTR);
+         name = getRequest().getAttributes().get(DBNAME_NAME);
+      }
+      if (name==null) {
+         name = getContext().getParameters().getFirstValue(DBNAME_NAME);
+      }
+      Object pathSpec = getContext().getAttributes().get(DBPATH_NAME);
+      if (pathSpec==null) {
+         pathSpec = getRequest().getAttributes().get(DBPATH_NAME);
+      }
+      if (pathSpec==null) {
+         pathSpec = getContext().getParameters().getFirstValue(DBNAME_NAME);
       }
       if (name!=null) {
          dbName = name.toString();
+         dbPath = pathSpec==null ? null : pathSpec.toString();
          dbPath = getRequest().getResourceRef().getRemainingPart();
       } else {
          String [] dbRef = getDBRef(getRequest().getResourceRef().getRemainingPart());
@@ -142,6 +241,31 @@ public class XMLDBResource extends ServerResource {
          getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath);
       }
 
+   }
+
+   protected Object getXQueryReference() {
+      Object xqueryRefAttr = getRequest().getAttributes().get(XMLDBResource.XQUERY_NAME);
+      if (xqueryRefAttr==null) {
+         xqueryRefAttr = getContext().getParameters().getFirstValue(XMLDBResource.XQUERY_NAME);
+      }
+      return xqueryRefAttr;
+   }
+
+   protected Form getAttributesAsForm() {
+      Form form = new Form();
+      Map<String,Object> attrs = getRequest().getAttributes();
+      for (String key : attrs.keySet()) {
+         Object value = attrs.get(key);
+         if (value instanceof String) {
+            form.add(key, value.toString());
+         }
+      }
+      return form;
+   }
+   
+   protected User getUser(BrokerPool pool) {
+      User user = (User)getRequest().getAttributes().get(USER_NAME);
+      return user==null ? pool.getSecurityManager().SYSTEM_USER : user;
    }
 
    protected String [] getDBRef(String path) {
@@ -233,7 +357,7 @@ public class XMLDBResource extends ServerResource {
       return rep;
    }
 
-   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Reference xqueryRef,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties)
+   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Reference xqueryRef,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties,Form [] parameterSets)
       throws XPathException,PermissionDeniedException
    {
       Logger log = getLogger();
@@ -260,7 +384,7 @@ public class XMLDBResource extends ServerResource {
             xqueryResource = (DocumentImpl)broker.getXMLResource(XmldbURI.create(dbRef[1]), Lock.READ_LOCK);
             source =  new DBSource(broker, (BinaryDocument)xqueryResource, true);
          }
-         return executeXQuery(brokerPool,broker,user,source,knownDocuments,howmany,start,outputProperties);
+         return executeXQuery(brokerPool,broker,user,source,knownDocuments,howmany,start,outputProperties,parameterSets);
       } finally {
          if (xqueryResource!=null) {
             if (isFineLog) {
@@ -270,7 +394,7 @@ public class XMLDBResource extends ServerResource {
          }
       }
    }
-   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties)
+   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties, Form [] parameterSets)
       throws XPathException,PermissionDeniedException
    {
       Logger log = getLogger();
@@ -291,16 +415,31 @@ public class XMLDBResource extends ServerResource {
          log.fine("Compiled found: "+(compiled!=null ? "yes" : "no"));
       }
 
-      Form form = getRequest().getResourceRef().getQueryAsForm();
-      for (String name : form.getNames()) {
-         context.declareVariable(name,form.getValues(name));
+      for (int i=0; i<parameterSets.length; i++) {
+         for (String name : parameterSets[i].getNames()) {
+            context.declareVariable(name,parameterSets[i].getValues(name));
+         }
       }
+      context.setAttribute(PARAMETER_NAME, parameterSets);
+
       context.setStaticallyKnownDocuments(knownDocuments);
 
       if (compiled == null) {
          if (isFineLog) {
             log.fine("Compiling source.");
          }
+         Expression parameterNamesExpr = new ParameterNamesExpression(context);
+         UserDefinedFunction parameterNamesFunction = new UserDefinedFunction(context,new FunctionSignature(PARAMETER_NAMES_QNAME,FunctionSignature.NO_ARGS,new SequenceType(Type.STRING,Cardinality.ZERO_OR_MORE)));
+         parameterNamesFunction.setFunctionBody(parameterNamesExpr);
+         context.declareFunction(parameterNamesFunction);
+
+         Expression getParameterExpr = new GetParameterExpression(context);
+         SequenceType nameArg = new SequenceType(Type.STRING,Cardinality.EXACTLY_ONE);
+         UserDefinedFunction getParameterFunction = new UserDefinedFunction(context,new FunctionSignature(GET_PARAMETER_QNAME,FunctionSignature.singleArgument(nameArg),new SequenceType(Type.STRING,Cardinality.ZERO_OR_MORE)));
+         getParameterFunction.setFunctionBody(getParameterExpr);
+         getParameterFunction.addVariable("name");
+         context.declareFunction(getParameterFunction);
+
          try {
             compiled = xquery.compile(context, source);
          } catch (IOException ex) {
@@ -360,11 +499,11 @@ public class XMLDBResource extends ServerResource {
          }
          //getLogger().info("Get on: "+request.getResourceRef());
          //getLogger().info("active="+pool.active()+", available="+pool.available());
-         final User user = getRequest().getAttributes().get(USER_ATTR)==null ? pool.getSecurityManager().SYSTEM_USER : (User)getRequest().getAttributes().get(USER_ATTR);
+         final User user = getUser(pool);
 
          final DBBroker broker = pool.get(user);
          try {
-            Object xqueryRefAttr = getRequest().getAttributes().get(XMLDBResource.XQUERY_ATTR);
+            Object xqueryRefAttr = getXQueryReference();
             DocumentImpl resource = null;
             final XmldbURI pathUri = XmldbURI.create(dbPath);
             try {
@@ -408,7 +547,8 @@ public class XMLDBResource extends ServerResource {
 
                         Properties outputProperties = new Properties(defaultProperties);
                         try {
-                           return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { collection.getURI() },-1,1,outputProperties);
+                           Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), getAttributesAsForm() };
+                           return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { collection.getURI() },-1,1,outputProperties,parameterSets);
                         } catch (XPathException ex) {
                            getLogger().log(Level.SEVERE,"Exception while processing query",ex);
                            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -502,7 +642,8 @@ public class XMLDBResource extends ServerResource {
 
                         Properties outputProperties = new Properties(defaultProperties);
                         try {
-                           return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { resource.getURI() },-1,1,outputProperties);
+                           Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), getAttributesAsForm() };
+                           return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { resource.getURI() },-1,1,outputProperties,parameterSets);
                         } catch (XPathException ex) {
                            getLogger().log(Level.SEVERE,"Exception while processing query",ex);
                            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -532,6 +673,73 @@ public class XMLDBResource extends ServerResource {
          return new StringRepresentation("XMLDB request failed: "+ex.getMessage());
       }
    }
+
+   protected Representation handleFormPost(Representation entity, BrokerPool pool, DBBroker broker, User user) {
+      Object xqueryRefAttr = getXQueryReference();
+      if (xqueryRefAttr==null) {
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return null;
+      }
+      
+      DocumentImpl resource = null;
+      final XmldbURI pathUri = XmldbURI.create(dbPath);
+      try {
+         resource = broker.getXMLResource(pathUri, Lock.READ_LOCK);
+
+         if (resource == null) {
+
+            // Must be a collection
+            final Collection collection = broker.getCollection(pathUri);
+            if (collection != null) {
+               if (!collection.getPermissions().validate(broker.getUser(), Permission.READ)) {
+                  throw new PermissionDeniedException("Not allowed to read collection");
+               }
+               Reference xqueryRef = xqueryRefAttr instanceof Reference ? (Reference)xqueryRefAttr : new Reference(getRequest().getResourceRef(),xqueryRefAttr.toString());
+
+               Properties outputProperties = new Properties(defaultProperties);
+               try {
+                  Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), new Form(entity), getAttributesAsForm() };
+                  return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { collection.getURI() },-1,1,outputProperties,parameterSets);
+               } catch (XPathException ex) {
+                  getLogger().log(Level.SEVERE,"Exception while processing query",ex);
+                  getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+                  return new StringRepresentation("Error while executing query: "+ex.getMessage());
+               }
+
+            } else {
+               getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+               return null;
+            }
+         } else {
+            final BrokerPool currentPool = pool;
+            if (resource.getResourceType() == DocumentImpl.BINARY_FILE) {
+               getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+               return null;
+            } else {
+               Reference xqueryRef = xqueryRefAttr instanceof Reference ? (Reference)xqueryRefAttr : new Reference(getRequest().getResourceRef(),xqueryRefAttr.toString());
+
+               Properties outputProperties = new Properties(defaultProperties);
+               try {
+                  Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), new Form(entity), getAttributesAsForm() };
+                  return executeXQuery(pool,broker,user,xqueryRef,new XmldbURI[] { resource.getURI() },-1,1,outputProperties,parameterSets);
+               } catch (XPathException ex) {
+                  getLogger().log(Level.SEVERE,"Exception while processing query",ex);
+                  getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+                  return new StringRepresentation("Error while executing query: "+ex.getMessage());
+               } finally {
+                  if (resource!=null) {
+                     resource.getUpdateLock().release(Lock.READ_LOCK);
+                  }
+               }
+            }
+         }
+      } catch (PermissionDeniedException ex) {
+         getLogger().log(Level.SEVERE,"Permission denied to query.",ex);
+         getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+         return null;
+      }
+
+   }
    
    protected Representation post(Representation entity) {
       if (dbName==null) {
@@ -545,7 +753,7 @@ public class XMLDBResource extends ServerResource {
       DocumentImpl resource = null;
       DBBroker broker = null;
       BrokerPool pool = null;
-      User user = (User)getRequest().getAttributes().get(USER_ATTR);
+      final User user = getUser(pool);
       try {
          try {
             pool = BrokerPool.getInstance(dbName);
@@ -553,9 +761,6 @@ public class XMLDBResource extends ServerResource {
                getContext().getLogger().severe("eXist database "+dbName+" is not available.");
                getResponse().setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
                return null;
-            }
-            if (user==null) {
-               user = pool.getSecurityManager().SYSTEM_USER;
             }
             //getLogger().info("active="+pool.active()+", available="+pool.available());
          } catch (EXistException ex) {
@@ -579,7 +784,8 @@ public class XMLDBResource extends ServerResource {
                 resource.getMetadata().getMimeType().startsWith("application/xquery")) {
                // found an XQuery resource
                try {
-                  return executeXQuery(pool,broker,user, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,outputProperties);
+                  Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), getAttributesAsForm() };
+                  return executeXQuery(pool,broker,user, new DBSource(broker, (BinaryDocument)resource, true), new XmldbURI[] { resource.getCollection().getURI() },-1,1,outputProperties,parameterSets);
                } catch (XPathException ex) {
                   getLogger().log(Level.WARNING,"Exception while executing xquery.",ex);
                   getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -604,7 +810,13 @@ public class XMLDBResource extends ServerResource {
          String mime = "text/xml";
          String query = null;
          String incomingMediaType = entity.getMediaType().getName();
-         if (incomingMediaType.startsWith("application/xquery")) {
+         if (incomingMediaType.startsWith("application/x-www-form-urlencoded")) {
+            try {
+               return handleFormPost(entity,pool,broker,user);
+            } finally {
+               entity.release();
+            }
+         } else if (incomingMediaType.startsWith("application/xquery")) {
             try {
                query = entity.getText();
             } catch (IOException ex) {
@@ -817,7 +1029,8 @@ public class XMLDBResource extends ServerResource {
          Txn transaction = transact.beginTransaction();
          try {
              // execute query
-            Representation rep = executeXQuery(pool,broker,user, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,outputProperties);
+            Form [] parameterSets = { getRequest().getResourceRef().getQueryAsForm(), getAttributesAsForm() };
+            Representation rep = executeXQuery(pool,broker,user, new StringSource(query), new XmldbURI[] { pathUri },howmany,start,outputProperties,parameterSets);
             transact.commit(transaction);
             return rep;
          } catch (XPathException ex) {
@@ -865,7 +1078,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          try {
-            User user = (User)getRequest().getAttributes().get(USER_ATTR);
+            User user = getUser(pool);
             broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
@@ -953,7 +1166,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          try {
-            User user = (User)getRequest().getAttributes().get(USER_ATTR);
+            final User user = getUser(pool);
             broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
@@ -1198,7 +1411,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          //getLogger().info("active="+pool.active()+", available="+pool.available());
-         User user = (User)getRequest().getAttributes().get(USER_ATTR);
+         final User user = getUser(pool);
          DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
          DocumentImpl resource = null;
          try {

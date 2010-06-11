@@ -39,6 +39,14 @@ public class XMLDB
       this.pool = null;
    }
 
+   public String getName() {
+      return name;
+   }
+
+   public File getConfigurationFile() {
+      return configFile;
+   }
+
 
    /**
     * @param args the command line arguments

@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -137,7 +138,8 @@ public class QueryTest extends TestCase {
           copy(new File(files[i]),new File(dir,files[i]));
        }
 
-       WebComponent www = new WebComponent("*","*",8888);
+       URL url = this.getClass().getResource("test-server.xml");
+       WebComponent www = new WebComponent(url.toString());
        www.addDatabase("db", new File(dir,"conf.xml"));
        www.start();
 
@@ -177,7 +179,7 @@ public class QueryTest extends TestCase {
        log.info("DB located XQuery tests: ");
 
        Request request = get("riap://component/exist/db/");
-       request.getAttributes().put(XMLDBResource.XQUERY_ATTR,xqueryRef);
+       request.getAttributes().put(XMLDBResource.XQUERY_NAME,xqueryRef);
        for (int i=0; i<5; i++) {
           startTimer();
           response = client.handle(request);
@@ -195,7 +197,7 @@ public class QueryTest extends TestCase {
        out.write(xquery);
        out.close();
 
-       request.getAttributes().put(XMLDBResource.XQUERY_ATTR,xqueryFile.toURI().toString());
+       request.getAttributes().put(XMLDBResource.XQUERY_NAME,xqueryFile.toURI().toString());
        for (int i=0; i<5; i++) {
           startTimer();
           response = client.handle(request);

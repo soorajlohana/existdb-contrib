@@ -10,6 +10,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -125,7 +126,8 @@ public class AccessTest extends TestCase {
           copy(new File(files[i]),new File(dir,files[i]));
        }
 
-       WebComponent www = new WebComponent("*","*",8888);
+       URL url = this.getClass().getResource("test-server.xml");
+       WebComponent www = new WebComponent(url.toString());
        www.addDatabase("db", new File(dir,"conf.xml"));
        www.start();
 

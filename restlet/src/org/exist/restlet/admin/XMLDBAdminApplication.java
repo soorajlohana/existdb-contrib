@@ -36,7 +36,7 @@ public class XMLDBAdminApplication extends Application {
    }
 
    @Override
-   public Restlet createRoot() {
+   public Restlet createInboundRoot() {
       Filter userGuard = new ChallengeAuthenticator(getContext(),ChallengeScheme.HTTP_BASIC,"eXist Administrators") {
 
          public boolean authenticate(Request request,Response response)
@@ -53,7 +53,7 @@ public class XMLDBAdminApplication extends Application {
             User user = manager.getUser(identity);
             if (user!=null && user.hasDbaRole()) {
                boolean valid = user.authenticate(new String(secret));
-               request.getAttributes().put(XMLDBResource.USER_ATTR,user);
+               request.getAttributes().put(XMLDBResource.USER_NAME,user);
                request.getAttributes().put(SECURITY_MANAGER_ATTR,manager);
                return valid;
             } else {

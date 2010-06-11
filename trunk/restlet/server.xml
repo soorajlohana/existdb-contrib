@@ -9,6 +9,14 @@
        <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
           <parameter name="org.exist.xmldb.db.name" value="db"/>
        </attach>
+       <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+          <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+       <attach uriPattern="/{A}/{B}/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+          <parameter name="org.exist.xmldb.xquery" href="echo-with-vars.xql"/>
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
     </host>
     <internalRouter>
        <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>

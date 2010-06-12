@@ -1,6 +1,4 @@
 declare namespace r="http://code.google.com/p/existdb-contrib";
-declare variable $A as external;
-declare variable $B as external;
 <html xmlns='http://www.w3.org/1999/xhtml'>
 <head><title>Request Information</title></head>
 <body>

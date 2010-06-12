@@ -44,7 +44,6 @@ public class XMLDBApplication extends Application{
       throws Exception
    {
       if (isStopped()) {
-         getLogger().info("Starting XMLDBApplication on "+this);
          dbName = getContext().getParameters().getFirstValue(XMLDBResource.DBNAME_NAME);
          if (dbName==null) {
             getLogger().severe("There is no "+XMLDBResource.DBNAME_NAME+" parameter for the "+this.getClass().getName());

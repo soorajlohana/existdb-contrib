@@ -38,20 +38,16 @@ public class WebComponent extends Component {
    public WebComponent(String ref) {
       super(ref);
       databases = new ArrayList<XMLDB>();
-      getLogger().info(getContext().getParameters().getValues(DBCONF_NAME));
-
    }
 
    public WebComponent(Reference ref) {
       super(ref);
       databases = new ArrayList<XMLDB>();
-      getLogger().info(getContext().getParameters().getValues(DBCONF_NAME));
    }
 
    public WebComponent(Representation xmlConf) {
       super(xmlConf);
       databases = new ArrayList<XMLDB>();
-      getLogger().info(getContext().getParameters().getValues(DBCONF_NAME));
    }
 
    /*

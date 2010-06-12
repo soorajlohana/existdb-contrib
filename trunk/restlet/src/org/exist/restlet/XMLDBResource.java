@@ -45,6 +45,7 @@ import org.exist.security.PermissionDeniedException;
 import org.exist.security.User;
 import org.exist.security.xacml.AccessContext;
 import org.exist.source.DBSource;
+import org.exist.source.FileSource;
 import org.exist.source.Source;
 import org.exist.source.StringSource;
 import org.exist.source.URLSource;
@@ -287,13 +288,18 @@ public class XMLDBResource extends ServerResource {
 
    }
 
+   /*
    protected Source getXQuerySource(DBBroker broker, Reference xqueryRef)
       throws PermissionDeniedException
    {
       Reference xqueryDBRef = xqueryRef.getRelativeRef(getRequest().getResourceRef().getBaseRef());
       if (xqueryDBRef==xqueryRef) {
          // the xquery is not in the database
-         return new URLSource(xqueryRef.toUrl());
+         if (xqueryDBRef.getScheme().equals("file")) {
+            return new FileSource(new File(xqueryRef.getSchemeSpecificPart(true)),"UTF-8",true);
+         } else {
+            return new URLSource(xqueryRef.toUrl());
+         }
       } else {
          // the xquery is in the database
          String [] dbRef = getDBRef(xqueryDBRef.getRemainingPart());
@@ -305,6 +311,8 @@ public class XMLDBResource extends ServerResource {
          return new DBSource(broker, (BinaryDocument)xqueryResource, true);
       }
    }
+    *
+    */
    protected Representation makeResultRepresentation(final BrokerPool brokerPool, final User user, final Sequence results,int howmany, final int start, long queryTime,final Properties outputProperties, final boolean wrap) {
       if (!results.isEmpty()) {
          int rlen = results.getItemCount();
@@ -372,7 +380,11 @@ public class XMLDBResource extends ServerResource {
          if (xqueryDBRef==xqueryRef) {
             // the xquery is not in the database
             //getLogger().info("xquery "+xqueryRef+" is outside database.");
-            source =  new URLSource(xqueryRef.toUrl());
+            if (xqueryDBRef.getScheme().equals("file")) {
+               source = new FileSource(new File(xqueryRef.getSchemeSpecificPart(true)),"UTF-8",true);
+            } else {
+               source = new URLSource(xqueryRef.toUrl());
+            }
          } else {
             // the xquery is in the database
             String [] dbRef = getDBRef(xqueryDBRef.getRemainingPart());

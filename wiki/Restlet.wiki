@@ -12,6 +12,8 @@ Interactions with the eXist database are usually performed with internal request
 
 = 2. Running Restlet with eXist Embedded =
 
+You can run a Restlet application or bind resources and queries within an eXist database directly to paths on the server using the Component configuration XML syntax available in Restlet.  For example, the following is an example configuration:
+
 {{{
 <component xmlns="http://www.restlet.org/schemas/2.0/Component">
     <client protocol="CLAP" />
@@ -21,19 +23,23 @@ Interactions with the eXist database are usually performed with internal request
     <server protocols="HTTPS" port='8081'/>
     <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
     <host hostDomain="localhost" hostPort='8080'>
+       <!-- attaches the database application to /db -->
        <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
           <parameter name="org.exist.xmldb.db.name" value="db"/>
        </attach>
+       <!-- attaches an example XQuery to /echo -->
        <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
           <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
           <parameter name="org.exist.xmldb.db.name" value="db"/>
        </attach>
+       <!-- attaches an example XQuery to /*/*/echo -->
        <attach uriPattern="/{A}/{B}/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
           <parameter name="org.exist.xmldb.xquery" href="echo-with-vars.xql"/>
           <parameter name="org.exist.xmldb.db.name" value="db"/>
        </attach>
     </host>
     <internalRouter>
+       <!-- attaches the database to the internal router for RIAP access -->
        <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>
     </internalRouter>
 </component>

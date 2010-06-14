@@ -10,9 +10,38 @@ class that is an instance of [http://www.restlet.org/documentation/2.0/jse/api/i
 
 Interactions with the eXist database are usually performed with internal requests as if you are client of the database but with optimized local routing via the internals of Restlet.
 
-= 2. API Overview =
+= 2. Running a Restlet with eXist Embedded
 
-== 2.1 Databases ==
+{{{
+<component xmlns="http://www.restlet.org/schemas/2.0/Component">
+    <client protocol="CLAP" />
+    <client protocol="FILE" />
+    <client protocols="HTTP HTTPS" />
+    <server protocols="HTTP" port='8080'/>
+    <server protocols="HTTPS" port='8081'/>
+    <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
+    <host hostDomain="localhost" hostPort='8080'>
+       <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+       <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+          <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+       <attach uriPattern="/{A}/{B}/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+          <parameter name="org.exist.xmldb.xquery" href="echo-with-vars.xql"/>
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+    </host>
+    <internalRouter>
+       <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>
+    </internalRouter>
+</component>
+}}}
+
+= 3. API Overview =
+
+== 3.1 Databases ==
 
 While eXist has an API for manipulating databases, the Restlet integration has a simplified API for starting, stopping, and interacting with databases.  All you need to do is import the org.exist.restlet.XMLDB class and reference your eXist configuration file as follows:
 
@@ -34,7 +63,7 @@ Finally, you can reindex collections by the following:
    xmldb.reindex("/my/docs/");
 }}}
 
-== 2.2 Using RIAP Schemes for eXist Access ==
+== 3.2 Using RIAP Schemes for eXist Access ==
 
 One way to access eXist from you Restlet code is attach the `XMLDBResource` class to the internal router of your `Component` instance:
 
@@ -62,7 +91,7 @@ changes the previous URI to:
    riap://component/data/xml/db/doc.xml
 }}}
 
-== 2.3 Creating a Simple Proxy Restlet ===
+== 3.3 Creating a Simple Proxy Restlet ===
 
 {{{
 
@@ -97,8 +126,8 @@ changes the previous URI to:
 
 }}}
 
-== 3 Interacting with eXist ==
-== 3.1 Getting a Document ==
+== 4 Interacting with eXist ==
+== 4.1 Getting a Document ==
 
 To get a resource out of eXist, just make a simple GET request in Restlet:
 
@@ -118,7 +147,7 @@ Your xquery can be wherever you want as long as you can point to it by a URI.  T
 
 The HEAD method works almost exactly the same except you change the code to use `Method.HEAD`.
 
-== 3.2 Storing a Document ==
+== 4.2 Storing a Document ==
 
 Storing a document is accomplished by a PUT request:
 
@@ -128,7 +157,7 @@ Storing a document is accomplished by a PUT request:
     Response response = getContext().getClientDispatcher().handle(storeRequest);
 }}}
 
-== 3.3 Querying ==
+== 4.3 Querying ==
 
 You can make adhoc queries via a POST request:
 {{{
@@ -140,7 +169,7 @@ You can make adhoc queries via a POST request:
 
 The XUpdate and eXist XML structures for querying and modifying your database are available as well via the same method.
 
-== 3.4 Removing Content ==
+== 4.4 Removing Content ==
 
 The DELETE method is used to delete resources (documents or collections).  For example:
 {{{
@@ -148,7 +177,7 @@ The DELETE method is used to delete resources (documents or collections).  For e
 }}}
 
 
-= 4. Building =
+= 5. Building =
 
 The restlet integration relies upon the embedded version of [http://www.exist-db.org eXist].  You can build the embedded version by the following instructions
 
@@ -167,15 +196,14 @@ Once you have the embedded version of eXist, you can build the restlet project b
 
 All of these projects (eXist, embedded eXist, and this project) are also [http://www.netbeans.org Netbeans] projects.
 
-= 5. Classes =
+= 6. Classes =
 
 The `org.exist.restlet` package:
 
-  * The `Main` class is the command-line driver for starting a server.
   * The `XMLDB` class allows you to start, stop, and managed named database instances.
   * The `XMLDBApplication` proxies the eXist as resources served by the Restlet engine and includes the admin application at `/_/admin/`.
   * The `XMLDBResource` represents a resource stored in the eXist database.
-  * The `WebComponent` is a component that wraps the Application and can be used to instantiate a server bound to a host address.  It is also a simple example of how to create your own components and attach eXist to internal routers.
+  * The `WebComponent` is a component that wraps the Application and can be used to instantiate a server bound to a host address.  It is also a simple example of how to create your own components and attach eXist to internal routers.  You can run this directly from the command-line and pass it the XML configuration.
 
 The `org.exist.restlet.admin` package:
 

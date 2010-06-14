@@ -21,6 +21,7 @@ You can run a Restlet application or bind resources and queries within an eXist 
     <client protocols="HTTP HTTPS" />
     <server protocols="HTTP" port='8080'/>
     <server protocols="HTTPS" port='8081'/>
+    <!-- start a database named 'db' from the configuration file -->
     <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
     <host hostDomain="localhost" hostPort='8080'>
        <!-- attaches the database application to /db -->
@@ -44,6 +45,45 @@ You can run a Restlet application or bind resources and queries within an eXist 
     </internalRouter>
 </component>
 }}}
+
+A component configuration should contain a number of database configuration parameters.  The name of the parameter is `org.exist.xmldb.db.conf` and it must have the format of `{name}={file}`.  The database will then be accessible via the name given.
+
+For example:
+
+{{{
+    <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
+}}}
+
+If you plan on using RIAP to access your database, you should add the following to the `internalRouter` element:
+
+{{{
+    <internalRouter>
+       <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>
+    </internalRouter>
+}}}
+
+You can complete expose the database by adding a similar `attach` element to any of the `host` elements.
+
+To have an authenticated database resource hierarchy, add this configuration to one of your `host` elements:
+
+{{{
+       <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+}}}
+
+The `uriPattern` attribute can contain any URI path pattern you wish but the configuration must have a `parameter` element with the name of the database.
+
+Finally, you can expose resources via queries using:
+
+{{{
+       <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+          <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
+          <parameter name="org.exist.xmldb.db.name" value="db"/>
+       </attach>
+}}}
+
+The `org.exist.xmldb.xquery` parameter can be any URI.  If you want to point into the database, use an RIAP URI reference (e.g. riap://component/exist/db/echo.xql).
 
 = 3. API Overview =
 

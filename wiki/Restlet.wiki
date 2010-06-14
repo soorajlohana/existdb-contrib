@@ -10,7 +10,7 @@ class that is an instance of [http://www.restlet.org/documentation/2.0/jse/api/i
 
 Interactions with the eXist database are usually performed with internal requests as if you are client of the database but with optimized local routing via the internals of Restlet.
 
-= 2. Running a Restlet with eXist Embedded
+= 2. Running Restlet with eXist Embedded =
 
 {{{
 <component xmlns="http://www.restlet.org/schemas/2.0/Component">

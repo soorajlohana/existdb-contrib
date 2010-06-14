@@ -46,6 +46,18 @@ You can run a Restlet application or bind resources and queries within an eXist 
 </component>
 }}}
 
+This configuration file can be run directly using the `org.exist.restlet.WebComponent` class.  For example, if you are using the distribution jar files:
+
+{{{
+   java -jar exist-restlet.jar server.xml
+}}}
+
+otherwise, you can do:
+
+{{{
+   java -cp exist-restlet.jar:...  org.exist.restlet.WebComponent server.xml
+}}}
+
 A component configuration should contain a number of database configuration parameters.  The name of the parameter is `org.exist.xmldb.db.conf` and it must have the format of `{name}={file}`.  The database will then be accessible via the name given.
 
 For example:

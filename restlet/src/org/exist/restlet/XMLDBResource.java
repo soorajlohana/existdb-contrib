@@ -110,9 +110,17 @@ import org.xml.sax.SAXException;
 public class XMLDBResource extends ServerResource {
 
    public final static String USER_NAME = "org.exist.xmldb.user";
+   public final static String SESSION_NAME = "org.exist.xmldb.user.session";
    public final static String XQUERY_NAME = "org.exist.xmldb.xquery";
    public final static String DBNAME_NAME = "org.exist.xmldb.db.name";
    public final static String DBPATH_NAME = "org.exist.xmldb.db.path";
+   public final static String VERIFIER_NAME = "org.exist.xmldb.db.verifier";
+   public final static String COOKIE_NAME = "org.exist.xmldb.db.cookie";
+   public final static String COOKIE_PATH_NAME = "org.exist.xmldb.db.cookie.path";
+   public final static String COOKIE_EXPIRY_NAME = "org.exist.xmldb.db.cookie.expiry";
+   public final static String VERIFIER_CLASS_NAME = "org.exist.xmldb.db.verifier.class";
+   public final static String USER_LIST_NAME = "org.exist.xmldb.db.verifier.users.list";
+   public final static String USER_HREF_NAME = "org.exist.xmldb.db.verifier.users.href";
    
    protected final static String PARAMETER_NAME = "org.exist.xmldb.request.parameters";
    protected final static String DEFAULT_DB = "db";

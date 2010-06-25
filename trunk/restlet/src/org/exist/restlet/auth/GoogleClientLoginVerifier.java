@@ -68,7 +68,7 @@ public class GoogleClientLoginVerifier extends UserVerifier {
    {
       Request request = new Request(Method.POST,CLIENT_LOGIN);
       Form authForm = new Form();
-      authForm.add("accountType", "HOSTED");
+      authForm.add("accountType", identity.endsWith("gmail.com") ? "GOOGLE" : "HOSTED");
       authForm.add("service", identity.endsWith("gmail.com") ? "mail" : "apps");
       authForm.add("source", "exist-webapp");
       authForm.add("Email", identity);
@@ -76,6 +76,9 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       request.setEntity(authForm.getWebRepresentation());
       Response response = getContext().getClientDispatcher().handle(request);
       boolean result = response.getStatus().isSuccess();
+      if (!result) {
+         getLogger().info("Failed login, status="+response.getStatus().getCode()+", "+response.getEntityAsText());
+      }
       response.getEntity().release();
       return result;
    }

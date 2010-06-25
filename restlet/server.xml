@@ -7,7 +7,15 @@
     <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
     <host hostDomain="localhost" hostPort='8080'>
        <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
+          <parameter name="org.exist.restlet.XMLDBApplication.debug" value="true"/>
           <parameter name="org.exist.xmldb.db.name" value="db"/>
+          <!-- Setting the cookie name enables sessions -->
+          <parameter name="org.exist.xmldb.db.cookie" value="I"/>
+<!-- Configure ClientLogin with Google via the following
+          <parameter name="org.exist.xmldb.db.verifier.class" value="org.exist.restlet.auth.GoogleClientLoginVerifier"/>
+          <parameter name="org.exist.xmldb.db.verifier.users.list" value="you@appsdomain.com:100=dba,someone@appsdomain.com:200=guest"/>
+          <parameter name="org.exist.xmldb.db.verifier.users.list" value="someone@gmail.com:202=guest"/>
+-->
        </attach>
        <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
           <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>

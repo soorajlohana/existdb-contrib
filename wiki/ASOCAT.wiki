@@ -117,6 +117,18 @@ from eXist-db.org sources:
 
 }}}
 
+=== Fetch ===
+{{{
+        <fetch classpathref="classpath.core" dest="${top.dir}/${lib.user}
+		url="${include.module.jfreechart.url}" classname="org.jfree.chart.JFreeChart">
+            <patternset>
+                <include name="**/lib/jfreechart-*.jar"/>
+                <include name="**/lib/jcommon-*.jar"/>
+                <exclude name="**/lib/jfreechart-*-*.jar"/>
+            </patternset>
+        </fetch>
+}}}
+
 = Links =
  * [http://java.sun.com/j2se/1.5.0/docs/guide/deployment/deployment-guide/pack200.html Pack200 and Compression]
  * [http://wiki.eclipse.org/index.php/Pack200#Compression_and_Signing Compression and Signing]

@@ -17,11 +17,15 @@ import org.restlet.security.Verifier;
  *
  * @author alex
  */
-public class DBUserVerifier extends UserVerifier {
+public class DBUserVerifier extends UserVerifier implements UserManager {
    org.exist.security.SecurityManager manager;
    public DBUserVerifier(Context context,org.exist.security.SecurityManager manager) {
       super(context);
       this.manager = manager;
+   }
+
+   public User getUser(String identity) {
+      return manager.getUser(identity);
    }
 
    public int verify(Request request, Response response) {

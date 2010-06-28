@@ -41,6 +41,7 @@ import org.exist.dom.DefaultDocumentSet;
 import org.exist.dom.DocumentImpl;
 import org.exist.dom.MutableDocumentSet;
 import org.exist.dom.QName;
+import org.exist.restlet.auth.UserManager;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
 import org.exist.security.Realm;
@@ -117,7 +118,9 @@ public class XMLDBResource extends ServerResource {
    public final static String XQUERY_NAME = "org.exist.xmldb.xquery";
    public final static String DBNAME_NAME = "org.exist.xmldb.db.name";
    public final static String DBPATH_NAME = "org.exist.xmldb.db.path";
+   public final static String DB_USER_NAME = "org.exist.xmldb.db.user";
    public final static String VERIFIER_NAME = "org.exist.xmldb.db.verifier";
+   public final static String USER_MANAGER_NAME = "org.exist.xmldb.db.user.manager";
    public final static String COOKIE_NAME = "org.exist.xmldb.db.cookie";
    public final static String COOKIE_PATH_NAME = "org.exist.xmldb.db.cookie.path";
    public final static String COOKIE_EXPIRY_NAME = "org.exist.xmldb.db.cookie.expiry";
@@ -233,6 +236,7 @@ public class XMLDBResource extends ServerResource {
    String dbName;
    String dbPath;
    boolean isCollection;
+   UserManager userManager;
    Realm realm;
 
    /** Creates a new instance of AtomResource */
@@ -240,6 +244,7 @@ public class XMLDBResource extends ServerResource {
       dbName = null;
       dbPath = null;
       realm = null;
+      userManager = null;
       setNegotiated(false);
    }
 
@@ -258,6 +263,7 @@ public class XMLDBResource extends ServerResource {
       if (pathSpec==null) {
          pathSpec = getContext().getParameters().getFirstValue(DBNAME_NAME);
       }
+      this.userManager = (UserManager)getContext().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
       this.realm = (Realm)getContext().getAttributes().get(XMLDBResource.REALM_NAME);
       if (this.realm==null) {
          String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
@@ -317,6 +323,19 @@ public class XMLDBResource extends ServerResource {
          getLogger().info("user realm="+user.getRealm()+", realm="+realm);
          if (user.getRealm()!=realm && !user.getRealm().equals(realm)) {
             throw new SecurityException("The realm "+user.getRealm()+" for user "+user.getName()+" does not match realm "+realm);
+         }
+      }
+      if (user==null) {
+         String dbUserName = getContext().getParameters().getFirstValue(DB_USER_NAME);
+         if (dbUserName!=null) {
+            if (userManager!=null) {
+               user = userManager.getUser(dbUserName);
+            } else {
+               user = pool.getSecurityManager().getUser(dbUserName);
+            }
+            if (user==null) {
+               throw new SecurityException("Unable to get user "+dbUserName+" for operation.");
+            }
          }
       }
       return user==null ? pool.getSecurityManager().GUEST : user;

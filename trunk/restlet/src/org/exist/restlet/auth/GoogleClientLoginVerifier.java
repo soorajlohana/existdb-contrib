@@ -23,7 +23,7 @@ import org.restlet.security.Verifier;
  *
  * @author alex
  */
-public class GoogleClientLoginVerifier extends UserVerifier {
+public class GoogleClientLoginVerifier extends UserVerifier implements UserManager {
    static Reference CLIENT_LOGIN = new Reference("https://www.google.com/accounts/ClientLogin");
    long lastModified;
    Map<String,User> users;
@@ -89,6 +89,11 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       return result;
    }
 
+   public User getUser(String identity) {
+      checkUserMap();
+      return users.get(identity);
+   }
+
    public int verify(Request request, Response response) {
       ChallengeResponse authInfo = request.getChallengeResponse();
       if (authInfo==null) {
@@ -100,9 +105,7 @@ public class GoogleClientLoginVerifier extends UserVerifier {
          return Verifier.RESULT_INVALID;
       }
 
-      checkUserMap();
-
-      User user = users.get(identity);
+      User user = getUser(identity);
       if (user==null) {
          getLogger().info("User "+identity+" not found.");
          return Verifier.RESULT_INVALID;

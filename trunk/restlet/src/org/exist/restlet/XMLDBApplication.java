@@ -11,10 +11,9 @@ package org.exist.restlet;
 
 import java.util.logging.Level;
 import org.exist.restlet.admin.XMLDBAdminApplication;
-import org.exist.restlet.auth.DBUserVerifier;
 import org.exist.restlet.auth.SessionManager;
 import org.exist.restlet.auth.UserManager;
-import org.exist.security.User;
+import org.exist.restlet.auth.UserVerifier;
 import org.exist.storage.BrokerPool;
 import org.restlet.Application;
 import org.restlet.Context;
@@ -22,8 +21,6 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Cookie;
-import org.restlet.data.CookieSetting;
 import org.restlet.data.LocalReference;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
@@ -39,7 +36,6 @@ import org.restlet.security.Verifier;
 public class XMLDBApplication extends Application{
 
    org.exist.security.SecurityManager manager;
-   SessionManager sessionManager;
    String dbName;
    public XMLDBApplication(Context context)
    {
@@ -57,104 +53,63 @@ public class XMLDBApplication extends Application{
          }
          String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
          if (realmName!=null) {
-            getContext().getAttributes().put(XMLDBResource.REALM_NAME,XMLDBResource.getRealm(realmName));
+            getContext().getAttributes().put(XMLDBResource.REALM_NAME,UserVerifier.getRealm(realmName));
             getLogger().info(dbName+" is using realm "+realmName);
-         } else {
+         } else if (getContext().getAttributes().get(XMLDBResource.REALM_NAME)==null) {
             getLogger().info("No user realm for database.");
          }
          manager = BrokerPool.getInstance(dbName).getSecurityManager();
+         getContext().getAttributes().put(XMLDBResource.DB_SECURITY_MANAGER, manager);
          super.start();
       }
    }
 
    @Override
    public Restlet createInboundRoot() {
-      final String cookieName = getContext().getParameters().getFirstValue(XMLDBResource.COOKIE_NAME);
-      if (cookieName!=null) {
-         sessionManager = new SessionManager(getContext());
-      }
-      final String cookiePath = getContext().getParameters().getFirstValue(XMLDBResource.COOKIE_PATH_NAME);
       final boolean isDebugLog = "true".equals(getContext().getParameters().getFirstValue(XMLDBApplication.class.getName()+".debug"));
 
-      ChallengeAuthenticator userGuard = new ChallengeAuthenticator(getContext(),ChallengeScheme.HTTP_BASIC,"DB Users") {
-         public int authenticated(Request request,Response response) {
-            if (cookieName!=null) {
-               String sessionId = (String)request.getAttributes().get(XMLDBResource.SESSION_NAME);
-               if (sessionId==null) {
-                  User user = (User)request.getAttributes().get(XMLDBResource.USER_NAME);
-                  sessionId = sessionManager.newSession(user);
-                  if (isDebugLog) {
-                     getLogger().info("Setting session cookie "+cookieName+"="+sessionId+" for "+user.getName());
-                  }
-                  CookieSetting cookie = new CookieSetting(cookieName,sessionId);
-                  cookie.setPath(cookiePath==null ? "/" : cookiePath);
-                  response.getCookieSettings().add(cookie);
-               }
-            }
-            return super.authenticated(request, response);
-         }
-      };
+      ChallengeAuthenticator userGuard = new ChallengeAuthenticator(getContext(),ChallengeScheme.HTTP_BASIC,"DB Users");
 
-      Verifier verifier = (Verifier)getContext().getAttributes().get(XMLDBResource.VERIFIER_NAME);
-      if (verifier==null) {
-         String verifierClassName = getContext().getParameters().getFirstValue(XMLDBResource.VERIFIER_CLASS_NAME);
-         if (verifierClassName!=null) {
-            getLogger().info("Instantiating user verifier "+verifierClassName);
+      UserManager userManager = (UserManager)getContext().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
+      if (userManager==null) {
+         String userManagerClassName = getContext().getParameters().getFirstValue(XMLDBResource.USER_MANAGER_CLASS_NAME);
+         if (userManagerClassName!=null) {
+            getLogger().info("Instantiating user manager "+userManagerClassName);
             try {
-               Class<? extends Verifier> verifierClass = (Class<? extends Verifier>)this.getClass().getClassLoader().loadClass(verifierClassName);
+               Class<? extends UserManager> userManagerClass = (Class<? extends UserManager>)this.getClass().getClassLoader().loadClass(userManagerClassName);
                try {
-                  verifier = verifierClass.getConstructor(Context.class).newInstance(getContext());
+                  userManager = userManagerClass.getConstructor(Context.class).newInstance(getContext());
                } catch (NoSuchMethodException ex) {
                }
-               if (verifier==null) {
+               if (userManager==null) {
                   try {
-                     verifier = verifierClass.getConstructor().newInstance();
+                     userManager = userManagerClass.getConstructor().newInstance();
                   } catch (NoSuchMethodException ex) {
-                     getLogger().severe("There is no constructor available for verifier class "+verifierClassName);
+                     getLogger().severe("There is no constructor available for verifier class "+userManagerClassName);
                   }
                }
             } catch(Exception ex) {
-               getLogger().log(Level.SEVERE,"Error loading verifier class: "+verifierClassName,ex);
+               getLogger().log(Level.SEVERE,"Error loading verifier class: "+userManagerClassName,ex);
             }
          }
-         if (verifier==null) {
-            getLogger().info("Defaulting to database user verifier.");
-            verifier = new DBUserVerifier(getContext(),manager);
-         }
-      }
-      if (verifier instanceof UserManager) {
-         final UserManager userManager = (UserManager)verifier;
-         // Wrap the user manager instance to hide any implementation and disallow casting.
-         getContext().getAttributes().put(XMLDBResource.USER_MANAGER_NAME,new UserManager() {
-            public User getUser(String identity) {
-               return userManager.getUser(identity);
-            }
-         });
-      }
-      if (sessionManager!=null) {
-         final Verifier userVerifier = verifier;
-         verifier = new Verifier() {
-            public int verify(Request request, Response response) {
-               Cookie cookie = request.getCookies().getFirst(cookieName);
-               if (cookie!=null) {
-                  User user = sessionManager.getUser(cookie.getValue());
-                  if (user!=null) {
-                     if (isDebugLog) {
-                        getLogger().info(cookieName+"="+cookie.getValue()+" is valid, user="+user.getName());
-                     }
-                     request.getAttributes().put(XMLDBResource.USER_NAME,user);
-                     request.getAttributes().put(XMLDBResource.SESSION_NAME,cookie.getValue());
-                     return Verifier.RESULT_VALID;
+         if (userManager==null) {
+            getLogger().info("Defaulting to request level verification.");
+            Verifier verifier = new Verifier() {
+               public int verify(Request request, Response response) {
+                  UserManager requestManager = (UserManager)request.getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
+                  if (requestManager==null) {
+                     return Verifier.RESULT_INVALID;
                   }
-                  if (isDebugLog) {
-                     getLogger().info(cookieName+"="+cookie.getValue()+" is invalid.");
-                  }
+                  return requestManager.verify(request, response);
                }
-               return userVerifier.verify(request, response);
-            }
-         };
+            };
+            userGuard.setVerifier(verifier);
+         }
       }
-      userGuard.setVerifier(verifier);
+      if (userManager!=null) {
+         userGuard.setVerifier(userManager);
+         getContext().getAttributes().put(XMLDBResource.USER_MANAGER_NAME,userManager);
+      }
 
       Router router = new Router(getContext());
       userGuard.setNext(router);
@@ -202,24 +157,6 @@ public class XMLDBApplication extends Application{
          }
       });
       router.attach("_/admin/",new XMLDBAdminApplication(getContext(),dbName,manager)).getTemplate().setMatchingMode(Template.MODE_STARTS_WITH);
-      if (sessionManager!=null) {
-         router.attach("_/logout",new Restlet() {
-            public void handle(Request request,Response response) {
-               Cookie cookie = request.getCookies().getFirst(cookieName);
-               if (cookie!=null) {
-                  sessionManager.expireSession(cookie.getValue());
-                  CookieSetting unset = new CookieSetting(cookieName,"");
-                  unset.setMaxAge(0);
-                  unset.setPath(cookiePath);
-                  response.getCookieSettings().add(unset);
-               }
-               response.setStatus(Status.SUCCESS_NO_CONTENT);
-               if (isDebugLog) {
-                  getLogger().info("Expiring session "+cookie.getValue()+" via logout.");
-               }
-            }
-         });
-      }
       return userGuard;
    }
    

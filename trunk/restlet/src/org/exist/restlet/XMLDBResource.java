@@ -20,7 +20,6 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,6 +41,7 @@ import org.exist.dom.DocumentImpl;
 import org.exist.dom.MutableDocumentSet;
 import org.exist.dom.QName;
 import org.exist.restlet.auth.UserManager;
+import org.exist.restlet.auth.UserVerifier;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
 import org.exist.security.Realm;
@@ -112,21 +112,23 @@ import org.xml.sax.SAXException;
  */
 public class XMLDBResource extends ServerResource {
 
-   public final static String USER_NAME = "org.exist.xmldb.user";
-   public final static String SESSION_NAME = "org.exist.xmldb.user.session";
-   public final static String REALM_NAME = "org.exist.xmldb.user.realm";
-   public final static String XQUERY_NAME = "org.exist.xmldb.xquery";
-   public final static String DBNAME_NAME = "org.exist.xmldb.db.name";
-   public final static String DBPATH_NAME = "org.exist.xmldb.db.path";
-   public final static String DB_USER_NAME = "org.exist.xmldb.db.user";
-   public final static String VERIFIER_NAME = "org.exist.xmldb.db.verifier";
-   public final static String USER_MANAGER_NAME = "org.exist.xmldb.db.user.manager";
-   public final static String COOKIE_NAME = "org.exist.xmldb.db.cookie";
-   public final static String COOKIE_PATH_NAME = "org.exist.xmldb.db.cookie.path";
-   public final static String COOKIE_EXPIRY_NAME = "org.exist.xmldb.db.cookie.expiry";
-   public final static String VERIFIER_CLASS_NAME = "org.exist.xmldb.db.verifier.class";
-   public final static String USER_LIST_NAME = "org.exist.xmldb.db.verifier.users.list";
-   public final static String USER_HREF_NAME = "org.exist.xmldb.db.verifier.users.href";
+   public final static String USER_NAME               = "org.exist.xmldb.user";
+   public final static String NEW_USER_NAME           = "org.exist.xmldb.user.new";
+   public final static String SESSION_NAME            = "org.exist.xmldb.user.session";
+   public final static String SESSION_MANAGER_NAME    = "org.exist.xmldb.user.session.manager";
+   public final static String USER_MANAGER_NAME       = "org.exist.xmldb.user.manager";
+   public final static String USER_MANAGER_CLASS_NAME = "org.exist.xmldb.user.manager.class";
+   public final static String USER_LIST_NAME          = "org.exist.xmldb.user.list";
+   public final static String USER_HREF_NAME          = "org.exist.xmldb.user.href";
+   public final static String REALM_NAME              = "org.exist.xmldb.user.realm";
+   public final static String COOKIE_NAME             = "org.exist.xmldb.user.cookie";
+   public final static String COOKIE_PATH_NAME        = "org.exist.xmldb.user.cookie.path";
+   public final static String COOKIE_EXPIRY_NAME      = "org.exist.xmldb.user.cookie.expiry";
+   public final static String XQUERY_NAME             = "org.exist.xmldb.xquery";
+   public final static String DBNAME_NAME             = "org.exist.xmldb.db.name";
+   public final static String DBPATH_NAME             = "org.exist.xmldb.db.path";
+   public final static String DB_USER_NAME            = "org.exist.xmldb.db.user";
+   public final static String DB_SECURITY_MANAGER     = "org.exist.xmldb.db.security-manager";
    
    protected final static String PARAMETER_NAME = "org.exist.xmldb.request.parameters";
    protected final static String DEFAULT_DB = "db";
@@ -137,27 +139,6 @@ public class XMLDBResource extends ServerResource {
 
    protected final static QName PARAMETER_NAMES_QNAME = new QName("parameter-names",FUNC_NS);
    protected final static QName GET_PARAMETER_QNAME = new QName("get-parameter",FUNC_NS);
-
-   static final Map<String,Realm> realms = new HashMap<String,Realm>();
-
-   public static Realm getRealm(final String name) {
-      synchronized (realms) {
-         Realm realm = realms.get(name);
-         if (realm!=null) {
-            return realm;
-         }
-         realm = new Realm() {
-            public String toString() {
-               return name;
-            }
-            public boolean equals(Object obj) {
-               return name.equals(obj.toString());
-            }
-         };
-         realms.put(name, realm);
-         return realm;
-      }
-   }
 
    static {
       defaultProperties.setProperty(OutputKeys.INDENT, "no");
@@ -263,12 +244,18 @@ public class XMLDBResource extends ServerResource {
       if (pathSpec==null) {
          pathSpec = getContext().getParameters().getFirstValue(DBNAME_NAME);
       }
-      this.userManager = (UserManager)getContext().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
+      this.userManager = (UserManager)getRequest().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
+      if (this.userManager==null) {
+         this.userManager = (UserManager)getContext().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
+      }
+      if (this.userManager==null) {
+         getLogger().warning("The UserManager instance is missing.");
+      }
       this.realm = (Realm)getContext().getAttributes().get(XMLDBResource.REALM_NAME);
       if (this.realm==null) {
          String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
          if (realmName!=null) {
-            this.realm = XMLDBResource.getRealm(realmName);
+            this.realm = UserVerifier.getRealm(realmName);
          }
       }
       if (name!=null) {

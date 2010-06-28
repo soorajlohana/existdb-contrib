@@ -23,11 +23,12 @@ import org.restlet.security.Verifier;
  *
  * @author alex
  */
-public class GoogleClientLoginVerifier extends UserVerifier implements UserManager {
+public class GoogleClientLoginVerifier extends UserVerifier {
    static Reference CLIENT_LOGIN = new Reference("https://www.google.com/accounts/ClientLogin");
    long lastModified;
    Map<String,User> users;
    Realm realm;
+   SessionManager confSessionManager;
    public GoogleClientLoginVerifier(Context context) {
       super(context);
       lastModified = -1;
@@ -36,6 +37,7 @@ public class GoogleClientLoginVerifier extends UserVerifier implements UserManag
       if (realm!=null) {
          getLogger().info(this.getClass().getName()+" using realm "+realm);
       }
+      confSessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
    }
 
    protected void checkUserMap()
@@ -95,6 +97,10 @@ public class GoogleClientLoginVerifier extends UserVerifier implements UserManag
    }
 
    public int verify(Request request, Response response) {
+      if (request.getAttributes().get(XMLDBResource.USER_NAME)!=null) {
+         return Verifier.RESULT_VALID;
+      }
+
       ChallengeResponse authInfo = request.getChallengeResponse();
       if (authInfo==null) {
          return Verifier.RESULT_MISSING;
@@ -112,7 +118,16 @@ public class GoogleClientLoginVerifier extends UserVerifier implements UserManag
       }
 
       if (authenticate(identity,new String(secret))) {
+         SessionManager sessionManager = (SessionManager)request.getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
+         if (sessionManager==null) {
+            sessionManager = confSessionManager;
+         }
+         if (sessionManager!=null) {
+            String sessionId = sessionManager.newSession(user);
+            request.getAttributes().put(XMLDBResource.SESSION_NAME,sessionId);
+         }
          request.getAttributes().put(XMLDBResource.USER_NAME,user);
+         request.getAttributes().put(XMLDBResource.NEW_USER_NAME,Boolean.TRUE);
          return Verifier.RESULT_VALID;
       } else {
          getLogger().info("Password check failed on "+identity);

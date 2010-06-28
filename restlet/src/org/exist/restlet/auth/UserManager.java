@@ -6,11 +6,12 @@
 package org.exist.restlet.auth;
 
 import org.exist.security.User;
+import org.restlet.security.Verifier;
 
 /**
  *
  * @author alex
  */
-public interface UserManager {
+public interface UserManager extends Verifier {
    User getUser(String name);
 }

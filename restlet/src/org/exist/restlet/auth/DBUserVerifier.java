@@ -18,10 +18,16 @@ import org.restlet.security.Verifier;
  * @author alex
  */
 public class DBUserVerifier extends UserVerifier implements UserManager {
+   SessionManager confSessionManager;
    org.exist.security.SecurityManager manager;
+   public DBUserVerifier(Context context) {
+      super(context);
+      this.manager = (org.exist.security.SecurityManager)getContext().getAttributes().get(XMLDBResource.DB_SECURITY_MANAGER);
+   }
    public DBUserVerifier(Context context,org.exist.security.SecurityManager manager) {
       super(context);
       this.manager = manager;
+      confSessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
    }
 
    public User getUser(String identity) {
@@ -29,6 +35,10 @@ public class DBUserVerifier extends UserVerifier implements UserManager {
    }
 
    public int verify(Request request, Response response) {
+      if (request.getAttributes().get(XMLDBResource.USER_NAME)!=null) {
+         return Verifier.RESULT_VALID;
+      }
+
       ChallengeResponse authInfo = request.getChallengeResponse();
       if (authInfo==null) {
          return Verifier.RESULT_MISSING;
@@ -42,7 +52,16 @@ public class DBUserVerifier extends UserVerifier implements UserManager {
       if (user!=null) {
          boolean valid = user.authenticate(new String(secret));
          if (valid) {
+            SessionManager sessionManager = (SessionManager)request.getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
+            if (sessionManager==null) {
+               sessionManager = confSessionManager;
+            }
+            if (sessionManager!=null) {
+               String sessionId = sessionManager.newSession(user);
+               request.getAttributes().put(XMLDBResource.SESSION_NAME,sessionId);
+            }
             request.getAttributes().put(XMLDBResource.USER_NAME,user);
+            request.getAttributes().put(XMLDBResource.NEW_USER_NAME,Boolean.TRUE);
             return Verifier.RESULT_VALID;
          } else {
             getLogger().info("Password check failed on "+identity);

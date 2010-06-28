@@ -9,11 +9,11 @@
 
 package org.exist.restlet;
 
-import java.util.UUID;
 import java.util.logging.Level;
 import org.exist.restlet.admin.XMLDBAdminApplication;
 import org.exist.restlet.auth.DBUserVerifier;
 import org.exist.restlet.auth.SessionManager;
+import org.exist.restlet.auth.UserManager;
 import org.exist.security.User;
 import org.exist.storage.BrokerPool;
 import org.restlet.Application;
@@ -121,6 +121,15 @@ public class XMLDBApplication extends Application{
             getLogger().info("Defaulting to database user verifier.");
             verifier = new DBUserVerifier(getContext(),manager);
          }
+      }
+      if (verifier instanceof UserManager) {
+         final UserManager userManager = (UserManager)verifier;
+         // Wrap the user manager instance to hide any implementation and disallow casting.
+         getContext().getAttributes().put(XMLDBResource.USER_MANAGER_NAME,new UserManager() {
+            public User getUser(String identity) {
+               return userManager.getUser(identity);
+            }
+         });
       }
       if (sessionManager!=null) {
          final Verifier userVerifier = verifier;

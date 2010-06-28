@@ -19,7 +19,7 @@ import org.restlet.security.Verifier;
  *
  * @author alex
  */
-public class UserVerifier implements UserManager {
+public abstract class UserVerifier implements UserManager {
 
    static final Map<String,Realm> realms = new HashMap<String,Realm>();
 
@@ -47,10 +47,9 @@ public class UserVerifier implements UserManager {
       this.context = context;
    }
 
-   public User getUser(String user)
-   {
-      throw new java.lang.IllegalStateException("Cannot get user from this object.");
-   }
+   public abstract User getUser(String user);
+
+   public abstract boolean authenticate(String username, String password);
 
    public Context getContext() {
       return context;

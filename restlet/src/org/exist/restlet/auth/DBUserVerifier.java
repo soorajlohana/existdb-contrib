@@ -34,6 +34,12 @@ public class DBUserVerifier extends UserVerifier implements UserManager {
       return manager.getUser(identity);
    }
 
+   public boolean authenticate(String identity,String password)
+   {
+      User user = manager.getUser(identity);
+      return user!=null ? user.authenticate(password) : false;
+   }
+   
    public int verify(Request request, Response response) {
       if (request.getAttributes().get(XMLDBResource.USER_NAME)!=null) {
          return Verifier.RESULT_VALID;

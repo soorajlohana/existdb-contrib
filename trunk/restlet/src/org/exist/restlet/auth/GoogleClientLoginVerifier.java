@@ -72,7 +72,7 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       }
    }
 
-   protected boolean authenticate(String identity,String password)
+   public boolean authenticate(String identity,String password)
    {
       Request request = new Request(Method.POST,CLIENT_LOGIN);
       Form authForm = new Form();

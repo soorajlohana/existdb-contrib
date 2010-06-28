@@ -8,6 +8,7 @@ package org.exist.restlet.auth;
 import java.util.HashMap;
 import java.util.Map;
 import org.exist.restlet.XMLDBResource;
+import org.exist.security.Realm;
 import org.exist.security.User;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -26,10 +27,15 @@ public class GoogleClientLoginVerifier extends UserVerifier {
    static Reference CLIENT_LOGIN = new Reference("https://www.google.com/accounts/ClientLogin");
    long lastModified;
    Map<String,User> users;
+   Realm realm;
    public GoogleClientLoginVerifier(Context context) {
       super(context);
       lastModified = -1;
       this.users = new HashMap<String,User>();
+      this.realm = (Realm)context.getAttributes().get(XMLDBResource.REALM_NAME);
+      if (realm!=null) {
+         getLogger().info(this.getClass().getName()+" using realm "+realm);
+      }
    }
 
    protected void checkUserMap()
@@ -57,7 +63,7 @@ public class GoogleClientLoginVerifier extends UserVerifier {
                   username = username.substring(0,colon).trim();
                }
                getLogger().info("User: "+uid+" -> "+username);
-               users.put(username, new WebUser(uid,username.substring(0,colon),groups));
+               users.put(username, new WebUser(realm,uid,username.substring(0,colon),groups));
             }
          }
          lastModified = System.currentTimeMillis();

@@ -27,11 +27,13 @@ public class WebUser implements User {
    boolean hasDbaRole;
    Map<String,Object> attributes;
    XmldbURI home;
-   public WebUser(int id,String name)
+   Realm realm;
+   public WebUser(Realm realm,int id,String name)
    {
-      this(id,name,null);
+      this(realm,id,name,null);
    }
-   public WebUser(int id,String name,String [] groups) {
+   public WebUser(Realm realm,int id,String name,String [] groups) {
+      this.realm = realm;
       this.id = id;
       this.name = name;
       this.groups = groups;
@@ -64,7 +66,7 @@ public class WebUser implements User {
    public String getPassword() { return nonPassword; }
    public void setPassword(String password) {throw new SecurityException("Cannot set the password of a web user."); }
    public void setUID(int id) { throw new SecurityException("Cannot set the UID of a web user."); }
-   public Realm getRealm() { return null; }
+   public Realm getRealm() { return realm; }
    public boolean isAuthenticated() { return false; }
 	public boolean authenticate(Object credentials) { return false; }
 

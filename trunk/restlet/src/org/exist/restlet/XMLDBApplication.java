@@ -49,10 +49,18 @@ public class XMLDBApplication extends Application{
       throws Exception
    {
       if (isStopped()) {
+         getLogger().info("Starting XMLDBApplication:");
          dbName = getContext().getParameters().getFirstValue(XMLDBResource.DBNAME_NAME);
          if (dbName==null) {
             getLogger().severe("There is no "+XMLDBResource.DBNAME_NAME+" parameter for the "+this.getClass().getName());
             return;
+         }
+         String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
+         if (realmName!=null) {
+            getContext().getAttributes().put(XMLDBResource.REALM_NAME,XMLDBResource.getRealm(realmName));
+            getLogger().info(dbName+" is using realm "+realmName);
+         } else {
+            getLogger().info("No user realm for database.");
          }
          manager = BrokerPool.getInstance(dbName).getSecurityManager();
          super.start();
@@ -164,7 +172,9 @@ public class XMLDBApplication extends Application{
                // Set the entity both from the request
                dbRequest.setEntity(request.getEntity());
                // Copy the headers from the request
-               dbRequest.getAttributes().put("org.restlet.http.headers",request.getAttributes().get("org.restlet.http.headers"));
+               for (String name : request.getAttributes().keySet()) {
+                  dbRequest.getAttributes().put(name,request.getAttributes().get(name));
+               }
 
                // Interact with eXist
                Response dbResponse = getContext().getClientDispatcher().handle(dbRequest);

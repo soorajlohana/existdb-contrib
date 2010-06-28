@@ -20,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.exist.dom.MutableDocumentSet;
 import org.exist.dom.QName;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
+import org.exist.security.Realm;
 import org.exist.security.User;
 import org.exist.security.xacml.AccessContext;
 import org.exist.source.DBSource;
@@ -111,6 +113,7 @@ public class XMLDBResource extends ServerResource {
 
    public final static String USER_NAME = "org.exist.xmldb.user";
    public final static String SESSION_NAME = "org.exist.xmldb.user.session";
+   public final static String REALM_NAME = "org.exist.xmldb.user.realm";
    public final static String XQUERY_NAME = "org.exist.xmldb.xquery";
    public final static String DBNAME_NAME = "org.exist.xmldb.db.name";
    public final static String DBPATH_NAME = "org.exist.xmldb.db.path";
@@ -131,6 +134,27 @@ public class XMLDBResource extends ServerResource {
 
    protected final static QName PARAMETER_NAMES_QNAME = new QName("parameter-names",FUNC_NS);
    protected final static QName GET_PARAMETER_QNAME = new QName("get-parameter",FUNC_NS);
+
+   static final Map<String,Realm> realms = new HashMap<String,Realm>();
+
+   public static Realm getRealm(final String name) {
+      synchronized (realms) {
+         Realm realm = realms.get(name);
+         if (realm!=null) {
+            return realm;
+         }
+         realm = new Realm() {
+            public String toString() {
+               return name;
+            }
+            public boolean equals(Object obj) {
+               return name.equals(obj.toString());
+            }
+         };
+         realms.put(name, realm);
+         return realm;
+      }
+   }
 
    static {
       defaultProperties.setProperty(OutputKeys.INDENT, "no");
@@ -209,11 +233,13 @@ public class XMLDBResource extends ServerResource {
    String dbName;
    String dbPath;
    boolean isCollection;
+   Realm realm;
 
    /** Creates a new instance of AtomResource */
    public XMLDBResource() {
       dbName = null;
       dbPath = null;
+      realm = null;
       setNegotiated(false);
    }
 
@@ -232,6 +258,13 @@ public class XMLDBResource extends ServerResource {
       if (pathSpec==null) {
          pathSpec = getContext().getParameters().getFirstValue(DBNAME_NAME);
       }
+      this.realm = (Realm)getContext().getAttributes().get(XMLDBResource.REALM_NAME);
+      if (this.realm==null) {
+         String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
+         if (realmName!=null) {
+            this.realm = XMLDBResource.getRealm(realmName);
+         }
+      }
       if (name!=null) {
          dbName = name.toString();
          dbPath = pathSpec==null ? null : pathSpec.toString();
@@ -247,7 +280,7 @@ public class XMLDBResource extends ServerResource {
          isCollection = true;
       }
       if (getContext().getLogger().isLoggable(Level.FINE)) {
-         getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath);
+         getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath+", realm="+realm);
       }
 
    }
@@ -274,7 +307,19 @@ public class XMLDBResource extends ServerResource {
    
    protected User getUser(BrokerPool pool) {
       User user = (User)getRequest().getAttributes().get(USER_NAME);
-      return user==null ? pool.getSecurityManager().SYSTEM_USER : user;
+      if (realm!=null) {
+         if (user==null) {
+            throw new SecurityException("User is not specified for realm "+realm);
+         }
+         if (user.getRealm()==null) {
+            throw new SecurityException("The user "+user.getName()+" does not have a realm.");
+         }
+         getLogger().info("user realm="+user.getRealm()+", realm="+realm);
+         if (user.getRealm()!=realm && !user.getRealm().equals(realm)) {
+            throw new SecurityException("The realm "+user.getRealm()+" for user "+user.getName()+" does not match realm "+realm);
+         }
+      }
+      return user==null ? pool.getSecurityManager().GUEST : user;
    }
 
    protected String [] getDBRef(String path) {
@@ -501,6 +546,15 @@ public class XMLDBResource extends ServerResource {
         }
     }
 
+   protected Representation doHandle() {
+      try {
+         return super.doHandle();
+      } catch (SecurityException ex) {
+         getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+         getLogger().log(Level.SEVERE,"Security exception in database access.",ex);
+         return new StringRepresentation("Security exception in database access.");
+      }
+   }
    
    protected Representation get() {
       if (dbName==null) {
@@ -1099,7 +1153,7 @@ public class XMLDBResource extends ServerResource {
          }
          try {
             User user = getUser(pool);
-            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+            broker = pool.get(user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -1187,7 +1241,7 @@ public class XMLDBResource extends ServerResource {
          }
          try {
             final User user = getUser(pool);
-            broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+            broker = pool.get(user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
@@ -1432,7 +1486,7 @@ public class XMLDBResource extends ServerResource {
          }
          //getLogger().info("active="+pool.active()+", available="+pool.available());
          final User user = getUser(pool);
-         DBBroker broker = pool.get(user==null ? pool.getSecurityManager().SYSTEM_USER : user);
+         DBBroker broker = pool.get(user);
          DocumentImpl resource = null;
          try {
             XmldbURI pathUri = XmldbURI.create(dbPath);

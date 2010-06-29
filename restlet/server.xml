@@ -6,27 +6,46 @@
     <server protocols="HTTPS" port='8081'/>
     <parameter name="org.exist.xmldb.db.conf" value="db=conf.xml"/>
     <host hostDomain="localhost" hostPort='8080'>
-       <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
-          <parameter name="org.exist.restlet.XMLDBApplication.debug" value="true"/>
-          <parameter name="org.exist.xmldb.db.name" value="db"/>
-          <!-- Setting the cookie name enables sessions -->
-          <parameter name="org.exist.xmldb.db.cookie" value="I"/>
-<!-- Configure ClientLogin with Google via the following
-          <parameter name="org.exist.xmldb.db.verifier.class" value="org.exist.restlet.auth.GoogleClientLoginVerifier"/>
-          <parameter name="org.exist.xmldb.db.verifier.users.list" value="you@appsdomain.com:100=dba,someone@appsdomain.com:200=guest"/>
-          <parameter name="org.exist.xmldb.db.verifier.users.list" value="someone@gmail.com:202=guest"/>
+       <attach uriPattern="" matchingMode="1" targetClass="org.exist.restlet.auth.UserFilter">
+          <parameter name="org.exist.restlet.auth.UserFilter.debug" value="true"/>
+          <parameter name="org.exist.xmldb.user.realm" value="web"/>
+          <parameter name="org.exist.xmldb.user.cookie" value="I"/>
+<!-- Enables ClientLogin with google:
+          <parameter name="org.exist.xmldb.user.manager.class" value="org.exist.restlet.auth.GoogleClientLoginVerifier"/>
+          <parameter name="org.exist.xmldb.user.list" value="you@appsdomain.com:100=dba,someone@appsdomain.com:200=guest"/>
+          <parameter name="org.exist.xmldb.user.list" value="someone@gmail.com:202=guest"/>
 -->
-       </attach>
-       <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
-          <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
-          <parameter name="org.exist.xmldb.db.name" value="db"/>
-       </attach>
-       <attach uriPattern="/{A}/{B}/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
-          <parameter name="org.exist.xmldb.xquery" href="echo-with-vars.xql"/>
-          <parameter name="org.exist.xmldb.db.name" value="db"/>
+          <next targetClass="org.restlet.routing.Router">
+              <!-- This is the login application for supportin form-based login. -->
+              <attach uriPattern="/login" matchingMode="1" targetClass="org.exist.restlet.login.LoginApplication"/>
+              <!-- A logout resource. -->
+              <attach uriPattern="/db/_/logout" targetClass="org.exist.restlet.auth.LogoutResource">
+                 <parameter name="org.exist.restlet.auth.LogoutResource.debug" value="true"/>
+                 <parameter name="org.exist.xmldb.user.cookie" value="I"/>
+              </attach>
+              <!-- the DB application (requires auth)  -->
+              <attach uriPattern="/db/" matchingMode="1" targetClass="org.exist.restlet.XMLDBApplication">
+                 <parameter name="org.exist.restlet.XMLDBApplication.debug" value="true"/>
+                 <parameter name="org.exist.xmldb.db.name" value="db"/>
+              </attach>
+              <!-- examples of configuring queries -->
+              <attach uriPattern="/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+                 <parameter name="org.exist.xmldb.xquery" href="echo.xql"/>
+                 <parameter name="org.exist.xmldb.db.name" value="db"/>
+                 <!-- make this the required user -->
+                 <parameter name="org.exist.xmldb.db.user" value="you@appsdomain.com"/>
+              </attach>
+              <attach uriPattern="/{A}/{B}/echo" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource">
+                 <parameter name="org.exist.xmldb.xquery" href="echo-with-vars.xql"/>
+                 <parameter name="org.exist.xmldb.db.name" value="db"/>
+              </attach>
+          </next>
        </attach>
     </host>
     <internalRouter>
        <attach uriPattern="/exist/" matchingMode="1" targetClass="org.exist.restlet.XMLDBResource"/>
+       <!-- restrict the user realm for the internal router
+       <parameter name="org.exist.xmldb.user.realm" value="web"/>
+       -->
     </internalRouter>
 </component>

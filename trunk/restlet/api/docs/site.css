@@ -1,0 +1,27 @@
+/* 
+    Document   : site
+    Created on : Jul 9, 2010, 3:46:42 PM
+    Author     : alex
+    Description:
+        Purpose of the stylesheet follows.
+*/
+body {
+   font-family: arial;
+}
+
+#login {
+    float: right;
+    font-size: 1em;
+    padding: 0px;
+    padding-right: 1em;
+    margin-top: 0.2em;
+}
+
+#login div {
+   margin: 0px; padding: 0px;
+}
+
+#login p {
+   padding: 0px; margin: 0px;
+}
+

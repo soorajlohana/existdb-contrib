@@ -27,67 +27,33 @@ import org.restlet.representation.Representation;
 public class WebComponent extends Component {
 
    public final static String DBCONF_NAME = "org.exist.xmldb.db.conf";
+   public final static String LOG_NAME = "org.exist.www";
 
    List<XMLDB> databases;
 
    public WebComponent() {
       super();
       databases = new ArrayList<XMLDB>();
+      getLogService().setLoggerName(LOG_NAME);
    }
 
    public WebComponent(String ref) {
       super(ref);
       databases = new ArrayList<XMLDB>();
+      getLogService().setLoggerName(LOG_NAME);
    }
 
    public WebComponent(Reference ref) {
       super(ref);
       databases = new ArrayList<XMLDB>();
+      getLogService().setLoggerName(LOG_NAME);
    }
 
    public WebComponent(Representation xmlConf) {
       super(xmlConf);
       databases = new ArrayList<XMLDB>();
+      getLogService().setLoggerName(LOG_NAME);
    }
-
-   /*
-   public WebComponent(String hostname,String ipAddress, int port) {
-
-      getLogService().setLoggerName("org.exist.restlet.www");
-      
-      // ------------------
-      // Add the connectors
-      // ------------------
-      getServers().add(Protocol.HTTP, ipAddress.equals("*") ? null : ipAddress, port);
-      getClients().add(Protocol.FILE);
-      
-      // ---------------
-      // www.restlet.org
-      // ---------------
-      Context context = getContext().createChildContext();
-      context.setLogger(getLogger());
-      VirtualHost host = new VirtualHost();
-      if (!hostname.equals("*")) {
-         host.setHostDomain(hostname);
-      }
-      host.setHostPort(Integer.toString(port));
-
-      try {
-         for (XMLDB db : databases) {
-            Application app = new XMLDBApplication(getContext().createChildContext());
-            host.attach("/"+db.name+"/",app).getTemplate().setMatchingMode(Template.MODE_STARTS_WITH);
-
-         }
-      } catch (Exception ex) {
-         getLogger().log(Level.SEVERE,"Cannot attach XMLDB application.",ex);
-      }
-      
-      getHosts().add(host);
-      
-      getInternalRouter().attach("/exist/",XMLDBResource.class).getTemplate().setMatchingMode(Template.MODE_STARTS_WITH);
-      
-   }
-   */
 
    public void addDatabase(String name,File confFile) {
       XMLDB db = new XMLDB(name,confFile);
@@ -163,6 +129,7 @@ static String finestLog =
         try {
            int argStart = 0;
            Level logLevel = Level.INFO;
+           boolean logSet = false;
            if (args.length>2) {
               if (args[0].equals("-l")) {
                  if (args[1].equals("fine")) {
@@ -172,42 +139,43 @@ static String finestLog =
                  } else if (args[1].equals("finest")) {
                     logLevel = Level.FINEST;
                  }
+                 logSet = true;
                  argStart = 2;
               }
            }
-           if (logLevel == Level.FINE) {
-              try {
-                 LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(fineLog.getBytes()));
-              } catch (java.io.IOException ex) {
-                 ex.printStackTrace();
-              }
-           } else if (logLevel == Level.FINER) {
-              try {
-                 LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(finerLog.getBytes()));
-              } catch (java.io.IOException ex) {
-                 ex.printStackTrace();
-              }
-           } else if (logLevel == Level.FINEST) {
-              try {
-                 LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(finestLog.getBytes()));
-              } catch (java.io.IOException ex) {
-                 ex.printStackTrace();
-              }
+           if (logSet) {
+              if (logLevel == Level.FINE) {
+                 try {
+                    LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(fineLog.getBytes()));
+                 } catch (java.io.IOException ex) {
+                    ex.printStackTrace();
+                 }
+              } else if (logLevel == Level.FINER) {
+                 try {
+                    LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(finerLog.getBytes()));
+                 } catch (java.io.IOException ex) {
+                    ex.printStackTrace();
+                 }
+              } else if (logLevel == Level.FINEST) {
+                 try {
+                    LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(finestLog.getBytes()));
+                 } catch (java.io.IOException ex) {
+                    ex.printStackTrace();
+                 }
 
+              }
            }
-            if ((args == null) || ((args.length-argStart) != 1)) {
-                // Display program arguments
-                System.err
-                        .println("Can't launch the component. Requires the path to an XML configuration file.\n");
-            } else {
-                // Create and start the component
-                URI currentDirURI = (new File(".")).toURI();
-                URI confURI = currentDirURI.resolve(args[argStart]);
-                new WebComponent(confURI.toString()).start();
-            }
+           if ((args == null) || ((args.length - argStart) != 1)) {
+              // Display program arguments
+              System.err.println("Can't launch the component. Requires the path to an XML configuration file.\n");
+           } else {
+              // Create and start the component
+              URI currentDirURI = (new File(".")).toURI();
+              URI confURI = currentDirURI.resolve(args[argStart]);
+              new WebComponent(confURI.toString()).start();
+           }
         } catch (Exception e) {
-            System.err
-                    .println("Can't launch the component.\nAn unexpected exception occurred:");
+            System.err.println("Can't launch the component.\nAn unexpected exception occurred:");
             e.printStackTrace(System.err);
         }
     }

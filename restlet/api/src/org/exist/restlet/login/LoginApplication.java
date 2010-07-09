@@ -103,7 +103,7 @@ public class LoginApplication extends Application
       router.attach("/status",StatusAction.class).getTemplate().setMatchingMode(Template.MODE_EQUALS);
       router.attach("/expire",LogoutAction.class).getTemplate().setMatchingMode(Template.MODE_EQUALS);
       router.attach("/logout",LogoutView.class).getTemplate().setMatchingMode(Template.MODE_EQUALS);
-      router.attach("/js/",new ClassResourceFinder(getContext(),LoginApplication.class,"js"));
+      router.attach("/js/",new ClassResourceFinder(getContext(),LoginApplication.class,"js")).getTemplate().setMatchingMode(Template.MODE_STARTS_WITH);
       return router;
    }
    

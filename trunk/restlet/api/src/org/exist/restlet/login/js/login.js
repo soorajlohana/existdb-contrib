@@ -29,15 +29,16 @@ function Login(base) {
    this.base = base;
    this.loginId = null;
    if (!this.base) {
-      this.base = document.location.protocol+"//"+document.location.host+"/services/login/";
+      this.base = document.location.protocol+"//"+document.location.host+"/login/";
    }
    //alert(this.base);
-   var searchPos = document.location.search.indexOf("url=");
+   var searchPos = document.location.search.indexOf("u=");
    if (searchPos>=0) {
       this.afterLogin = document.location.search.substring(searchPos+4);
    } else {
       this.afterLogin = document.location.protocol+"//"+document.location.host+"/";
    }
+   this.showForgotPassword = false;
    this.forgotPassword = null;
    //alert(this.afterLogin);
 }
@@ -65,6 +66,14 @@ Login.prototype.onForgotPassword = function(alias)
       return;
    }
    this.doForgotPassword(alias);
+}
+
+Login.prototype.onAfterLogin = function(success) {
+   if (success) {
+      document.location = this.afterLogin;
+   } else {
+      this.showMessage("Login failed.");
+   }
 }
 
 Login.prototype.doForgotPassword = function(alias,email)
@@ -122,13 +131,13 @@ Login.prototype.doLogin = function(form)
    this.showMessage("Sending login...");
    HTTP("POST",this.base+"auth",
    {
-      body: "username="+escape(alias)+"&password="+escape(form.password.value),
+      body: "username="+escape(alias)+"&password="+escape(form.password.value)+"&nonce="+escape(form.nonce.value),
       contentType: "application/x-www-form-urlencoded",
       onSuccess: function(status) {
-         document.location = current.afterLogin;
+         current.onAfterLogin(true);
       },
       onFailure: function(status) {
-         current.showMessage("Login failed.");
+         current.onAfterLogin(false);
       }
    });
    return false;
@@ -171,6 +180,10 @@ Login.prototype.showLogin = function(id)
                current.form = form;
             });
             current._findDescendant(loginDiv,null,"A",function(a) {
+               if (a.getAttribute("rel")!="forgot") {
+                  return;
+               }
+               current.forgotPasswordLink = a;
                a.onclick = function() {
                   var alias = current.form.username.value;
                   alias = alias.trim();
@@ -179,6 +192,10 @@ Login.prototype.showLogin = function(id)
                }
             });
             current._findDescendant(loginDiv,null,"a",function(a) {
+               if (a.getAttribute("rel")!="forgot") {
+                  return;
+               }
+               current.forgotPasswordLink = a;
                a.onclick = function() {
                   var alias = current.form.username.value;
                   alias = alias.trim();
@@ -186,6 +203,9 @@ Login.prototype.showLogin = function(id)
                   return false;
                }
             });
+            if (!current.showForgotPassword && current.forgotPasswordLink) {
+               current.forgotPasswordLink.parentNode.style.display = "none";
+            }
             //} catch(ex) {
             //   alert(ex);
             //}

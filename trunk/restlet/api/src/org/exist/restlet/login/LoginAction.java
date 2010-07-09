@@ -48,6 +48,10 @@ public class LoginAction extends ServerResource
       
       Form form = new Form(rep);
       String nonceS = form.getFirstValue("nonce");
+      if (nonceS==null) {
+         getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+         return null;
+      }
       int nonce = Integer.parseInt(nonceS);
       LoginApplication.NonceCache nonceCache = (LoginApplication.NonceCache)getContext().getAttributes().get(LoginApplication.NONCES);
       if (!nonceCache.consume(nonce)) {

@@ -12,6 +12,6 @@
    </table>
    <input type="submit" value="login"/>
    <p>{error}</p>
-   <p class='forgot'><a href='#'>Forgot your password?</a></p>
+   <p class='forgot'><a rel="forgot" href='#'>Forgot your password?</a></p>
 </form>
 </div>

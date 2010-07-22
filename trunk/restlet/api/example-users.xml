@@ -1,0 +1,8 @@
+<realms key="mysecret" xmlns="http://www.exist-db.org/V/user-list/2010/1/0">
+<realm name="web">
+<user name="you@your-domain.com" uid="100">
+<group name="dba"/>
+<grant database="db"/>
+</user>
+</realm>
+</realms>

@@ -117,9 +117,11 @@ public class XMLDBResource extends ServerResource {
    public final static String SESSION_NAME            = "org.exist.xmldb.user.session";
    public final static String SESSION_MANAGER_NAME    = "org.exist.xmldb.user.session.manager";
    public final static String USER_MANAGER_NAME       = "org.exist.xmldb.user.manager";
+   public final static String USER_MANAGER_KEY_NAME   = "org.exist.xmldb.user.manager.key";
    public final static String USER_MANAGER_CLASS_NAME = "org.exist.xmldb.user.manager.class";
    public final static String USER_LIST_NAME          = "org.exist.xmldb.user.list";
    public final static String USER_HREF_NAME          = "org.exist.xmldb.user.href";
+   public final static String USER_DATABASES_CHECK    = "org.exist.xmldb.user.databases.check";
    public final static String REALM_NAME              = "org.exist.xmldb.user.realm";
    public final static String COOKIE_NAME             = "org.exist.xmldb.user.cookie";
    public final static String COOKIE_PATH_NAME        = "org.exist.xmldb.user.cookie.path";
@@ -217,6 +219,7 @@ public class XMLDBResource extends ServerResource {
    String dbName;
    String dbPath;
    boolean isCollection;
+   boolean checkUserDatabases;
    UserManager userManager;
    Realm realm;
 
@@ -226,6 +229,7 @@ public class XMLDBResource extends ServerResource {
       dbPath = null;
       realm = null;
       userManager = null;
+      checkUserDatabases = false;
       setNegotiated(false);
    }
 
@@ -258,6 +262,7 @@ public class XMLDBResource extends ServerResource {
             this.realm = UserVerifier.getRealm(realmName);
          }
       }
+      checkUserDatabases = "true".equals(getContext().getParameters().getFirstValue(XMLDBResource.USER_DATABASES_CHECK));
       if (name!=null) {
          dbName = name.toString();
          dbPath = pathSpec==null ? null : pathSpec.toString();
@@ -276,6 +281,33 @@ public class XMLDBResource extends ServerResource {
          getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath+", realm="+realm);
       }
 
+   }
+
+   protected Representation doHandle() {
+      if (checkUserDatabases) {
+         User user = (User)getRequest().getAttributes().get(USER_NAME);
+         if (user==null) {
+            getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            return null;
+         }
+         if (userManager==null) {
+            getLogger().severe("No user manager with which to check user database grants.");
+            getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            return null;
+         }
+         if (!userManager.isUserAllowedDatabaseAccess(dbName, user.getName())) {
+            getLogger().warning("User "+user.getName()+" is not allowed to access "+dbName);
+            getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            return null;
+         }
+      }
+      try {
+         return super.doHandle();
+      } catch (SecurityException ex) {
+         getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+         getLogger().log(Level.SEVERE,"Security exception in database access.",ex);
+         return new StringRepresentation("Security exception in database access.");
+      }
    }
 
    protected Object getXQueryReference() {
@@ -552,16 +584,6 @@ public class XMLDBResource extends ServerResource {
         }
     }
 
-   protected Representation doHandle() {
-      try {
-         return super.doHandle();
-      } catch (SecurityException ex) {
-         getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-         getLogger().log(Level.SEVERE,"Security exception in database access.",ex);
-         return new StringRepresentation("Security exception in database access.");
-      }
-   }
-   
    protected Representation get() {
       if (dbName==null) {
          getContext().getLogger().warning("Missing database name in request URI.");

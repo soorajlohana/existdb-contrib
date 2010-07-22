@@ -5,8 +5,12 @@
 
 package org.exist.restlet.auth;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 import org.exist.restlet.XMLDBResource;
 import org.exist.security.Realm;
 import org.exist.security.User;
@@ -25,55 +29,63 @@ import org.restlet.security.Verifier;
  */
 public class GoogleClientLoginVerifier extends UserVerifier {
    static Reference CLIENT_LOGIN = new Reference("https://www.google.com/accounts/ClientLogin");
-   long lastModified;
-   Map<String,User> users;
-   Realm realm;
    SessionManager confSessionManager;
+   Realm realm;
+   UserStorage userStorage;
    public GoogleClientLoginVerifier(Context context) {
       super(context);
-      lastModified = -1;
-      this.users = new HashMap<String,User>();
-      this.realm = (Realm)context.getAttributes().get(XMLDBResource.REALM_NAME);
-      if (realm!=null) {
-         getLogger().info(this.getClass().getName()+" using realm "+realm);
+      realm = (Realm)context.getAttributes().get(XMLDBResource.REALM_NAME);
+      if (realm==null) {
+         getLogger().severe("No realm for web users.");
+      } else {
+         getLogger().info(GoogleClientLoginVerifier.class.getName()+" using realm "+realm);
       }
       confSessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
+      String [] listValues = getContext().getParameters().getValuesArray(XMLDBResource.USER_LIST_NAME);
+      String userRef = getContext().getParameters().getFirstValue(XMLDBResource.USER_HREF_NAME);
+      if (listValues!=null && listValues.length>0) {
+         userStorage = new ParameterUserStorage(context);
+      } else if (userRef!=null) {
+         userStorage = new UserStorage(context,new Reference(userRef));
+      } else {
+         getLogger().severe("No user configuraiton was provided.");
+         userStorage = null;
+      }
+      if (userStorage!=null) {
+         getLogger().info("Loading users via "+userStorage.getClass().getName());
+         try {
+            userStorage.load();
+         } catch (Exception ex) {
+            getLogger().log(Level.SEVERE,"Cannot load users from storage.",ex);
+         }
+      }
    }
 
-   protected void checkUserMap()
+   public UserStorage getStorage(String key)
    {
-      String [] listValues = getContext().getParameters().getValuesArray(XMLDBResource.USER_LIST_NAME);
-      if (listValues!=null && listValues.length>0 && lastModified<0) {
-         for (int l=0; l<listValues.length; l++) {
-            String [] userSpecs = listValues[l].split(",");
-            for (int i=0; i<userSpecs.length; i++) {
-               String spec = userSpecs[i].trim();
-               int eq = spec.indexOf('=');
-               String [] groups = null;
-               String username = spec;
-               if (eq>0) {
-                  username = spec.substring(0,eq).trim();
-                  groups = spec.substring(eq+1).trim().split(",");
-                  for (int g=0; g<groups.length; g++) {
-                     groups[g] = groups[g].trim();
-                  }
-               }
-               int colon = username.indexOf(':');
-               int uid = i;
-               if (colon>0) {
-                  uid = Integer.parseInt(username.substring(colon+1));
-                  username = username.substring(0,colon).trim();
-               }
-               getLogger().info("User: "+uid+" -> "+username);
-               users.put(username, new WebUser(realm,uid,username.substring(0,colon),groups));
-            }
-         }
-         lastModified = System.currentTimeMillis();
+      if (userStorage!=null && userStorage.verifyKey(key)) {
+         return userStorage;
       }
+      return null;
+   }
+
+   public boolean isUserAllowedDatabaseAccess(String database,String user) {
+      if (userStorage!=null) {
+         return userStorage.isUserAllowedDatabaseAccess(database, user);
+      }
+      return false;
    }
 
    public boolean authenticate(String identity,String password)
    {
+      if (userStorage==null) {
+         return false;
+      }
+      userStorage.check();
+
+      if (userStorage.getRealm(realm).get(identity)==null) {
+         return false;
+      }
       Request request = new Request(Method.POST,CLIENT_LOGIN);
       Form authForm = new Form();
       authForm.add("accountType", identity.endsWith("gmail.com") ? "GOOGLE" : "HOSTED");
@@ -92,13 +104,17 @@ public class GoogleClientLoginVerifier extends UserVerifier {
    }
 
    public User getUser(String identity) {
-      checkUserMap();
-      return users.get(identity);
+      userStorage.check();
+      return userStorage.getRealm(realm).get(identity);
    }
 
    public int verify(Request request, Response response) {
       if (request.getAttributes().get(XMLDBResource.USER_NAME)!=null) {
          return Verifier.RESULT_VALID;
+      }
+
+      if (userStorage==null) {
+         return Verifier.RESULT_INVALID;
       }
 
       ChallengeResponse authInfo = request.getChallengeResponse();

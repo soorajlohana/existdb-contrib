@@ -30,6 +30,14 @@ public class DBUserVerifier extends UserVerifier implements UserManager {
       confSessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
    }
 
+   public UserStorage getStorage(String key) {
+      return null;
+   }
+
+   public boolean isUserAllowedDatabaseAccess(String database,String user) {
+      return false;
+   }
+
    public User getUser(String identity) {
       return manager.getUser(identity);
    }

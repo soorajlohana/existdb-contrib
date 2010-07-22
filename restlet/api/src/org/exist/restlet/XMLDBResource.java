@@ -253,7 +253,7 @@ public class XMLDBResource extends ServerResource {
          this.userManager = (UserManager)getContext().getAttributes().get(XMLDBResource.USER_MANAGER_NAME);
       }
       if (this.userManager==null) {
-         getLogger().warning("The UserManager instance is missing.");
+         getLogger().finer("The UserManager instance is missing.");
       }
       this.realm = (Realm)getContext().getAttributes().get(XMLDBResource.REALM_NAME);
       if (this.realm==null) {

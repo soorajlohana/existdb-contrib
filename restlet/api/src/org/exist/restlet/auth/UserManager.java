@@ -15,4 +15,6 @@ import org.restlet.security.Verifier;
 public interface UserManager extends Verifier {
    User getUser(String name);
    boolean authenticate(String username, String password);
+   UserStorage getStorage(String key);
+   boolean isUserAllowedDatabaseAccess(String database,String user);
 }

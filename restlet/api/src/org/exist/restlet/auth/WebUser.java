@@ -59,7 +59,10 @@ public class WebUser implements User {
    }
    
 	public void setHome(XmldbURI homeCollection) {
+      throw new SecurityException("Cannot set the home of a web user.");
+      /*
       this.home = homeCollection;
+       */
    }
 
    public String getDigestPassword() { return nonPassword; }
@@ -71,6 +74,8 @@ public class WebUser implements User {
 	public boolean authenticate(Object credentials) { return false; }
 
 	public final void remGroup(String group) {
+      throw new SecurityException("Cannot remove a group of a web user.");
+      /*
 		if (groups == null) {
 			groups = new String[1];
 			groups[0] = SecurityManager.GUEST_GROUP;
@@ -102,6 +107,8 @@ public class WebUser implements User {
 		}
 		if (SecurityManager.DBA_GROUP.equals(group))
 			hasDbaRole = false;
+       *
+       */
 	}
 	public final boolean hasGroup(String group) {
 		if (groups == null)
@@ -118,6 +125,8 @@ public class WebUser implements User {
 		return groups[0];
 	}
    public void addGroup(String group) {
+      throw new SecurityException("Cannot add a group for a web user.");
+      /*
 		if (groups == null) {
 			groups = new String[1];
 			groups[0] = group;
@@ -130,19 +139,23 @@ public class WebUser implements User {
 		}
 		if (SecurityManager.DBA_GROUP.equals(group)) {
 			hasDbaRole = true;
-      }
+      }*/
    }
 	public String[] getGroups() {
       return groups;
    }
 
 	public final void setGroups(String[] groups) {
+      throw new SecurityException("Cannot change the groups of a web user.");
+      /*
 		this.groups = groups;
 		for (int i = 0; i < groups.length; i++) {
 			if (SecurityManager.DBA_GROUP.equals(groups[i])) {
 				hasDbaRole = true;
          }
       }
+       *
+       */
 	}
    
 	public boolean hasDbaRole() {
@@ -150,7 +163,11 @@ public class WebUser implements User {
    }
    
 	public void setAttribute(String name, Object value) {
+      throw new SecurityException("Cannot set attributes of a web user.");
+      /*
 		attributes.put(name, value);
+       * 
+       */
 	}
 
 	public Object getAttribute(String name) {

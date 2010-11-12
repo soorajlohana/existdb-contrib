@@ -11,9 +11,7 @@ package org.exist.restlet;
 
 import java.util.logging.Level;
 import org.exist.restlet.admin.XMLDBAdminApplication;
-import org.exist.restlet.auth.SessionManager;
 import org.exist.restlet.auth.UserManager;
-import org.exist.restlet.auth.UserVerifier;
 import org.exist.storage.BrokerPool;
 import org.restlet.Application;
 import org.restlet.Context;
@@ -52,10 +50,7 @@ public class XMLDBApplication extends Application{
             return;
          }
          String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
-         if (realmName!=null) {
-            getContext().getAttributes().put(XMLDBResource.REALM_NAME,UserVerifier.getRealm(realmName));
-            getLogger().info(dbName+" is using realm "+realmName);
-         } else if (getContext().getAttributes().get(XMLDBResource.REALM_NAME)==null) {
+         if (realmName==null) {
             getLogger().info("No user realm for database.");
          }
          manager = BrokerPool.getInstance(dbName).getSecurityManager();

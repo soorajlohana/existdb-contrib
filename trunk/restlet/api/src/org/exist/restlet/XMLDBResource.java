@@ -41,11 +41,10 @@ import org.exist.dom.DocumentImpl;
 import org.exist.dom.MutableDocumentSet;
 import org.exist.dom.QName;
 import org.exist.restlet.auth.UserManager;
-import org.exist.restlet.auth.UserVerifier;
+import org.exist.security.AuthenticationException;
 import org.exist.security.Permission;
 import org.exist.security.PermissionDeniedException;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.security.Subject;
 import org.exist.security.xacml.AccessContext;
 import org.exist.source.DBSource;
 import org.exist.source.FileSource;
@@ -130,6 +129,7 @@ public class XMLDBResource extends ServerResource {
    public final static String DBNAME_NAME             = "org.exist.xmldb.db.name";
    public final static String DBPATH_NAME             = "org.exist.xmldb.db.path";
    public final static String DB_USER_NAME            = "org.exist.xmldb.db.user";
+   public final static String DB_PASSWORD_NAME        = "org.exist.xmldb.db.password";
    public final static String DB_SECURITY_MANAGER     = "org.exist.xmldb.db.security-manager";
    
    protected final static String PARAMETER_NAME = "org.exist.xmldb.request.parameters";
@@ -221,15 +221,15 @@ public class XMLDBResource extends ServerResource {
    boolean isCollection;
    boolean checkUserDatabases;
    UserManager userManager;
-   Realm realm;
+   String realmName;
 
    /** Creates a new instance of AtomResource */
    public XMLDBResource() {
       dbName = null;
       dbPath = null;
-      realm = null;
       userManager = null;
       checkUserDatabases = false;
+      realmName = null;
       setNegotiated(false);
    }
 
@@ -255,13 +255,7 @@ public class XMLDBResource extends ServerResource {
       if (this.userManager==null) {
          getLogger().finer("The UserManager instance is missing.");
       }
-      this.realm = (Realm)getContext().getAttributes().get(XMLDBResource.REALM_NAME);
-      if (this.realm==null) {
-         String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
-         if (realmName!=null) {
-            this.realm = UserVerifier.getRealm(realmName);
-         }
-      }
+      this.realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
       checkUserDatabases = "true".equals(getContext().getParameters().getFirstValue(XMLDBResource.USER_DATABASES_CHECK));
       if (name!=null) {
          dbName = name.toString();
@@ -278,14 +272,14 @@ public class XMLDBResource extends ServerResource {
          isCollection = true;
       }
       if (getContext().getLogger().isLoggable(Level.FINE)) {
-         getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath+", realm="+realm);
+         getContext().getLogger().fine("XMLDBResource: db="+dbName+", path="+dbPath+", realm="+realmName);
       }
 
    }
 
    protected Representation doHandle() {
       if (checkUserDatabases) {
-         User user = (User)getRequest().getAttributes().get(USER_NAME);
+         Subject user = (Subject)getRequest().getAttributes().get(USER_NAME);
          if (user==null) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
             return null;
@@ -330,34 +324,37 @@ public class XMLDBResource extends ServerResource {
       return form;
    }
    
-   protected User getUser(BrokerPool pool) {
-      User user = (User)getRequest().getAttributes().get(USER_NAME);
-      if (realm!=null) {
+   protected Subject getUser(BrokerPool pool) {
+      Subject user = (Subject)getRequest().getAttributes().get(USER_NAME);
+      if (realmName!=null) {
          if (user==null) {
-            throw new SecurityException("User is not specified for realm "+realm);
+            throw new SecurityException("User is not specified for realm "+realmName);
          }
          if (user.getRealm()==null) {
             throw new SecurityException("The user "+user.getName()+" does not have a realm.");
          }
-         getLogger().info("user realm="+user.getRealm()+", realm="+realm);
-         if (user.getRealm()!=realm && !user.getRealm().equals(realm)) {
-            throw new SecurityException("The realm "+user.getRealm()+" for user "+user.getName()+" does not match realm "+realm);
+         getLogger().info("user realm="+user.getRealm()+", realm="+realmName);
+         if (!user.getRealmId().equals(realmName)) {
+            throw new SecurityException("The realm "+user.getRealmId()+" for user "+user.getName()+" does not match realm "+realmName);
          }
       }
       if (user==null) {
          String dbUserName = getContext().getParameters().getFirstValue(DB_USER_NAME);
+         String dbUserPassword = getContext().getParameters().getFirstValue(DB_PASSWORD_NAME);
          if (dbUserName!=null) {
             if (userManager!=null) {
-               user = userManager.getUser(dbUserName);
+               user = userManager.authenticate(dbUserName, dbUserPassword);
             } else {
-               user = pool.getSecurityManager().getUser(dbUserName);
+               try {
+                  user = pool.getSecurityManager().authenticate(dbUserName, dbUserPassword);
+               } catch (AuthenticationException ex) {}
             }
             if (user==null) {
                throw new SecurityException("Unable to get user "+dbUserName+" for operation.");
             }
          }
       }
-      return user==null ? pool.getSecurityManager().GUEST : user;
+      return user==null ? pool.getSecurityManager().getGuestSubject() : user;
    }
 
    protected String [] getDBRef(String path) {
@@ -404,7 +401,7 @@ public class XMLDBResource extends ServerResource {
    }
     *
     */
-   protected Representation makeResultRepresentation(final BrokerPool brokerPool, final User user, final Sequence results,int howmany, final int start, long queryTime,final Properties outputProperties, final boolean wrap) {
+   protected Representation makeResultRepresentation(final BrokerPool brokerPool, final Subject user, final Sequence results,int howmany, final int start, long queryTime,final Properties outputProperties, final boolean wrap) {
       if (!results.isEmpty()) {
          int rlen = results.getItemCount();
          if ((start < 1) || (start > rlen)) {
@@ -456,7 +453,7 @@ public class XMLDBResource extends ServerResource {
       return rep;
    }
 
-   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Reference xqueryRef,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties,Form [] parameterSets)
+   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,Subject user,Reference xqueryRef,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties,Form [] parameterSets)
       throws XPathException,PermissionDeniedException
    {
       Logger log = getLogger();
@@ -497,7 +494,7 @@ public class XMLDBResource extends ServerResource {
          }
       }
    }
-   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,User user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties, Form [] parameterSets)
+   protected Representation executeXQuery(BrokerPool brokerPool,DBBroker broker,Subject user,Source source,XmldbURI [] knownDocuments,int howmany,int start,Properties outputProperties, Form [] parameterSets)
       throws XPathException,PermissionDeniedException
    {
       Logger log = getLogger();
@@ -601,7 +598,7 @@ public class XMLDBResource extends ServerResource {
          }
          //getLogger().info("Get on: "+request.getResourceRef());
          //getLogger().info("active="+pool.active()+", available="+pool.available());
-         final User user = getUser(pool);
+         final Subject user = getUser(pool);
 
          final DBBroker broker = pool.get(user);
          try {
@@ -776,7 +773,7 @@ public class XMLDBResource extends ServerResource {
       }
    }
 
-   protected Representation handleFormPost(Representation entity, BrokerPool pool, DBBroker broker, User user) {
+   protected Representation handleFormPost(Representation entity, BrokerPool pool, DBBroker broker, Subject user) {
       Object xqueryRefAttr = getXQueryReference();
       if (xqueryRefAttr==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -855,7 +852,7 @@ public class XMLDBResource extends ServerResource {
       DocumentImpl resource = null;
       DBBroker broker = null;
       BrokerPool pool = null;
-      final User user = getUser(pool);
+      final Subject user = getUser(pool);
       try {
          try {
             pool = BrokerPool.getInstance(dbName);
@@ -1180,7 +1177,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          try {
-            User user = getUser(pool);
+            Subject user = getUser(pool);
             broker = pool.get(user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
@@ -1268,7 +1265,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          try {
-            final User user = getUser(pool);
+            final Subject user = getUser(pool);
             broker = pool.get(user);
          } catch (EXistException ex) {
             getContext().getLogger().log(Level.SEVERE,"Cannot get broker from pool: "+ex.getMessage(),ex);
@@ -1513,7 +1510,7 @@ public class XMLDBResource extends ServerResource {
             return null;
          }
          //getLogger().info("active="+pool.active()+", available="+pool.available());
-         final User user = getUser(pool);
+         final Subject user = getUser(pool);
          DBBroker broker = pool.get(user);
          DocumentImpl resource = null;
          try {

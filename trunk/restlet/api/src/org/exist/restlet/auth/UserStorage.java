@@ -6,20 +6,20 @@
 package org.exist.restlet.auth;
 
 import java.io.IOException;
-import java.lang.String;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.security.SecurityManager;
+import org.exist.security.Account;
+import org.exist.security.Group;
+import org.exist.security.Subject;
+import org.exist.security.realm.Realm;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -43,7 +43,8 @@ public class UserStorage {
    Context context;
    Reference location;
 
-   Map<Realm,Map<String,User>> database;
+   Map<String,Realm> database;
+   Map<String,Subject> systems;
    String key;
 
    Map<String,Set<String>> databaseUsers;
@@ -52,7 +53,7 @@ public class UserStorage {
    public UserStorage(Context context,Reference location) {
       this.context = context;
       this.location = location;
-      this.database = new HashMap<Realm,Map<String,User>>();
+      this.database = new HashMap<String,Realm>();
       this.databaseUsers = new HashMap<String,Set<String>>();
       this.key = context.getParameters().getFirstValue(XMLDBResource.USER_MANAGER_KEY_NAME);
    }
@@ -101,15 +102,42 @@ public class UserStorage {
          return;
       }
       getLogger().info("Loading users for realm "+name);
-      Realm realm = UserVerifier.getRealm(name.trim());
-      Map<String,User> users = getRealm(realm);
+      WebRealm realm = new WebRealm(name,null,null);
+      database.put(realm.getId(), realm);
+      NodeList groupElements = realmE.getElementsByTagNameNS(NS, "group");
+      realm.groups.put(SecurityManager.DBA_GROUP, new WebGroup(name,0,SecurityManager.DBA_GROUP));
+      for (int i=0; i<groupElements.getLength(); i++) {
+         Element groupE = (Element)groupElements.item(i);
+         String groupName = groupE.getAttribute("name");
+         if (name==null) {
+            getLogger().severe("Ignoring group in realm "+name+" missing the 'name' attribute.");
+            continue;
+         }
+         groupName = groupName.trim();
+         String value = groupE.getAttribute("id");
+         if (value==null) {
+            getLogger().severe("Ignoring group "+groupName+" in realm "+name+" missing the 'id' attribute.");
+            continue;
+         }
+         int id = -1;
+         try {
+            id = Integer.parseInt(value);
+         } catch (NumberFormatException ex) {
+            getLogger().severe("Ignoring group "+groupName+" in realm "+name+" with bad uid value "+value+".");
+            continue;
+         }
+         Group group = new WebGroup(name,id,groupName);
+         realm.groups.put(group.getName(),group);
+      }
       NodeList userElements = realmE.getElementsByTagNameNS(NS, "user");
       for (int i=0; i<userElements.getLength(); i++) {
-         User user = loadUser(realm,(Element)userElements.item(i));
+         Account user = loadUser(realm,(Element)userElements.item(i));
          if (user!=null) {
-            users.put(user.getName(),user);
+            realm.users.put(user.getName(),user);
          }
       }
+      String [] dbaGroups = { SecurityManager.DBA_GROUP };
+      WebUser dba = new WebUser(realm,0,"system-dba",dbaGroups);
    }
 
    public boolean verifyKey(String value) {
@@ -121,7 +149,7 @@ public class UserStorage {
       return users==null ? false : users.contains(user);
    }
 
-   protected User loadUser(Realm realm,Element userE) {
+   protected Account loadUser(WebRealm realm,Element userE) {
       String name = userE.getAttribute("name");
       if (name==null) {
          getLogger().severe("Ignoring user that is missing a 'name' attribute for realm "+realm+".");
@@ -150,7 +178,7 @@ public class UserStorage {
                String groupName = childE.getAttribute("name");
                if (groupName!=null) {
                   groupName = groupName.trim();
-                  if (groupName.length()>0) {
+                  if (groupName.length()>0 && realm.groups.get(groupName)!=null) {
                      groups.add(groupName);
                   }
                }
@@ -167,7 +195,7 @@ public class UserStorage {
          child = child.getNextSibling();
       }
       String [] groupsArray = groups.toArray(new String[0]);
-      User user = new WebUser(realm,uid,name,groupsArray);
+      Account user = new WebUser(realm,uid,name,groupsArray);
       return user;
    }
    
@@ -195,13 +223,12 @@ public class UserStorage {
       }
    }
 
-   public Map<String,User> getRealm(Realm realm) {
-      Map<String,User> users = database.get(realm);
-      if (users==null) {
-         users = new HashMap<String,User>();
-         database.put(realm,users);
-      }
-      return users;
+   public Subject getSystemSubject(Realm realm) {
+      return systems.get(realm.getId());
+   }
+
+   public Realm getRealm(String name) {
+      return database.get(name);
    }
 
 }

@@ -11,13 +11,15 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.exist.EXistException;
+import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.PermissionDeniedException;
 import org.exist.security.SecurityManager;
-import org.exist.security.User;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -45,7 +47,7 @@ public class UserResource extends ServerResource {
    public Representation get() {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
-      final User user = manager.getUser(name);
+      final Account user = manager.getAccount(manager.getSystemSubject(),name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
          return null;
@@ -58,7 +60,7 @@ public class UserResource extends ServerResource {
                w.write("<user name='");
                w.write(user.getName());
                w.write("' id='");
-               w.write(Integer.toString(user.getUID()));
+               w.write(Integer.toString(user.getId()));
                w.write("'");
 
                String [] groups = user.getGroups();
@@ -86,16 +88,19 @@ public class UserResource extends ServerResource {
    public Representation delete() {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
-      final User user = manager.getUser(name);
+      Account user = manager.getAccount(manager.getSystemSubject(), name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
          return null;
       } else {
          try {
-            manager.deleteUser(user);
+            manager.deleteAccount(manager.getSystemSubject(), user);
             getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
          } catch (PermissionDeniedException ex) {
             getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+         } catch (EXistException ex) {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            getLogger().log(Level.SEVERE,"Cannot delete account "+name+" due to exception.",ex);
          }
          return null;
       }
@@ -104,7 +109,7 @@ public class UserResource extends ServerResource {
    public Representation post(Representation entity) {
       String name = getRequest().getAttributes().get("name").toString();
       SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
-      final User user = manager.getUser(name);
+      Account user = manager.getAccount(manager.getSystemSubject(), name);
       if (user==null) {
          getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
          return null;
@@ -141,7 +146,7 @@ public class UserResource extends ServerResource {
                   Element e = (Element)n;
                   if (e.getLocalName().equals("group") && e.getNamespaceURI()==null) {
                      String groupName = e.getTextContent();
-                     Group group = manager.getGroup(groupName);
+                     Group group = manager.getGroup(manager.getSystemSubject(),groupName);
                      if (group!=null) {
                         groups.add(groupName);
                      }
@@ -149,10 +154,32 @@ public class UserResource extends ServerResource {
                }
             }
             if (groups.size()>0) {
-               user.setGroups(groups.toArray(new String[groups.size()]));
+               String [] existingGroups = user.getGroups();
+               for (int i=0; i<existingGroups.length; i++) {
+                  if (!groups.contains(existingGroups[i])) {
+                     user.remGroup(existingGroups[i]);
+                  }
+               }
+               for (String group : groups) {
+                  if (!user.hasGroup(group)) {
+                     try {
+                        user.addGroup(group);
+                     } catch (PermissionDeniedException ex) {
+                        getLogger().warning("Not allowed to add group "+group+" to user "+name);
+                     }
+                  }
+               }
             }
-            manager.setUser(user);
-            getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            try {
+               manager.updateAccount(manager.getSystemSubject(), user);
+               getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            } catch (PermissionDeniedException ex) {
+               getLogger().log(Level.SEVERE,"Not allowed to update user "+name,ex);
+               getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            } catch (EXistException ex) {
+               getLogger().log(Level.SEVERE,"Not allowed to update user "+name,ex);
+               getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            }
             return null;
          } else if (top.getLocalName().equals("password") && top.getNamespaceURI()==null) {
             String password = top.getTextContent();
@@ -160,8 +187,16 @@ public class UserResource extends ServerResource {
                password = null;
             }
             user.setPassword(password);
-            manager.setUser(user);
-            getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            try {
+               manager.updateAccount(manager.getSystemSubject(), user);
+               getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+            } catch (PermissionDeniedException ex) {
+               getLogger().log(Level.SEVERE,"Not allowed to update user "+name,ex);
+               getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            } catch (EXistException ex) {
+               getLogger().log(Level.SEVERE,"Not allowed to update user "+name,ex);
+               getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            }
             return null;
          } else {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST,"Unrecognized doument element.");

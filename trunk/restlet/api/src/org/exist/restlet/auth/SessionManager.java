@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 import org.exist.restlet.XMLDBResource;
+import org.exist.security.Subject;
 import org.exist.security.User;
 import org.restlet.Context;
 
@@ -22,9 +23,9 @@ import org.restlet.Context;
 public class SessionManager {
    static public class Session {
       String id;
-      User user;
+      Subject user;
       long granted;
-      Session(User user) {
+      Session(Subject user) {
          this.user = user;
          this.granted = System.currentTimeMillis();
          this.id = UUID.randomUUID().toString();
@@ -54,7 +55,7 @@ public class SessionManager {
       return context.getLogger();
    }
 
-   public String newSession(User user) {
+   public String newSession(Subject user) {
       Session session = new Session(user);
       synchronized (sessions) {
          sessions.put(session.id,session);
@@ -62,7 +63,7 @@ public class SessionManager {
       return session.id;
    }
 
-   public User getUser(String id) {
+   public Subject getUser(String id) {
       if ((lastCheck+expiry)<System.currentTimeMillis()) {
          // check for expirations
          synchronized (sessions) {

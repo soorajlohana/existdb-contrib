@@ -5,15 +5,12 @@
 
 package org.exist.restlet.auth;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.security.Account;
+import org.exist.security.Subject;
+import org.exist.security.realm.Realm;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -27,22 +24,25 @@ import org.restlet.security.Verifier;
  *
  * @author alex
  */
-public class GoogleClientLoginVerifier extends UserVerifier {
+public class GoogleClientLoginVerifier implements UserManager {
    static Reference CLIENT_LOGIN = new Reference("https://www.google.com/accounts/ClientLogin");
    SessionManager confSessionManager;
+   String realmName;
    Realm realm;
    UserStorage userStorage;
+   Subject system;
+   Context context;
    public GoogleClientLoginVerifier(Context context) {
-      super(context);
-      realm = (Realm)context.getAttributes().get(XMLDBResource.REALM_NAME);
-      if (realm==null) {
+      this.context = context;
+      realmName = context.getAttributes().get(XMLDBResource.REALM_NAME).toString();
+      if (realmName==null) {
          getLogger().severe("No realm for web users.");
       } else {
-         getLogger().info(GoogleClientLoginVerifier.class.getName()+" using realm "+realm);
+         getLogger().info(GoogleClientLoginVerifier.class.getName()+" using realm "+realmName);
       }
-      confSessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
-      String [] listValues = getContext().getParameters().getValuesArray(XMLDBResource.USER_LIST_NAME);
-      String userRef = getContext().getParameters().getFirstValue(XMLDBResource.USER_HREF_NAME);
+      confSessionManager = (SessionManager)context.getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
+      String [] listValues = context.getParameters().getValuesArray(XMLDBResource.USER_LIST_NAME);
+      String userRef = context.getParameters().getFirstValue(XMLDBResource.USER_HREF_NAME);
       if (listValues!=null && listValues.length>0) {
          userStorage = new ParameterUserStorage(context);
       } else if (userRef!=null) {
@@ -52,6 +52,8 @@ public class GoogleClientLoginVerifier extends UserVerifier {
          userStorage = null;
       }
       if (userStorage!=null) {
+         realm = userStorage.getRealm(realmName);
+         system = userStorage.getSystemSubject(realm);
          getLogger().info("Loading users via "+userStorage.getClass().getName());
          try {
             userStorage.load();
@@ -61,12 +63,8 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       }
    }
 
-   public UserStorage getStorage(String key)
-   {
-      if (userStorage!=null && userStorage.verifyKey(key)) {
-         return userStorage;
-      }
-      return null;
+   public Logger getLogger() {
+      return context.getLogger();
    }
 
    public boolean isUserAllowedDatabaseAccess(String database,String user) {
@@ -76,15 +74,16 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       return false;
    }
 
-   public boolean authenticate(String identity,String password)
+   public Subject authenticate(String identity,String password)
    {
-      if (userStorage==null) {
-         return false;
+      if (userStorage==null || realm==null) {
+         return null;
       }
       userStorage.check();
 
-      if (userStorage.getRealm(realm).get(identity)==null) {
-         return false;
+      Account account = realm.getAccount(system, identity);
+      if (account==null) {
+         return null;
       }
       Request request = new Request(Method.POST,CLIENT_LOGIN);
       Form authForm = new Form();
@@ -94,18 +93,13 @@ public class GoogleClientLoginVerifier extends UserVerifier {
       authForm.add("Email", identity);
       authForm.add("Passwd", password);
       request.setEntity(authForm.getWebRepresentation());
-      Response response = getContext().getClientDispatcher().handle(request);
+      Response response = context.getClientDispatcher().handle(request);
       boolean result = response.getStatus().isSuccess();
       if (!result) {
          getLogger().info("Failed login, status="+response.getStatus().getCode()+", "+response.getEntityAsText());
       }
       response.getEntity().release();
-      return result;
-   }
-
-   public User getUser(String identity) {
-      userStorage.check();
-      return userStorage.getRealm(realm).get(identity);
+      return result ? new SubjectWrapper(account,true) : null;
    }
 
    public int verify(Request request, Response response) {
@@ -127,22 +121,23 @@ public class GoogleClientLoginVerifier extends UserVerifier {
          return Verifier.RESULT_INVALID;
       }
 
-      User user = getUser(identity);
-      if (user==null) {
+      Account account = realm.getAccount(system, identity);
+      if (account==null) {
          getLogger().info("User "+identity+" not found.");
          return Verifier.RESULT_INVALID;
       }
 
-      if (authenticate(identity,new String(secret))) {
+      Subject authSubject = authenticate(identity,new String(secret));
+      if (authSubject!=null) {
          SessionManager sessionManager = (SessionManager)request.getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
          if (sessionManager==null) {
             sessionManager = confSessionManager;
          }
          if (sessionManager!=null) {
-            String sessionId = sessionManager.newSession(user);
+            String sessionId = sessionManager.newSession(authSubject);
             request.getAttributes().put(XMLDBResource.SESSION_NAME,sessionId);
          }
-         request.getAttributes().put(XMLDBResource.USER_NAME,user);
+         request.getAttributes().put(XMLDBResource.USER_NAME,authSubject);
          request.getAttributes().put(XMLDBResource.NEW_USER_NAME,Boolean.TRUE);
          return Verifier.RESULT_VALID;
       } else {

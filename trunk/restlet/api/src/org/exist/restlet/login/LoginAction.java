@@ -12,7 +12,7 @@ package org.exist.restlet.login;
 import org.exist.restlet.XMLDBResource;
 import org.exist.restlet.auth.SessionManager;
 import org.exist.restlet.auth.UserManager;
-import org.exist.security.User;
+import org.exist.security.Subject;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -61,8 +61,8 @@ public class LoginAction extends ServerResource
 
       String username = form.getFirstValue("username");
       String password = form.getFirstValue("password");
-      if (userManager.authenticate(username, password)) {
-         User user = userManager.getUser(username);
+      Subject user = userManager.authenticate(username, password);
+      if (user!=null) {
          SessionManager sessionManager = (SessionManager)getRequest().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);
          if (sessionManager==null) {
             sessionManager = (SessionManager)getContext().getAttributes().get(XMLDBResource.SESSION_MANAGER_NAME);

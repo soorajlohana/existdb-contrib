@@ -77,7 +77,7 @@ public class XMLDB
    {
       DBBroker broker = null;
       try {
-         broker = pool.get(pool.getSecurityManager().SYSTEM_USER);
+         broker = pool.get(pool.getSecurityManager().getSystemSubject());
          broker.reindexCollection(XmldbURI.create(path));
       } finally {
          if (broker!=null) {

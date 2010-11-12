@@ -9,16 +9,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.config.Configuration;
+import org.exist.security.Account;
+import org.exist.security.Group;
+import org.exist.security.PermissionDeniedException;
 import org.exist.security.SecurityManager;
+import org.exist.security.realm.Realm;
 import org.exist.xmldb.XmldbURI;
 
 /**
  *
  * @author alex
  */
-public class WebUser implements User {
+public class WebUser implements Account {
 
    int id;
    String name;
@@ -40,6 +43,12 @@ public class WebUser implements User {
       if (this.groups==null) {
          this.groups = new String[1];
          this.groups[0] = SecurityManager.GUEST_GROUP;
+      } else {
+         for (int g=0; g<this.groups.length; g++) {
+            if (this.groups[g].equals(SecurityManager.DBA_GROUP)) {
+               hasDbaRole = true;
+            }
+         }
       }
       this.attributes = new HashMap<String,Object>();
       this.nonPassword = UUID.randomUUID().toString();
@@ -50,19 +59,29 @@ public class WebUser implements User {
       return name;
    }
 
-   public int getUID() {
+   public String getUsername() {
+      return name;
+   }
+
+   public int getId() {
       return id;
    }
 
    public XmldbURI getHome() { 
       return home;
    }
+
+   public boolean isEnabled() { return true; }
+   public boolean isCredentialsNonExpired() { return true; }
+   public boolean isAccountNonLocked() { return true; }
+   public boolean isAccountNonExpired() { return true; }
    
 	public void setHome(XmldbURI homeCollection) {
       throw new SecurityException("Cannot set the home of a web user.");
-      /*
-      this.home = homeCollection;
-       */
+   }
+
+   public Group getDefaultGroup() {
+      return realm.getGroup(new SubjectWrapper(this,false), getPrimaryGroup());
    }
 
    public String getDigestPassword() { return nonPassword; }
@@ -70,45 +89,12 @@ public class WebUser implements User {
    public void setPassword(String password) {throw new SecurityException("Cannot set the password of a web user."); }
    public void setUID(int id) { throw new SecurityException("Cannot set the UID of a web user."); }
    public Realm getRealm() { return realm; }
+   public String getRealmId() { return realm.getId(); }
    public boolean isAuthenticated() { return false; }
 	public boolean authenticate(Object credentials) { return false; }
 
 	public final void remGroup(String group) {
       throw new SecurityException("Cannot remove a group of a web user.");
-      /*
-		if (groups == null) {
-			groups = new String[1];
-			groups[0] = SecurityManager.GUEST_GROUP;
-		} else {
-			int len = groups.length;
-
-			String[] rgroup = null;
-			if (len > 1)
-				rgroup = new String[len - 1];
-			else {
-				rgroup = new String[1];
-				len = 1;
-			}
-
-			boolean found = false;
-			for (int i = 0; i < len; i++) {
-				if (!groups[i].equals(group)) {
-					if (found == true)
-						rgroup[i - 1] = groups[i];
-					else
-						rgroup[i] = groups[i];
-				} else {
-					found = true;
-				}
-			}
-			if (found == true && len == 1)
-				rgroup[0] = SecurityManager.GUEST_GROUP;
-			groups = rgroup;
-		}
-		if (SecurityManager.DBA_GROUP.equals(group))
-			hasDbaRole = false;
-       *
-       */
 	}
 	public final boolean hasGroup(String group) {
 		if (groups == null)
@@ -124,22 +110,11 @@ public class WebUser implements User {
 			return null;
 		return groups[0];
 	}
-   public void addGroup(String group) {
+   public Group addGroup(String group) {
       throw new SecurityException("Cannot add a group for a web user.");
-      /*
-		if (groups == null) {
-			groups = new String[1];
-			groups[0] = group;
-		} else {
-			int len = groups.length;
-			String[] ngroups = new String[len + 1];
-			System.arraycopy(groups, 0, ngroups, 0, len);
-			ngroups[len] = group;
-			groups = ngroups;
-		}
-		if (SecurityManager.DBA_GROUP.equals(group)) {
-			hasDbaRole = true;
-      }*/
+   }
+   public Group addGroup(Group group) {
+      throw new SecurityException("Cannot add a group for a web user.");
    }
 	public String[] getGroups() {
       return groups;
@@ -147,15 +122,6 @@ public class WebUser implements User {
 
 	public final void setGroups(String[] groups) {
       throw new SecurityException("Cannot change the groups of a web user.");
-      /*
-		this.groups = groups;
-		for (int i = 0; i < groups.length; i++) {
-			if (SecurityManager.DBA_GROUP.equals(groups[i])) {
-				hasDbaRole = true;
-         }
-      }
-       *
-       */
 	}
    
 	public boolean hasDbaRole() {
@@ -164,17 +130,28 @@ public class WebUser implements User {
    
 	public void setAttribute(String name, Object value) {
       throw new SecurityException("Cannot set attributes of a web user.");
-      /*
-		attributes.put(name, value);
-       * 
-       */
 	}
 
 	public Object getAttribute(String name) {
 		return attributes.get(name);
 	}
 
-    public Set<String> getAttributeNames() {
-        return attributes.keySet();
-    }
+   public Set<String> getAttributeNames() {
+      return attributes.keySet();
+   }
+
+   public void save()
+      throws PermissionDeniedException
+   {
+      throw new PermissionDeniedException("Cannot save a web user.");
+   }
+
+   public boolean isConfigured() {
+      return false;
+   }
+   
+	public Configuration getConfiguration() {
+      throw new SecurityException("Cannot return the configuration of a web user.");
+	}
+
 }

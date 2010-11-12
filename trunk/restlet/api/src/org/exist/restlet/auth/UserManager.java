@@ -5,7 +5,8 @@
 
 package org.exist.restlet.auth;
 
-import org.exist.security.User;
+import org.exist.security.Subject;
+import org.exist.security.realm.Realm;
 import org.restlet.security.Verifier;
 
 /**
@@ -13,8 +14,6 @@ import org.restlet.security.Verifier;
  * @author alex
  */
 public interface UserManager extends Verifier {
-   User getUser(String name);
-   boolean authenticate(String username, String password);
-   UserStorage getStorage(String key);
-   boolean isUserAllowedDatabaseAccess(String database,String user);
+   Subject authenticate(String username, String password);
+   boolean isUserAllowedDatabaseAccess(String dbname,String username);
 }

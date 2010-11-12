@@ -7,8 +7,7 @@ package org.exist.restlet.auth;
 
 import java.util.logging.Level;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.security.Subject;
 import org.exist.storage.BrokerPool;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -25,7 +24,7 @@ public class UserFilter extends Filter {
 
    SessionManager sessionManager;
    UserManager userManager;
-   Realm realm;
+   String realmName;
    String cookieName;
    String cookiePath;
    boolean isDebugLog;
@@ -52,10 +51,8 @@ public class UserFilter extends Filter {
          getContext().getAttributes().put(XMLDBResource.SESSION_MANAGER_NAME,sessionManager);
       }
       
-      String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
+      realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
       if (realmName!=null) {
-         realm = UserVerifier.getRealm(realmName);
-         getContext().getAttributes().put(XMLDBResource.REALM_NAME,realm);
          getLogger().info("Using realm "+realmName);
       }
       
@@ -95,7 +92,7 @@ public class UserFilter extends Filter {
    {
       Cookie cookie = request.getCookies().getFirst(cookieName);
       if (cookie!=null) {
-         User user = sessionManager.getUser(cookie.getValue());
+         Subject user = sessionManager.getUser(cookie.getValue());
          if (user!=null) {
             if (isDebugLog) {
                getLogger().info(cookieName+"="+cookie.getValue()+" is valid, user="+user.getName());
@@ -113,9 +110,6 @@ public class UserFilter extends Filter {
       if (sessionManager!=null) {
          request.getAttributes().put(XMLDBResource.SESSION_MANAGER_NAME,sessionManager);
       }
-      if (realm!=null) {
-         request.getAttributes().put(XMLDBResource.REALM_NAME,realm);
-      }
       return Filter.CONTINUE;
    }
 
@@ -125,7 +119,7 @@ public class UserFilter extends Filter {
          if (isNew!=null && isNew) {
             String sessionId = (String)request.getAttributes().get(XMLDBResource.SESSION_NAME);
             if (sessionId==null) {
-               User user = (User)request.getAttributes().get(XMLDBResource.USER_NAME);
+               Subject user = (Subject)request.getAttributes().get(XMLDBResource.USER_NAME);
                sessionId = sessionManager.newSession(user);
                if (isDebugLog) {
                   getLogger().info("Setting session new cookie "+cookieName+"="+sessionId+" for "+user.getName());

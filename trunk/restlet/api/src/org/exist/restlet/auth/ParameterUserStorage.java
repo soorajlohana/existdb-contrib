@@ -5,13 +5,12 @@
 
 package org.exist.restlet.auth;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.Realm;
-import org.exist.security.User;
+import org.exist.security.Account;
+import org.exist.security.realm.Realm;
 import org.restlet.Context;
 
 /**
@@ -25,14 +24,16 @@ public class ParameterUserStorage extends UserStorage {
 
    public void load() {
       getLogger().info("Loading users from parameters...");
-      Realm realm = (Realm)context.getAttributes().get(XMLDBResource.REALM_NAME);
-      if (realm==null) {
+      String realmName = context.getAttributes().get(XMLDBResource.REALM_NAME).toString();
+      if (realmName==null) {
          getLogger().severe("No realm has been speciied for web users.");
          return;
       } else {
-         getLogger().info("Using realm "+realm+" for users.");
+         getLogger().info("Using realm "+realmName+" for users.");
       }
-      Map<String,User> users = getRealm(realm);
+      WebRealm realm = (WebRealm)getRealm(realmName);
+
+      int groupId = 0;
       
       String [] listValues = context.getParameters().getValuesArray(XMLDBResource.USER_LIST_NAME);
       if (listValues!=null && listValues.length>0) {
@@ -63,8 +64,13 @@ public class ParameterUserStorage extends UserStorage {
                   username = username.substring(0,colon).trim();
                }
                getLogger().info("User: "+uid+" -> "+username);
-               User user = new WebUser(realm,uid,username.substring(0,colon),groups.toArray(new String[0]));
-               users.put(username, user);
+               for (String group : groups) {
+                  if (realm.groups.get(group)==null) {
+                     realm.groups.put(group,new WebGroup(realmName,groupId++,group));
+                  }
+               }
+               Account user = new WebUser(realm,uid,username.substring(0,colon),groups.toArray(new String[0]));
+               realm.users.put(username, user);
                for (String dbName : databases) {
                   grantUserAccess(dbName,username);
                }

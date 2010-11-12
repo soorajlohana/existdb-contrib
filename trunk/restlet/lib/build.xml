@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="lib" default="import" basedir=".">
+<property name="embedded.dir" location="../../../../exist/embedded/"/>
+<target name="import">
+   <copy file="${embedded.dir}/lib/antlr-2.7.7.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/commons-collections-3.2.1.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/commons-logging-1.1.1.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/commons-pool-1.5.4.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/exist.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/jta-1.1.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/log4j-1.2.16.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/pkg-repo.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/quartz-1.8.3.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/resolver-1.2.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/slf4j-api-1.6.0.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/slf4j-log4j12-1.6.0.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/xercesImpl-2.10.0.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/xml-apis-1.4.01.jar" todir="."/>
+   <copy file="${embedded.dir}/lib/xmldb.jar" todir="."/>
+</target>
+<target name="clean">
+   <delete file="antlr-2.7.7.jar"/>
+   <delete file="commons-collections-3.2.1.jar"/>
+   <delete file="commons-logging-1.1.1.jar"/>
+   <delete file="commons-pool-1.5.4.jar"/>
+   <delete file="exist.jar"/>
+   <delete file="jta-1.1.jar"/>
+   <delete file="log4j-1.2.16.jar"/>
+   <delete file="pkg-repo.jar"/>
+   <delete file="quartz-1.8.3.jar"/>
+   <delete file="resolver-1.2.jar"/>
+   <delete file="slf4j-api-1.6.0.jar"/>
+   <delete file="slf4j-log4j12-1.6.0.jar"/>
+   <delete file="xercesImpl-2.9.1.jar"/>
+   <delete file="xercesImpl-2.10.0.jar"/>
+   <delete file="xml-apis-1.4.01.jar"/>
+   <delete file="xmldb.jar"/>
+</target>
+
+</project>

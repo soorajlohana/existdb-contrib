@@ -6,7 +6,8 @@
 package org.exist.restlet.admin;
 
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.User;
+import org.exist.security.AuthenticationException;
+import org.exist.security.Subject;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -50,18 +51,23 @@ public class XMLDBAdminApplication extends Application {
             if (identity==null || secret==null) {
                return false;
             }
-            User user = manager.getUser(identity);
-            if (user!=null && user.hasDbaRole()) {
-               boolean valid = user.authenticate(new String(secret));
-               request.getAttributes().put(XMLDBResource.USER_NAME,user);
-               request.getAttributes().put(SECURITY_MANAGER_ATTR,manager);
-               return valid;
-            } else {
-               if (user!=null) {
-                  getLogger().info("User "+user.getName()+" is not a database administrator.");
+            try {
+               Subject user = manager.authenticate(identity, new String(secret));
+               if (user!=null && user.hasDbaRole()) {
+                  boolean valid = user.authenticate(new String(secret));
+                  request.getAttributes().put(XMLDBResource.USER_NAME,user);
+                  request.getAttributes().put(SECURITY_MANAGER_ATTR,manager);
+                  return valid;
                } else {
-                  getLogger().info("User "+identity+" not found.");
+                  if (user!=null) {
+                     getLogger().info("User "+user.getName()+" is not a database administrator.");
+                  } else {
+                     getLogger().info("User "+identity+" not found.");
+                  }
+                  return false;
                }
+            } catch (AuthenticationException ex) {
+               getLogger().info("User "+identity+" did not pass authentication for administration.");
                return false;
             }
          }

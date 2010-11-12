@@ -17,7 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.logging.Level;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.User;
+import org.exist.security.Subject;
 import org.restlet.Request;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
@@ -67,7 +67,7 @@ public class LoginView extends LoginAction
    
    public Representation get()
    {
-      final User user = (User)getRequest().getAttributes().get(XMLDBResource.USER_NAME);
+      final Subject user = (Subject)getRequest().getAttributes().get(XMLDBResource.USER_NAME);
       if (user==null) {
          final Form form = getRequest().getResourceRef().getQueryAsForm();
          try {
@@ -109,7 +109,7 @@ public class LoginView extends LoginAction
             final String result = template.format(new Resolver<String>() {
                public String resolve(String name) {
                   if (name.equals("id")) {
-                     return Integer.toString(user.getUID());
+                     return Integer.toString(user.getId());
                   } else if (name.equals("alias")) {
                      return user.getName();
                   }

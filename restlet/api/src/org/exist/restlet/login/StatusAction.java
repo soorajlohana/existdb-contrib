@@ -9,10 +9,8 @@
 
 package org.exist.restlet.login;
 
-import java.util.Map;
-import java.util.UUID;
 import org.exist.restlet.XMLDBResource;
-import org.exist.security.User;
+import org.exist.security.Subject;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
@@ -35,12 +33,12 @@ public class StatusAction extends ServerResource
    
    public Representation get()
    {
-      User user = (User)getRequest().getAttributes().get(XMLDBResource.USER_NAME);
+      Subject user = (Subject)getRequest().getAttributes().get(XMLDBResource.USER_NAME);
       Representation rep = null;
       if (user==null) {
          rep = new StringRepresentation("<none/>",MediaType.APPLICATION_XML);
       } else {
-         String xml = "<user uid='"+user.getUID()+"' alias='"+user.getName()+"'>";
+         String xml = "<user uid='"+user.getId()+"' alias='"+user.getName()+"'>";
          String [] groups = user.getGroups();
          if (groups!=null) {
             for (int i=0; i<groups.length; i++) {

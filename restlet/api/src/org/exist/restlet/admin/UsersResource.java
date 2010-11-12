@@ -9,15 +9,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.exist.EXistException;
+import org.exist.security.Account;
 import org.exist.security.Group;
+import org.exist.security.PermissionDeniedException;
 import org.exist.security.SecurityManager;
-import org.exist.security.User;
-import org.exist.security.UserImpl;
+import org.exist.security.internal.AccountImpl;
+import org.exist.security.internal.RealmImpl;
+import org.exist.security.realm.Realm;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -48,17 +51,17 @@ public class UsersResource extends ServerResource {
          public void write(OutputStream os)
             throws IOException {
             SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
-            User[] users = manager.getUsers();
+            Realm realm = manager.getRealm(RealmImpl.ID);
             Writer w = new OutputStreamWriter(os, "UTF-8");
             w.write("<users>\n");
-            for (int i = 0; i < users.length; i++) {
+            for (Account user : realm.getAccounts()) {
                w.write("<user name='");
-               w.write(users[i].getName());
+               w.write(user.getName());
                w.write("' id='");
-               w.write(Integer.toString(users[i].getUID()));
+               w.write(Integer.toString(user.getId()));
                w.write("'");
 
-               String [] groups = users[i].getGroups();
+               String [] groups = user.getGroups();
                if (groups==null || groups.length==0) {
                   w.write("/>\n");
                } else {
@@ -102,30 +105,35 @@ public class UsersResource extends ServerResource {
          String password = top.getAttribute("password");
 
          SecurityManager manager = (SecurityManager) getRequest().getAttributes().get(XMLDBAdminApplication.SECURITY_MANAGER_ATTR);
+         Realm realm = manager.getRealm(RealmImpl.ID);
 
-         User user = new UserImpl(name);
-         user.setPassword(password);
+         try {
+            Account user = new AccountImpl((RealmImpl)realm,name);
+            user.setPassword(password);
 
-         NodeList children = top.getChildNodes();
-         List<String> groups = new ArrayList<String>();
-         for (int i=0; i<children.getLength(); i++) {
-            Node n = children.item(i);
-            if (n.getNodeType()==Document.ELEMENT_NODE) {
-               Element e = (Element)n;
-               if (e.getLocalName().equals("group") && e.getNamespaceURI()==null) {
-                  String groupName = e.getTextContent();
-                  Group group = manager.getGroup(groupName);
-                  if (group!=null) {
-                     groups.add(groupName);
+            NodeList children = top.getChildNodes();
+            for (int i=0; i<children.getLength(); i++) {
+               Node n = children.item(i);
+               if (n.getNodeType()==Document.ELEMENT_NODE) {
+                  Element e = (Element)n;
+                  if (e.getLocalName().equals("group") && e.getNamespaceURI()==null) {
+                     String groupName = e.getTextContent();
+                     Group group = manager.getGroup(manager.getSystemSubject(),groupName);
+                     if (group!=null) {
+                        user.addGroup(group);
+                     }
                   }
                }
             }
+            manager.updateAccount(manager.getSystemSubject(), user);
+            getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
+         } catch (PermissionDeniedException ex) {
+            getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+            getLogger().log(Level.SEVERE,"Cannot create account "+name,ex);
+         } catch (EXistException ex) {
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            getLogger().log(Level.SEVERE,"Cannot create account "+name,ex);
          }
-         if (groups.size()>0) {
-            user.setGroups(groups.toArray(new String[groups.size()]));
-         }
-         manager.setUser(user);
-         getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
          return null;
       } catch (ParserConfigurationException ex) {
          getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);

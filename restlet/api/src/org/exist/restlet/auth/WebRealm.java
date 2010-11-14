@@ -31,6 +31,9 @@ public class WebRealm implements Realm {
    Map<String,Group> groups;
    Map<String,Group> roles;
    String id;
+   public WebRealm(String id) {
+      this(id,null,null);
+   }
    public WebRealm(String id,Set<Group> webGroups,Set<Group> webRoles) {
       this.id = id;
       this.users = new HashMap<String,Account>();

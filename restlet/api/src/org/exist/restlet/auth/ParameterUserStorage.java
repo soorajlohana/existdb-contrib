@@ -24,14 +24,15 @@ public class ParameterUserStorage extends UserStorage {
 
    public void load() {
       getLogger().info("Loading users from parameters...");
-      String realmName = context.getAttributes().get(XMLDBResource.REALM_NAME).toString();
+      String realmName = context.getParameters().getFirstValue(XMLDBResource.REALM_NAME);
       if (realmName==null) {
          getLogger().severe("No realm has been speciied for web users.");
          return;
       } else {
          getLogger().info("Using realm "+realmName+" for users.");
       }
-      WebRealm realm = (WebRealm)getRealm(realmName);
+      WebRealm realm = new WebRealm(realmName);
+      database.put(realm.getId(), realm);
 
       int groupId = 0;
       
@@ -77,6 +78,7 @@ public class ParameterUserStorage extends UserStorage {
             }
          }
       }
+      loadSystemUsers(realm);
    }
 
    public void check() {

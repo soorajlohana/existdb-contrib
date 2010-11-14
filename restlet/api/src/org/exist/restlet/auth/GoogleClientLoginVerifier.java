@@ -34,7 +34,7 @@ public class GoogleClientLoginVerifier implements UserManager {
    Context context;
    public GoogleClientLoginVerifier(Context context) {
       this.context = context;
-      realmName = context.getAttributes().get(XMLDBResource.REALM_NAME).toString();
+      realmName = context.getParameters().getFirstValue(XMLDBResource.REALM_NAME);
       if (realmName==null) {
          getLogger().severe("No realm for web users.");
       } else {
@@ -52,14 +52,14 @@ public class GoogleClientLoginVerifier implements UserManager {
          userStorage = null;
       }
       if (userStorage!=null) {
-         realm = userStorage.getRealm(realmName);
-         system = userStorage.getSystemSubject(realm);
          getLogger().info("Loading users via "+userStorage.getClass().getName());
          try {
             userStorage.load();
          } catch (Exception ex) {
             getLogger().log(Level.SEVERE,"Cannot load users from storage.",ex);
          }
+         realm = userStorage.getRealm(realmName);
+         system = userStorage.getSystemSubject(realm);
       }
    }
 

@@ -55,6 +55,7 @@ public class UserStorage {
       this.location = location;
       this.database = new HashMap<String,Realm>();
       this.databaseUsers = new HashMap<String,Set<String>>();
+      this.systems = new HashMap<String,Subject>();
       this.key = context.getParameters().getFirstValue(XMLDBResource.USER_MANAGER_KEY_NAME);
    }
 
@@ -136,8 +137,18 @@ public class UserStorage {
             realm.users.put(user.getName(),user);
          }
       }
+      loadSystemUsers(realm);
+   }
+
+   protected void loadSystemUsers(WebRealm realm) {
       String [] dbaGroups = { SecurityManager.DBA_GROUP };
       WebUser dba = new WebUser(realm,0,"system-dba",dbaGroups);
+      realm.users.put(dba.getName(),dba);
+      String [] guestGroups = { SecurityManager.GUEST_GROUP };
+      WebUser guest = new WebUser(realm,0,"system-guest",guestGroups);
+      realm.users.put(guest.getName(),guest);
+      systems.put(realm.getId()+"-system", new SubjectWrapper(dba,false));
+      systems.put(realm.getId()+"-guest", new SubjectWrapper(guest,false));
    }
 
    public boolean verifyKey(String value) {
@@ -224,7 +235,11 @@ public class UserStorage {
    }
 
    public Subject getSystemSubject(Realm realm) {
-      return systems.get(realm.getId());
+      return systems.get(realm.getId()+"-system");
+   }
+
+   public Subject getGuestSubject(Realm realm) {
+      return systems.get(realm.getId()+"-guest");
    }
 
    public Realm getRealm(String name) {

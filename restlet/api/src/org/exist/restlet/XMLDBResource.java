@@ -325,6 +325,12 @@ public class XMLDBResource extends ServerResource {
    }
    
    protected Subject getUser(BrokerPool pool) {
+      if (pool==null) {
+         throw new IllegalArgumentException("The BrokerPool instance is null.");
+      }
+      if (pool.getSecurityManager()==null) {
+         throw new IllegalStateException("The BrokerPool instance "+pool.getId()+" does not have a SecurityManager instance.");
+      }
       Subject user = (Subject)getRequest().getAttributes().get(USER_NAME);
       if (realmName!=null) {
          if (user==null) {
@@ -852,7 +858,6 @@ public class XMLDBResource extends ServerResource {
       DocumentImpl resource = null;
       DBBroker broker = null;
       BrokerPool pool = null;
-      final Subject user = getUser(pool);
       try {
          try {
             pool = BrokerPool.getInstance(dbName);
@@ -867,6 +872,7 @@ public class XMLDBResource extends ServerResource {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             return null;
          }
+         Subject user = getUser(pool);
          try {
             broker = pool.get(user);
          } catch (EXistException ex) {

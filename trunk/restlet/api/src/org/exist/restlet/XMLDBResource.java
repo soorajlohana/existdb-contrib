@@ -365,6 +365,9 @@ public class XMLDBResource extends ServerResource {
 
    protected String [] getDBRef(String path) {
 
+      if (path.length()==0) {
+         return null;
+      }
       if (path.charAt(0)=='/') {
          path = path.substring(1);
       }

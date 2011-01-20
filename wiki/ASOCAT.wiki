@@ -120,7 +120,7 @@ from eXist-db.org sources:
 === Fetch ===
 {{{
         <fetch classpathref="classpath.core" dest="${top.dir}/${lib.user}
-		url="${include.module.jfreechart.url}" classname="org.jfree.chart.JFreeChart">
+		url="${include.module.jfreechart.url}" classname="org.jfree.chart.JFreeChart" usecache="true">
             <patternset>
                 <include name="**/lib/jfreechart-*.jar"/>
                 <include name="**/lib/jcommon-*.jar"/>

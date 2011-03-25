@@ -106,7 +106,7 @@ public class UserStorage {
       WebRealm realm = new WebRealm(name,null,null);
       database.put(realm.getId(), realm);
       NodeList groupElements = realmE.getElementsByTagNameNS(NS, "group");
-      realm.groups.put(SecurityManager.DBA_GROUP, new WebGroup(name,0,SecurityManager.DBA_GROUP));
+      realm.groups.put(SecurityManager.DBA_GROUP, new WebGroup(realm,0,SecurityManager.DBA_GROUP));
       for (int i=0; i<groupElements.getLength(); i++) {
          Element groupE = (Element)groupElements.item(i);
          String groupName = groupE.getAttribute("name");
@@ -127,7 +127,7 @@ public class UserStorage {
             getLogger().severe("Ignoring group "+groupName+" in realm "+name+" with bad uid value "+value+".");
             continue;
          }
-         Group group = new WebGroup(name,id,groupName);
+         Group group = new WebGroup(realm,id,groupName);
          realm.groups.put(group.getName(),group);
       }
       NodeList userElements = realmE.getElementsByTagNameNS(NS, "user");

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.exist.config.Configuration;
+import org.exist.security.AXSchemaType;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.PermissionDeniedException;
@@ -28,7 +29,7 @@ public class WebUser implements Account {
    String [] groups;
    String nonPassword;
    boolean hasDbaRole;
-   Map<String,Object> attributes;
+   Map<AXSchemaType,String> attributes;
    XmldbURI home;
    Realm realm;
    public WebUser(Realm realm,int id,String name)
@@ -50,7 +51,7 @@ public class WebUser implements Account {
             }
          }
       }
-      this.attributes = new HashMap<String,Object>();
+      this.attributes = new HashMap<AXSchemaType,String>();
       this.nonPassword = UUID.randomUUID().toString();
       this.home = null;
    }
@@ -128,15 +129,15 @@ public class WebUser implements Account {
       return hasDbaRole;
    }
    
-	public void setAttribute(String name, Object value) {
+	public void setMetadataValue(AXSchemaType key, String value) {
       throw new SecurityException("Cannot set attributes of a web user.");
 	}
 
-	public Object getAttribute(String name) {
-		return attributes.get(name);
+	public String getMetadataValue(AXSchemaType key) {
+		return attributes.get(key);
 	}
 
-   public Set<String> getAttributeNames() {
+   public Set<AXSchemaType> getMetadataKeys() {
       return attributes.keySet();
    }
 

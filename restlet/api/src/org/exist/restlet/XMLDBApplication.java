@@ -11,6 +11,7 @@ package org.exist.restlet;
 
 import java.util.logging.Level;
 import org.exist.restlet.admin.XMLDBAdminApplication;
+import org.exist.restlet.auth.DBUserVerifier;
 import org.exist.restlet.auth.UserManager;
 import org.exist.storage.BrokerPool;
 import org.restlet.Application;
@@ -87,7 +88,10 @@ public class XMLDBApplication extends Application{
                getLogger().log(Level.SEVERE,"Error loading verifier class: "+userManagerClassName,ex);
             }
          }
-         if (userManager==null) {
+         String realmName = getContext().getParameters().getFirstValue(XMLDBResource.REALM_NAME);
+         if (userManager==null && "db".equals(realmName)) {
+            userGuard.setVerifier(new DBUserVerifier(getContext()));
+         } else if (userManager==null) {
             getLogger().info("Defaulting to request level verification.");
             Verifier verifier = new Verifier() {
                public int verify(Request request, Response response) {

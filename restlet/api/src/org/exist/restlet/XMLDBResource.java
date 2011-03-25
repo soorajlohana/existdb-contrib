@@ -443,7 +443,7 @@ public class XMLDBResource extends ServerResource {
                sax.setOutput(w, outputProperties);
                serializer.setContentHandler(sax);
 
-               serializer.toSAX(results, start, currentHowmany, wrap);
+               serializer.toSAX(results, start, currentHowmany, wrap,false /* typed*/);
 
                w.flush();
                //w.close();

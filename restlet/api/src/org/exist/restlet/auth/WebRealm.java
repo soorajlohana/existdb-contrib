@@ -8,6 +8,7 @@ package org.exist.restlet.auth;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.exist.Database;
@@ -49,6 +50,18 @@ public class WebRealm implements Realm {
             roles.put(group.getName(), group);
          }
       }
+   }
+
+   public org.exist.security.SecurityManager getSecurityManager() {
+      return null;
+   }
+
+   public List<String> findUsernamesWhereNameStarts(Subject invokingUser, String startsWith) {
+      throw new SecurityException("Not allowed on a web realm.");
+   }
+
+   public List<String> findUsernamesWhereUsernameStarts(Subject invokingUser, String startsWith) {
+      throw new SecurityException("Not allowed on a web realm.");
    }
 
    public String getId() {
@@ -131,7 +144,7 @@ public class WebRealm implements Realm {
       return groups.get(name)!=null;
    }
 
-   public boolean updateGroup(Group group) throws PermissionDeniedException, EXistException, ConfigurationException {
+   public boolean updateGroup(Subject subject,Group group) throws PermissionDeniedException, EXistException, ConfigurationException {
       throw new SecurityException("Not allowed on a web realm.");
    }
 

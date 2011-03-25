@@ -157,7 +157,13 @@ public class UserResource extends ServerResource {
                String [] existingGroups = user.getGroups();
                for (int i=0; i<existingGroups.length; i++) {
                   if (!groups.contains(existingGroups[i])) {
-                     user.remGroup(existingGroups[i]);
+                     try {
+                        user.remGroup(existingGroups[i]);
+                     } catch (PermissionDeniedException ex) {
+                        getLogger().log(Level.SEVERE,"Not allowed to update user "+name,ex);
+                        getResponse().setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                        return null;
+                     }
                   }
                }
                for (String group : groups) {

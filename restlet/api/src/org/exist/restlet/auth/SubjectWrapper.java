@@ -7,6 +7,7 @@ package org.exist.restlet.auth;
 
 import java.util.Set;
 import org.exist.config.Configuration;
+import org.exist.security.AXSchemaType;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.PermissionDeniedException;
@@ -46,7 +47,7 @@ public class SubjectWrapper implements Subject {
       return account.addGroup(group);
    }
 
-   public void remGroup(String group) {
+   public void remGroup(String group) throws PermissionDeniedException {
       account.remGroup(group);
    }
 
@@ -98,16 +99,16 @@ public class SubjectWrapper implements Subject {
       account.setGroups(groups);
    }
 
-   public void setAttribute(String name, Object value) {
-      account.setAttribute(name,value);
+   public Set<AXSchemaType> getMetadataKeys() {
+      return account.getMetadataKeys();
    }
 
-   public Object getAttribute(String name) {
-      return account.getAttribute(name);
+   public String getMetadataValue(AXSchemaType key) {
+      return account.getMetadataValue(key);
    }
 
-   public Set<String> getAttributeNames() {
-      return account.getAttributeNames();
+   public void setMetadataValue(AXSchemaType key, String value) {
+      account.setMetadataValue(key, value);
    }
 
    public String getUsername() {

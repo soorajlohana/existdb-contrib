@@ -67,7 +67,7 @@ public class ParameterUserStorage extends UserStorage {
                getLogger().info("User: "+uid+" -> "+username);
                for (String group : groups) {
                   if (realm.groups.get(group)==null) {
-                     realm.groups.put(group,new WebGroup(realmName,groupId++,group));
+                     realm.groups.put(group,new WebGroup(realm,groupId++,group));
                   }
                }
                Account user = new WebUser(realm,uid,username.substring(0,colon),groups.toArray(new String[0]));

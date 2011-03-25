@@ -79,6 +79,7 @@ public class UserFilter extends Filter {
       if (userManager==null) {
          String dbName = getContext().getParameters().getFirstValue(XMLDBResource.DBNAME_NAME);
          if (dbName!=null) {
+            getLogger().info("Instantiating DBUserVerifier for "+dbName);
             userManager = new DBUserVerifier(getContext(),BrokerPool.getInstance(dbName).getSecurityManager());
          }
       }

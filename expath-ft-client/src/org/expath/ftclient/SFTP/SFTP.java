@@ -193,6 +193,7 @@ public class SFTP {
     }
 
     public InputStream retrieveResource(Object remoteConnection, String remoteResourcePath) throws Exception {
+    	long startTime = new Date().getTime();
         Session session = (Session) remoteConnection;
         if (!session.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
 
@@ -208,6 +209,9 @@ public class SFTP {
         }
 
         List SFTPconnectionObject = checkResourcePath(SFTPconnection, remoteResourcePath);
+        
+        log.info("The SFTP sub-module retrieved the resource '" + remoteResourcePath + "' in " + (new Date().getTime() - startTime) + " ms.");
+        
         return (InputStream) SFTPconnectionObject.get(3);
     }
 

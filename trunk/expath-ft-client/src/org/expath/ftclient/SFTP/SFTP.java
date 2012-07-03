@@ -1,0 +1,330 @@
+/*
+ *  Copyright (C) 2011 Claudius Teodorescu
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  $Id$
+ */
+package org.expath.ftclient.SFTP;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.net.URI;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+import java.util.Vector;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.log4j.Logger;
+import org.expath.ftclient.ConvertResourcesList;
+import org.expath.ftclient.ExpathFTClientModule;
+import org.w3c.dom.Document;
+
+/**
+ * Implements a public interface for a SFTP connection.
+ *
+ * @author Claudius Teodorescu <claudius.teodorescu@gmail.com>
+ */
+public class SFTP {
+
+    private static final Logger log = Logger.getLogger(SFTP.class);
+	private static String moduleNsUri = "";
+	static {
+		moduleNsUri = ExpathFTClientModule.NAMESPACE_URI;
+	}
+	private static String modulePrefix = "";
+	static {
+		modulePrefix = ExpathFTClientModule.PREFIX;
+	}
+
+    public <X> X connect(URI remoteHostURI, String username, String password, String remoteHost, int remotePort, String clientPrivateKey) throws Exception {
+        X connection = null;
+        remotePort = (remotePort == -1) ? (int)22 : remotePort;
+        JSch jSch = new JSch();
+        byte[] encodedClientPrivateKey = null;
+        File clientPrivateKeyTempFile = null;
+        Session SFTPconnection = null;
+        try { encodedClientPrivateKey = clientPrivateKey.getBytes( "UTF-8" ); } catch (UnsupportedEncodingException ex) {}
+        try {
+            if (!"".equals(clientPrivateKey)) {
+                try {
+                    String uuid = UUID.randomUUID().toString();
+                    clientPrivateKeyTempFile = File.createTempFile("SFTPprivateKey"+ uuid, ".pem");
+                    OutputStream tmpBuffer = new FileOutputStream(clientPrivateKeyTempFile);
+                    try {
+                        tmpBuffer.write(encodedClientPrivateKey);
+                    } finally {
+                        tmpBuffer.close();
+                    }
+                    jSch.addIdentity(clientPrivateKeyTempFile.getCanonicalPath());
+                    clientPrivateKeyTempFile.delete();
+                } catch (IOException ex) {
+                    log.error(ex.getMessage(), ex);
+                }
+            }
+            SFTPconnection = jSch.getSession(username, remoteHost, remotePort);
+            SFTPconnection.setConfig("StrictHostKeyChecking", "no");
+            SFTPconnection.setPassword(password);
+            SFTPconnection.connect();
+            connection = (X) SFTPconnection;
+        } catch (JSchException ex) {
+            log.error(ex.getMessage(), ex);
+            throw new Exception("err:FTC005: Authentication failed. The username, password, or private key is wrong.");
+        }
+
+        return connection;
+    }
+
+    public StreamResult listResources(Object remoteConnection, String remoteResourcePath) throws Exception {
+    	long startTime = new Date().getTime();
+        Session session = (Session) remoteConnection;
+        if (!session.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
+
+        Channel SFTPchannel = null;
+        ChannelSftp SFTPconnection = null;
+        
+        try {
+            SFTPchannel = session.openChannel("sftp");
+            SFTPconnection = (ChannelSftp) SFTPchannel;
+            SFTPchannel.connect();
+        } catch (JSchException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        List SFTPconnectionObject = checkResourcePath(SFTPconnection, remoteResourcePath);
+        SFTPconnection = (ChannelSftp) SFTPconnectionObject.get(1);
+        Vector<LsEntry> SFTPresourceEntries = (Vector<LsEntry>) SFTPconnectionObject.get(2);
+        
+		Writer writer = new java.io.StringWriter();
+		XMLStreamWriter xmlWriter = null;
+		
+		try {
+			xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
+			xmlWriter.setPrefix(modulePrefix,moduleNsUri);
+			xmlWriter.writeStartDocument();
+			xmlWriter.writeStartElement(modulePrefix + ":resources-list");
+			xmlWriter.writeNamespace(modulePrefix, moduleNsUri);
+			
+	        for (LsEntry resource : SFTPresourceEntries) {
+	            if (resource.getFilename().equals(".") || resource.getFilename().equals("..")) {
+	                continue;
+	            }
+	            DateFormat SFTPdateStringFormatter = new SimpleDateFormat("E MMM dd HH:mm:ss z yyyy");
+
+	            Date SFTPdate = null;
+	            try {
+	                SFTPdate = (Date) SFTPdateStringFormatter.parse(resource.getAttrs().getMtimeString());
+	            } catch (ParseException ex) {
+	                log.error(ex);
+	            }
+	            DateFormat XSDdateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+	            String lastModified = XSDdateTimeFormatter.format(SFTPdate);
+	            lastModified = lastModified.replace(" ", "T");
+	            lastModified = lastModified.substring(0, 22) + ":" + lastModified.substring(22, 24);
+	            String userGroup = resource.getLongname().substring(10).trim().replaceFirst("^[\\S]+", "").trim();
+	            String user = userGroup.substring(0, userGroup.indexOf(" "));
+	            String group = userGroup.substring(userGroup.indexOf(" ")).trim();
+	            group = group.substring(0, group.indexOf(" "));
+	            long resourceSize = resource.getAttrs().getSize();
+				
+				xmlWriter.writeStartElement(modulePrefix + ":resource");
+				xmlWriter.writeAttribute("type", ((resource.getAttrs().isDir()) ? "directory" : (((resource.getAttrs().isLink()) ? "link" : "file"))));
+				xmlWriter.writeAttribute("last-modified", lastModified);
+				xmlWriter.writeAttribute("size", String.valueOf(resourceSize));
+				xmlWriter.writeAttribute("human-readable-size", org.apache.commons.io.FileUtils.byteCountToDisplaySize(resourceSize));
+				xmlWriter.writeAttribute("user", user);
+				xmlWriter.writeAttribute("user-group", group);
+				xmlWriter.writeAttribute("permissions", resource.getAttrs().getPermissionsString());
+				if (resource.getAttrs().isLink()) {
+					xmlWriter.writeAttribute("link-to", SFTPconnection.readlink(resource.getFilename()));
+				}
+				xmlWriter.writeCharacters(resource.getFilename());
+				xmlWriter.writeEndElement();
+			}
+			xmlWriter.writeEndElement();
+			xmlWriter.writeEndDocument();
+
+			xmlWriter.close();
+		} catch (Exception ex) {
+			throw new Exception(ex.getMessage());
+		}
+		
+		StreamResult resultAsStreamResult = new StreamResult(writer);
+		
+        SFTPconnection.disconnect();
+        
+        log.info("The SFTP sub-module retrieved the list of resources in " + (new Date().getTime() - startTime) + " ms.");
+
+        return resultAsStreamResult;
+    }
+
+    public InputStream retrieveResource(Object remoteConnection, String remoteResourcePath) throws Exception {
+        Session session = (Session) remoteConnection;
+        if (!session.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
+
+        Channel channel = null;
+        ChannelSftp SFTPconnection = null;
+        InputStream is;
+        try {
+            channel = session.openChannel("sftp");
+            SFTPconnection = (ChannelSftp) channel;
+            channel.connect();
+        } catch (JSchException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+
+        List SFTPconnectionObject = checkResourcePath(SFTPconnection, remoteResourcePath);
+        return (InputStream) SFTPconnectionObject.get(3);
+    }
+
+    public boolean storeResource(Object remoteConnection, String remoteDirectoryPath, String resourceName, InputStream resource) throws Exception {
+        Session session = (Session) remoteConnection;
+        if (!session.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
+
+        Boolean result = true;
+        Channel channel = null;
+        ChannelSftp SFTPconnection = null;
+        try {
+            channel = session.openChannel("sftp");
+            SFTPconnection = (ChannelSftp) channel;
+            channel.connect();
+        } catch (JSchException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        try {
+            List SFTPconnectionObject = null;
+            SFTPconnectionObject = checkResourcePath(SFTPconnection, remoteDirectoryPath);
+            SFTPconnection = (ChannelSftp) SFTPconnectionObject.get(1);
+            SFTPconnection.put(resource, resourceName);
+        } catch (SftpException ex) {
+            log.error(ex.getMessage(), ex);
+            result = false;
+        }
+
+        return result;
+    }
+
+    public boolean deleteResource(Object remoteConnection, String remoteResourcePath) throws Exception {
+        Session session = (Session) remoteConnection;
+        if (!session.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
+
+        Boolean result = true;
+        Channel channel = null;
+        ChannelSftp SFTPconnection = null;
+        try {
+            channel = session.openChannel("sftp");
+            SFTPconnection = (ChannelSftp) channel;
+            channel.connect();
+        } catch (JSchException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+
+        List SFTPconnectionObject = checkResourcePath(SFTPconnection, remoteResourcePath);
+        SFTPconnection = (ChannelSftp) SFTPconnectionObject.get(1);
+
+        try {
+            if ((Boolean) SFTPconnectionObject.get(0)) {
+                SFTPconnection.rmdir(remoteResourcePath);
+            } else {
+                SFTPconnection.rm(remoteResourcePath);
+            }
+        } catch (Exception ex) {
+             log.error(ex.getMessage(), ex);
+             result = false;
+        }
+
+        return result;
+    }
+    
+    public static List checkResourcePath(ChannelSftp SFTPconnection, String remoteResourcePath) throws Exception, SftpException {
+        InputStream is = null;
+        Vector<LsEntry> resourceEntries = null;
+        List SFTPconnectionObject = new LinkedList();
+        SftpATTRS stat = null;
+
+        try {
+            stat = SFTPconnection.lstat(remoteResourcePath);
+        } catch (SftpException ex) {
+            throw new Exception("err:FTC003: The remote resource does not exist.");
+        }
+        try {
+            //case when the resource is directory
+            if (stat.isDir()) {
+                SFTPconnectionObject.add(true);
+                SFTPconnection.cd(remoteResourcePath);
+                resourceEntries = SFTPconnection.ls(".");
+            } else {//case when the resource is not directory
+                SFTPconnectionObject.add(false);
+                is = SFTPconnection.get(remoteResourcePath);
+            }
+        } catch (SftpException ex) {
+            throw new Exception("err:FTC004: The user has no rights to access the remote resource.");
+        }
+
+        SFTPconnectionObject.add(SFTPconnection);
+        SFTPconnectionObject.add(resourceEntries);
+        SFTPconnectionObject.add(is);
+
+        return SFTPconnectionObject;
+        }
+
+public static Boolean disconnect(Object remoteConnection) throws Exception {
+        Session SFTPconnection = (Session) remoteConnection;
+        if (!SFTPconnection.isConnected()) {throw new Exception("err:FTC002: The connection was closed by server.");}
+
+        Boolean result = true;
+        
+        try {
+            // close the Connection
+            SFTPconnection.disconnect();
+        } catch(Exception ex) {
+            log.error(ex.getMessage(), ex);
+            result = false;
+        } finally {
+            if (SFTPconnection.isConnected()) {
+                try {
+                    SFTPconnection.disconnect();
+                } catch(Exception ex) {
+                    log.error(ex.getMessage(), ex);
+                    result = false;
+                }
+            }
+        }
+
+        return result;
+    }
+}

@@ -1,0 +1,8 @@
+Version 1.1.2 - 2012.06.23
+1. The error messages are correctly thrown again, as was before changing the module's architecture.
+2. The error message "err:FTC004: The user has no rights to access the remote resource." appears both in case when the user has no rights and when the resource does not exist. For the future version these error messages will be refactored, namely they will be adapted to the more or less limited capabilities of FTP, respectively SFTP libraries.
+
+
+Version 1.1.1 - 2012.06.22
+1. Changed the output for function ft-client:list-resources(), and ft-client:retrieve-resource(). See expath-ft-client.html file for details.
+2. Implemented function ft-client:get-resource-metadata() and added unit test 28 for it. 

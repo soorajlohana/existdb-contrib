@@ -19,19 +19,12 @@
  */
 package org.expath.ftclient;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.expath.exist.ftclient.ConnectFunction;
 /**
  * Implements a method for retrieving a remote resource.
  * 
@@ -42,11 +35,11 @@ public class RetrieveResource {
 	private static final String moduleName = ExpathFTClientModule.MODULE_NAME;
 
     public static StreamResult retrieveResource(Object remoteConnection, String remoteResourcePath) throws Exception {
-    	long startTime = new Date().getTime();
-        
     	StreamResult result = null;
         String protocol = ExpathFTClientModule.PROTOCOL_CLASS_CODES.get(remoteConnection.getClass().getName());
 
+        log.info("Claudius protocol " + protocol);
+        
         Class<?> clazz = Class.forName("org.expath.ftclient." + protocol + "." + protocol);
         Method method = clazz.getMethod("retrieveResource", new Class<?>[] {Object.class, String.class});
         try {

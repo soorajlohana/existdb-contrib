@@ -417,8 +417,10 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
-		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis();
-		(new File("/home/ftp-user/" + remoteResourcePath)).mkdir();
+		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
+		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
+		Assert.assertTrue(stored);
+		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(deleted);

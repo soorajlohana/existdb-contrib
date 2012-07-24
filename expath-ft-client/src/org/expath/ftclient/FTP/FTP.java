@@ -277,9 +277,9 @@ public class FTP {
 			result = false;
 		}
 
-		if (!FTPconnection.completePendingCommand()) {
-			throw new Exception("err:FTC007: The current operation failed.");
-		}
+//		if (!FTPconnection.completePendingCommand()) {
+//			throw new Exception("err:FTC007: The current operation failed.");
+//		}
 
 		log.info("The FTP sub-module deleted the resource '" + remoteResourcePath + "' in "
 				+ (new Date().getTime() - startTime) + " ms.");

@@ -147,6 +147,9 @@ public class SFTP {
 			xmlWriter.writeStartElement(modulePrefix + ":resources-list");
 			xmlWriter.writeNamespace(modulePrefix, moduleNsUri);
 			for (LsEntry resource : resources) {
+				if (resource.getFilename().equals(".") || resource.getFilename().equals("..")) {
+					continue;
+				}				
 				_generateResourceElement(xmlWriter, resource, null, "", connection);
 			}
 			xmlWriter.writeEndElement();
@@ -197,9 +200,6 @@ public class SFTP {
 			xmlWriter.setPrefix(modulePrefix, moduleNsUri);
 			xmlWriter.writeStartDocument();
 			for (LsEntry resource : resources) {
-				if (resource.getFilename().equals(".") || resource.getFilename().equals("..")) {
-					continue;
-				}				
 				_generateResourceElement(xmlWriter, resource, is, remoteResourcePath, connection);
 			}
 			xmlWriter.writeEndDocument();

@@ -548,6 +548,39 @@ public class FTClientModuleTest {
 		String resourceString = resource.getWriter().toString();
 		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
+	
+	@Test
+	public void deleteDirectoryWithSftp() throws URISyntaxException, Exception {
+		System.out.println("Starting test '" + name.getMethodName() + "'...");
+		long startTime = new Date().getTime();
+		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1", "");
+		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
+		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
+		Assert.assertTrue(stored);
+		System.out.println("Stored resource: " + remoteResourcePath + ".\n");
+		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
+		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
+		Disconnect.disconnect(remoteConnection);
+		Assert.assertTrue(deleted);
+		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
+	}
+	
+	@Test
+	public void deleteFileWithSftp() throws URISyntaxException, Exception {
+		System.out.println("Starting test '" + name.getMethodName() + "'...");
+		long startTime = new Date().getTime();
+		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1", "");
+		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFile" + System.currentTimeMillis() + ".txt";
+		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
+		Assert.assertTrue(stored);
+		System.out.println("Stored resource: " + remoteResourcePath + ".\n");
+		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
+		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
+		Disconnect.disconnect(remoteConnection);
+		Assert.assertTrue(deleted);
+		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
+	}
 
 	@Test
 	public void _checkDirectoryWithRightsTest() throws URISyntaxException, Exception {

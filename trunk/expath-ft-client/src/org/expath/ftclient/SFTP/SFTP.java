@@ -217,7 +217,7 @@ public class SFTP {
 	}
 
 	public boolean storeResource(Object remoteConnection, String remoteDirectoryPath, String resourceName,
-			InputStream resource) throws Exception {
+			InputStream resourceInputStream) throws Exception {
 		Session session = (Session) remoteConnection;
 		if (!session.isConnected()) {
 			throw new Exception("err:FTC002: The connection was closed by server.");
@@ -235,14 +235,21 @@ public class SFTP {
 		}
 		try {
 			List SFTPconnectionObject = null;
-			SFTPconnectionObject = _checkResourcePath(SFTPconnection, remoteDirectoryPath);
-			SFTPconnection = (ChannelSftp) SFTPconnectionObject.get(1);
-			SFTPconnection.put(resource, resourceName);
+			if (resourceName.length() == 0) {
+				resourceName = remoteDirectoryPath.substring(remoteDirectoryPath.lastIndexOf("/") + 1);
+				remoteDirectoryPath = remoteDirectoryPath.substring(0, remoteDirectoryPath.lastIndexOf("/"));
+				_checkResourcePath(SFTPconnection, remoteDirectoryPath);
+				SFTPconnection.mkdir(resourceName);
+			} else {
+				_checkResourcePath(SFTPconnection, remoteDirectoryPath);
+				SFTPconnection.put(resourceInputStream, resourceName);
+			}
 		} catch (SftpException ex) {
+			System.out.println("ex.getMessage(): " + ex.getMessage() + ".\n");
 			log.error(ex.getMessage(), ex);
 			result = false;
 		}
-
+		
 		return result;
 	}
 

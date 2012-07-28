@@ -29,16 +29,16 @@ import org.junit.rules.TestName;
 
 import com.jcraft.jsch.Session;
 
-public class FTClientModuleTest {
+public class FTClientModuleUnitTests {
 	@Rule
     public TestName name= new TestName();
 
-	private FTPClient initializeFtpConnection(String URIstring) throws URISyntaxException, Exception {
+	public static FTPClient initializeFtpConnection(String URIstring) throws URISyntaxException, Exception {
 		FTPClient remoteConnection = Connect.connect(new URI(URIstring));
 		return remoteConnection;
 	}
 
-	private Session initializeSftpConnection(String URIstring, String clientPrivateKey) throws URISyntaxException,
+	public static Session initializeSftpConnection(String URIstring, String clientPrivateKey) throws URISyntaxException,
 			Exception {
 		Session remoteConnection = Connect.connect(new URI(URIstring), clientPrivateKey);
 		return remoteConnection;
@@ -70,7 +70,7 @@ public class FTClientModuleTest {
 		System.out.println(resourceString);
 		String sampleResourceAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"image-with-rights.gif\" type=\"file\" absolute-path=\"/dir-with-rights/image-with-rights.gif\" last-modified=\"2012-05-14T15:28:00+03:00\" size=\"1010\" human-readable-size=\"1010 bytes\" user=\"1001\" user-group=\"1001\" permissions=\"-rw-rw-rw-\">"
 				+ InputStream2Base64String.convert((InputStream) getClass()
-						.getResourceAsStream("image-with-rights.gif")) + "</ft-client:resource>";
+						.getResourceAsStream("data/image-with-rights.gif")) + "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
 		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
@@ -81,7 +81,7 @@ public class FTClientModuleTest {
 		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/image-with-rights" + System.currentTimeMillis() + ".gif";
-		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/image-with-rights.gif");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
@@ -93,7 +93,7 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights";
 		StreamResult resources = ListResources.listResources(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
@@ -108,14 +108,14 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/image-with-rights.gif";
 		StreamResult resource = RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		String resourceString = resource.getWriter().toString();
 		String sampleResourceAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"image-with-rights.gif\" type=\"file\" last-modified=\"2012-05-14T18:28:14+03:00\" size=\"1010\" human-readable-size=\"1010 bytes\" user=\"ftp-user\" user-group=\"ftp-user\" permissions=\"-rw-rw-rw-\">"
 				+ InputStream2Base64String.convert((InputStream) getClass()
-						.getResourceAsStream("image-with-rights.gif")) + "</ft-client:resource>";
+						.getResourceAsStream("data/image-with-rights.gif")) + "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
 		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
@@ -125,10 +125,10 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/image-with-rights" + System.currentTimeMillis()
 				+ ".gif";
-		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/image-with-rights.gif");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
@@ -140,9 +140,9 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/test" + System.currentTimeMillis() + ".txt";
-		InputStream resourceInputStream = getClass().getResourceAsStream("test.txt");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/test.txt");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
@@ -159,7 +159,7 @@ public class FTClientModuleTest {
 		Disconnect.disconnect(remoteConnection);
 		String resourceString = resource.getWriter().toString();
 		String sampleResourceAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"test.txt\" type=\"file\" absolute-path=\"/dir-with-rights/test.txt\" last-modified=\"2012-05-14T15:28:00+03:00\" size=\"64\" human-readable-size=\"64 bytes\" user=\"1001\" user-group=\"1001\" permissions=\"-rw-rw-rw-\">"
-				+ InputStream2Base64String.convert((InputStream) getClass().getResourceAsStream("test.txt"))
+				+ InputStream2Base64String.convert((InputStream) getClass().getResourceAsStream("data/test.txt"))
 				+ "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
 		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
@@ -170,14 +170,14 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/test.txt";
 		StreamResult resource = RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		String resourceString = resource.getWriter().toString();
 		System.out.println(resourceString);
 		String sampleResourceAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"test.txt\" type=\"file\" last-modified=\"2012-05-14T18:28:14+03:00\" size=\"64\" human-readable-size=\"64 bytes\" user=\"ftp-user\" user-group=\"ftp-user\" permissions=\"-rw-rw-rw-\">"
-				+ InputStream2Base64String.convert((InputStream) getClass().getResourceAsStream("test.txt"))
+				+ InputStream2Base64String.convert((InputStream) getClass().getResourceAsStream("data/test.txt"))
 				+ "</ft-client:resource>";
 		System.out.println(sampleResourceAsString);
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
@@ -189,9 +189,9 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/test" + System.currentTimeMillis() + ".txt";
-		InputStream resourceInputStream = getClass().getResourceAsStream("test.txt");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/test.txt");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
@@ -249,7 +249,7 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/non-existing-directory";
 		try {
 			ListResources.listResources(remoteConnection, remoteResourcePath);
@@ -286,7 +286,7 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/dir-without-rights";
 		try {
 			ListResources.listResources(remoteConnection, remoteResourcePath);
@@ -324,7 +324,7 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/non-existing-image.gif";
 		try {
 			RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
@@ -342,7 +342,7 @@ public class FTClientModuleTest {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
-				IOUtils.toString(getClass().getResourceAsStream("Open-Private-Key"), "UTF-8"));
+				IOUtils.toString(getClass().getResourceAsStream("data/Open-Private-Key"), "UTF-8"));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/image-no-rights.gif";
 		try {
 			RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
@@ -362,7 +362,7 @@ public class FTClientModuleTest {
 		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/wrong-path/image-with-rights" + System.currentTimeMillis() + ".gif";
-		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/image-with-rights.gif");
 		try {
 			StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 			Assert.assertTrue(false);
@@ -383,7 +383,7 @@ public class FTClientModuleTest {
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/dir-without-rights/image-with-rights"
 				+ System.currentTimeMillis() + ".gif";
-		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/image-with-rights.gif");
 		try {
 			StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 			Assert.assertTrue(false);
@@ -526,7 +526,7 @@ public class FTClientModuleTest {
 		System.out.println(resource7String);
 		String sampleResourceAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"image-with-rights.gif\" type=\"file\" absolute-path=\"/dir-with-rights/image-with-rights.gif\" last-modified=\"2012-05-14T15:28:00+03:00\" size=\"1010\" human-readable-size=\"1010 bytes\" user=\"1001\" user-group=\"1001\" permissions=\"-rw-rw-rw-\">"
 				+ InputStream2Base64String.convert((InputStream) getClass()
-						.getResourceAsStream("image-with-rights.gif")) + "</ft-client:resource>";
+						.getResourceAsStream("data/image-with-rights.gif")) + "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resource1String));
 		Assert.assertTrue(sampleResourceAsString.equals(resource2String));
 		Assert.assertTrue(sampleResourceAsString.equals(resource3String));
@@ -538,7 +538,7 @@ public class FTClientModuleTest {
 	}
 
 	@Test
-	public void test31() throws URISyntaxException, Exception {
+	public void retrieveLargeResource() throws URISyntaxException, Exception {
 		System.out.println("Starting test '" + name.getMethodName() + "'...");
 		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp.mozilla.org");
@@ -571,7 +571,7 @@ public class FTClientModuleTest {
 		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1", "");
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFile" + System.currentTimeMillis() + ".txt";
-		InputStream resourceInputStream = getClass().getResourceAsStream("image-with-rights.gif");
+		InputStream resourceInputStream = getClass().getResourceAsStream("data/image-with-rights.gif");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Assert.assertTrue(stored);
 		System.out.println("Stored resource: " + remoteResourcePath + ".\n");

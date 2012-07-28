@@ -115,7 +115,6 @@ public class ConnectFunction extends BasicFunction {
 
         //store the connection and return the uid handle of the connection
         result = new IntegerValue(ExistExpathFTClientModule.storeRemoteConnection(context, remoteConnection));
-        log.info("Claudius - connection id: " + result);
         
         return result;
     }

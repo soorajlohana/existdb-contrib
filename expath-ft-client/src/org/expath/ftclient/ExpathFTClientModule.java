@@ -37,7 +37,6 @@ import org.apache.log4j.Logger;
  */
 public class ExpathFTClientModule {
 
-	private static final Logger log = Logger.getLogger(Connect.class);
 	public final static String NAMESPACE_URI = "http://expath.org/ns/ft-client";
 	public final static String PREFIX = "ft-client";
 	public final static String VERSION = "1.1";

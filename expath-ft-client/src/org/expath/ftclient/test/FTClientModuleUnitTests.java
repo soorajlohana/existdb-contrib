@@ -1,4 +1,4 @@
-package org.expath.ftclient.tests;
+package org.expath.ftclient.test;
 
 import java.io.File;
 import java.io.IOException;

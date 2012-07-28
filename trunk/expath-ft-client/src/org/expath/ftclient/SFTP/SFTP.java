@@ -76,6 +76,7 @@ public class SFTP {
 
 	public <X> X connect(URI remoteHostURI, String username, String password, String remoteHost, int remotePort,
 			String clientPrivateKey) throws Exception {
+		long startTime = new Date().getTime();
 		X connection = null;
 		remotePort = (remotePort == -1) ? (int) 22 : remotePort;
 		JSch jSch = new JSch();
@@ -108,11 +109,13 @@ public class SFTP {
 			SFTPconnection.setPassword(password);
 			SFTPconnection.connect();
 			connection = (X) SFTPconnection;
+			log.info("The SFTP sub-module connected to '" + remoteHostURI + "' in " + (new Date().getTime() - startTime)
+					+ " ms.");
 		} catch (JSchException ex) {
 			log.error(ex.getMessage(), ex);
 			throw new Exception("err:FTC005: Authentication failed. The username, password, or private key is wrong.");
 		}
-
+		
 		return connection;
 	}
 
@@ -218,6 +221,7 @@ public class SFTP {
 
 	public boolean storeResource(Object remoteConnection, String remoteDirectoryPath, String resourceName,
 			InputStream resourceInputStream) throws Exception {
+		long startTime = new Date().getTime();
 		Session session = (Session) remoteConnection;
 		if (!session.isConnected()) {
 			throw new Exception("err:FTC002: The connection was closed by server.");
@@ -240,10 +244,14 @@ public class SFTP {
 				remoteDirectoryPath = remoteDirectoryPath.substring(0, remoteDirectoryPath.lastIndexOf("/"));
 				_checkResourcePath(SFTPconnection, remoteDirectoryPath);
 				SFTPconnection.mkdir(resourceName);
+				log.info("remoteDirectoryPath '" + remoteDirectoryPath + "'");
+				log.info("resourceName '" + resourceName + "'");
 			} else {
 				_checkResourcePath(SFTPconnection, remoteDirectoryPath);
 				SFTPconnection.put(resourceInputStream, resourceName);
 			}
+			log.info("The SFTP sub-module stored the resource '" + resourceName + "' at '" + remoteDirectoryPath + "' in "
+					+ (new Date().getTime() - startTime) + " ms.");			
 		} catch (SftpException ex) {
 			System.out.println("ex.getMessage(): " + ex.getMessage() + ".\n");
 			log.error(ex.getMessage(), ex);
@@ -254,6 +262,7 @@ public class SFTP {
 	}
 
 	public boolean deleteResource(Object remoteConnection, String remoteResourcePath) throws Exception {
+		long startTime = new Date().getTime();
 		Session session = (Session) remoteConnection;
 		if (!session.isConnected()) {
 			throw new Exception("err:FTC002: The connection was closed by server.");
@@ -283,11 +292,15 @@ public class SFTP {
 			log.error(ex.getMessage(), ex);
 			result = false;
 		}
+		
+		log.info("The SFTP sub-module deleted the resource '" + remoteResourcePath + "' in "
+				+ (new Date().getTime() - startTime) + " ms.");
 
 		return result;
 	}
 
 	public static Boolean disconnect(Object remoteConnection) throws Exception {
+		long startTime = new Date().getTime();
 		Session SFTPconnection = (Session) remoteConnection;
 		if (!SFTPconnection.isConnected()) {
 			throw new Exception("err:FTC002: The connection was closed by server.");
@@ -298,6 +311,7 @@ public class SFTP {
 		try {
 			// close the Connection
 			SFTPconnection.disconnect();
+			log.info("The SFTP sub-module disconnected in " + (new Date().getTime() - startTime) + " ms.");
 		} catch (Exception ex) {
 			log.error(ex.getMessage(), ex);
 			result = false;

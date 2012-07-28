@@ -50,7 +50,6 @@ public class ConnectFunction extends BasicFunction {
     
     private static final FunctionReturnSequenceType RETURN_TYPE = new FunctionReturnSequenceType(Type.LONG, Cardinality.ZERO_OR_ONE, "an xs:long representing the connection handle." );
     private static final FunctionParameterSequenceType REMOTE_HOST_URI = new FunctionParameterSequenceType("remote-host-uri", Type.ANY_URI, Cardinality.EXACTLY_ONE, "The URI of the host to connect to." );
-    private static final Logger log = Logger.getLogger(ConnectFunction.class);
 
     public final static FunctionSignature[] signatures = {
         new FunctionSignature(

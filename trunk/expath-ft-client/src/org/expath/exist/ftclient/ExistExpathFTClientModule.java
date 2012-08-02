@@ -53,8 +53,7 @@ public class ExistExpathFTClientModule extends AbstractInternalModule {
     protected static int CONNECTION_TYPE;
 
     private final static FunctionDef[] functions = {
-        new FunctionDef(ConnectFunction.signatures[0], ConnectFunction.class),
-        new FunctionDef(ConnectFunction.signatures[1], ConnectFunction.class),
+        new FunctionDef(ConnectFunction.signature, ConnectFunction.class),
         new FunctionDef(ListResourcesFunction.signature, ListResourcesFunction.class),
         new FunctionDef(DisconnectFunction.signature, DisconnectFunction.class),
         new FunctionDef(StoreResourceFunction.signature, StoreResourceFunction.class),

@@ -19,6 +19,7 @@
  */
 package org.expath.ftclient;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
@@ -38,11 +39,7 @@ public class Connect {
     private static final Logger log = Logger.getLogger(Connect.class);
     private static final String moduleName = ExpathFTClientModule.MODULE_NAME;
     
-    public static <X> X connect(URI remoteHostURI) throws Exception {
-    	return connect(remoteHostURI, "");
-    }
-
-    public static <X> X connect(URI remoteHostUri, String clientPrivateKey) throws Exception {
+    public static <X> X connect(URI remoteHostUri, InputStream options) throws Exception {
         
         X connection = null;
         
@@ -76,9 +73,9 @@ public class Connect {
         }
         
         Class<?> clazz = Class.forName("org.expath.ftclient." + protocol + "." + protocol);
-        Method method = clazz.getMethod("connect", new Class<?>[] {URI.class, String.class, String.class, String.class, int.class, String.class});
+        Method method = clazz.getMethod("connect", new Class<?>[] {URI.class, String.class, String.class, String.class, int.class, InputStream.class});
         try {
-            connection = (X) method.invoke(clazz.newInstance(), new Object[] {remoteHostUri, username, password, remoteHost, remotePort, clientPrivateKey});
+            connection = (X) method.invoke(clazz.newInstance(), new Object[] {remoteHostUri, username, password, remoteHost, remotePort, options});
         } catch(InvocationTargetException ex) {
             throw new Exception(ex.getCause().getMessage());
         }

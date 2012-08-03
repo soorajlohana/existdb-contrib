@@ -75,29 +75,26 @@ public class SFTP {
 	}
 
 	public <X> X connect(URI remoteHostURI, String username, String password, String remoteHost, int remotePort,
-			String clientPrivateKey) throws Exception {
+			InputStream clientPrivateKey) throws Exception {
 		long startTime = new Date().getTime();
 		X connection = null;
 		remotePort = (remotePort == -1) ? (int) 22 : remotePort;
 		JSch jSch = new JSch();
-		byte[] encodedClientPrivateKey = null;
 		File clientPrivateKeyTempFile = null;
 		Session SFTPconnection = null;
 		try {
-			encodedClientPrivateKey = clientPrivateKey.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException ex) {
-		}
-		try {
-			if (!"".equals(clientPrivateKey)) {
+			if (clientPrivateKey != null) {
 				try {
 					String uuid = UUID.randomUUID().toString();
 					clientPrivateKeyTempFile = File.createTempFile("SFTPprivateKey" + uuid, ".pem");
-					OutputStream tmpBuffer = new FileOutputStream(clientPrivateKeyTempFile);
-					try {
-						tmpBuffer.write(encodedClientPrivateKey);
-					} finally {
-						tmpBuffer.close();
+					OutputStream out = new FileOutputStream(clientPrivateKeyTempFile);
+					byte buf[] = new byte[1024];
+					int len;
+					while((len = clientPrivateKey.read(buf))>0) {
+						out.write(buf,0,len);
 					}
+					out.close();
+					clientPrivateKey.close();
 					jSch.addIdentity(clientPrivateKeyTempFile.getCanonicalPath());
 					clientPrivateKeyTempFile.delete();
 				} catch (IOException ex) {

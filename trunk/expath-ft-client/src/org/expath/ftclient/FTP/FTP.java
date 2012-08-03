@@ -64,7 +64,7 @@ public class FTP {
 	}
 
 	public <X> X connect(URI remoteHostURI, String username, String password, String remoteHost, int remotePort,
-			String clientPrivateKey) throws Exception {
+			InputStream options) throws Exception {
 		long startTime = new Date().getTime();
 		X connection = null;
 		FTPClient FTPconnection = new FTPClient();

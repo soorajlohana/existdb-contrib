@@ -21,6 +21,7 @@
  */
 package org.expath.exist.ftclient;
 
+import java.io.InputStream;
 import java.net.URI;
 
 import org.apache.log4j.Logger;
@@ -29,6 +30,7 @@ import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.IntegerValue;
@@ -37,6 +39,7 @@ import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
 import org.exist.xquery.value.AnyURIValue;
 import org.exist.xquery.XPathException;
+import org.xml.sax.InputSource;
 
 /**
  * Implements a method for opening a remote connection.
@@ -51,25 +54,15 @@ public class ConnectFunction extends BasicFunction {
     private static final FunctionReturnSequenceType RETURN_TYPE = new FunctionReturnSequenceType(Type.LONG, Cardinality.ZERO_OR_ONE, "an xs:long representing the connection handle." );
     private static final FunctionParameterSequenceType REMOTE_HOST_URI = new FunctionParameterSequenceType("remote-host-uri", Type.ANY_URI, Cardinality.EXACTLY_ONE, "The URI of the host to connect to." );
 
-    public final static FunctionSignature[] signatures = {
-        new FunctionSignature(
-            new QName("connect", ExistExpathFTClientModule.NAMESPACE_URI, ExistExpathFTClientModule.PREFIX),
-            "This function is used to open a remote connection.",
-            new SequenceType[] {
-                REMOTE_HOST_URI
-            },
-            RETURN_TYPE
-        ),
-        new FunctionSignature(
+    public final static FunctionSignature signature = new FunctionSignature(
             new QName("connect", ExistExpathFTClientModule.NAMESPACE_URI, ExistExpathFTClientModule.PREFIX),
             "This function is used to open a remote connection.",
             new SequenceType[] {
                 REMOTE_HOST_URI,
-                new FunctionParameterSequenceType("private-key", Type.STRING, Cardinality.EXACTLY_ONE, "The private key used for authentication." )
+                new FunctionParameterSequenceType("options", Type.ANY_TYPE, Cardinality.ZERO_OR_ONE, "The options for connection." )
             },
             RETURN_TYPE
-        )
-    };
+        );
 
     /**
      * ConnectFunction Constructor.
@@ -98,16 +91,13 @@ public class ConnectFunction extends BasicFunction {
         
         Sequence result = Sequence.EMPTY_SEQUENCE;
         Object remoteConnection = null;
-        String clientPrivateKey = "";
-        if (args.length == 2)
-        {
-        	clientPrivateKey = args[1].getStringValue();
-        }
         URI remoteHostUri = ((AnyURIValue)args[0].itemAt(0)).toURI();
+        BinaryValue optionsBinaryValue = ((BinaryValue)args[1].itemAt(0));
+        InputStream options = optionsBinaryValue.getInputStream();
 
         //get the connection object
         try {
-            remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, clientPrivateKey);
+            remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, options);
         } catch (Exception ex) {
         	throw new XPathException(ex.getMessage());
         }

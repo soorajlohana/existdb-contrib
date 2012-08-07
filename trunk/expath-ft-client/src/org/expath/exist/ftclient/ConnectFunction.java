@@ -48,63 +48,75 @@ import org.xml.sax.InputSource;
  * @author Claudius Teodorescu <claudius.teodorescu@gmail.com>
  */
 
-
 public class ConnectFunction extends BasicFunction {
-    
-    private static final FunctionReturnSequenceType RETURN_TYPE = new FunctionReturnSequenceType(Type.LONG, Cardinality.ZERO_OR_ONE, "an xs:long representing the connection handle." );
-    private static final FunctionParameterSequenceType REMOTE_HOST_URI = new FunctionParameterSequenceType("remote-host-uri", Type.ANY_URI, Cardinality.EXACTLY_ONE, "The URI of the host to connect to." );
 
-    public final static FunctionSignature signature = new FunctionSignature(
-            new QName("connect", ExistExpathFTClientModule.NAMESPACE_URI, ExistExpathFTClientModule.PREFIX),
-            "This function is used to open a remote connection.",
-            new SequenceType[] {
-                REMOTE_HOST_URI,
-                new FunctionParameterSequenceType("options", Type.ANY_TYPE, Cardinality.ZERO_OR_ONE, "The options for connection." )
-            },
-            RETURN_TYPE
-        );
+	private static final FunctionReturnSequenceType RETURN_TYPE = new FunctionReturnSequenceType(Type.LONG,
+			Cardinality.ZERO_OR_ONE, "an xs:long representing the connection handle.");
+	private static final FunctionParameterSequenceType REMOTE_HOST_URI = new FunctionParameterSequenceType(
+			"remote-host-uri", Type.ANY_URI, Cardinality.EXACTLY_ONE, "The URI of the host to connect to.");
 
-    /**
-     * ConnectFunction Constructor.
-     *
-     * @param  context    The Context of the calling XQuery
-     * @param  signature  DOCUMENT ME!
-     */
-    public ConnectFunction(XQueryContext context, FunctionSignature signature) {
-        super(context, signature);
-    }
+	public final static FunctionSignature signatures[] = {
+			new FunctionSignature(new QName("connect", ExistExpathFTClientModule.NAMESPACE_URI,
+					ExistExpathFTClientModule.PREFIX), "This function is used to open a remote connection.",
+					new SequenceType[] { REMOTE_HOST_URI }, RETURN_TYPE),
+			new FunctionSignature(new QName("connect", ExistExpathFTClientModule.NAMESPACE_URI,
+					ExistExpathFTClientModule.PREFIX), "This function is used to open a remote connection.",
+					new SequenceType[] {
+							REMOTE_HOST_URI,
+							new FunctionParameterSequenceType("options", Type.ANY_TYPE, Cardinality.ZERO_OR_ONE,
+									"The options for connection.") }, RETURN_TYPE) };
 
-    /**
-     * evaluate the call to the xquery connect() function, it is really the main entry point of this class.
-     *
-     * @param   args             arguments from the get-connection() function call
-     * @param   contextSequence  the Context Sequence to operate on (not used here internally!)
-     *
-     * @return  A xs:long representing a handle to the connection
-     *
-     * @throws  XPathException  DOCUMENT ME!
-     *
-     * @see     org.exist.xquery.BasicFunction#eval(org.exist.xquery.value.Sequence[], org.exist.xquery.value.Sequence)
-     */
-    @Override
-    public Sequence eval( Sequence[] args, Sequence contextSequence ) throws XPathException {
-        
-        Sequence result = Sequence.EMPTY_SEQUENCE;
-        Object remoteConnection = null;
-        URI remoteHostUri = ((AnyURIValue)args[0].itemAt(0)).toURI();
-        BinaryValue optionsBinaryValue = ((BinaryValue)args[1].itemAt(0));
-        InputStream options = optionsBinaryValue.getInputStream();
+	/**
+	 * ConnectFunction Constructor.
+	 * 
+	 * @param context
+	 *            The Context of the calling XQuery
+	 * @param signature
+	 *            DOCUMENT ME!
+	 */
+	public ConnectFunction(XQueryContext context, FunctionSignature signature) {
+		super(context, signature);
+	}
 
-        //get the connection object
-        try {
-            remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, options);
-        } catch (Exception ex) {
-        	throw new XPathException(ex.getMessage());
+	/**
+	 * evaluate the call to the xquery connect() function, it is really the main
+	 * entry point of this class.
+	 * 
+	 * @param args
+	 *            arguments from the get-connection() function call
+	 * @param contextSequence
+	 *            the Context Sequence to operate on (not used here internally!)
+	 * 
+	 * @return A xs:long representing a handle to the connection
+	 * 
+	 * @throws XPathException
+	 *             DOCUMENT ME!
+	 * 
+	 * @see org.exist.xquery.BasicFunction#eval(org.exist.xquery.value.Sequence[],
+	 *      org.exist.xquery.value.Sequence)
+	 */
+	@Override
+	public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+
+		Sequence result = Sequence.EMPTY_SEQUENCE;
+		Object remoteConnection = null;
+		URI remoteHostUri = ((AnyURIValue) args[0].itemAt(0)).toURI();
+		InputStream options = null;
+        if (args.length == 2) {
+    		BinaryValue optionsBinaryValue = ((BinaryValue) args[1].itemAt(0));
+    		options = optionsBinaryValue.getInputStream();
         }
 
-        //store the connection and return the uid handle of the connection
-        result = new IntegerValue(ExistExpathFTClientModule.storeRemoteConnection(context, remoteConnection));
-        
-        return result;
-    }
+		// get the connection object
+		try {
+			remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, options);
+		} catch (Exception ex) {
+			throw new XPathException(ex.getMessage());
+		}
+
+		// store the connection and return the uid handle of the connection
+		result = new IntegerValue(ExistExpathFTClientModule.storeRemoteConnection(context, remoteConnection));
+
+		return result;
+	}
 }

@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
-import org.exist.xquery.XPathException;
-
 import java.net.URI;
 
 /**

@@ -37,7 +37,6 @@ import java.net.URI;
 public class Connect {
     
     private static final Logger log = Logger.getLogger(Connect.class);
-    private static final String moduleName = ExpathFTClientModule.MODULE_NAME;
     
     public static <X> X connect(URI remoteHostUri, InputStream options) throws Exception {
         

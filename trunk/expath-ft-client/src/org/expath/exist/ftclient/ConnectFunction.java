@@ -21,25 +21,38 @@
  */
 package org.expath.exist.ftclient;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 
+import javax.xml.transform.stream.StreamSource;
+
 import org.apache.log4j.Logger;
+import org.exist.dom.NodeProxy;
 import org.exist.dom.QName;
+import org.exist.storage.serializers.Serializer;
+import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XQueryContext;
+import org.exist.xquery.functions.validation.Shared;
 import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.FunctionParameterSequenceType;
 import org.exist.xquery.value.FunctionReturnSequenceType;
 import org.exist.xquery.value.IntegerValue;
+import org.exist.xquery.value.Item;
+import org.exist.xquery.value.NodeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
 import org.exist.xquery.value.AnyURIValue;
 import org.exist.xquery.XPathException;
+import org.expath.ftclient.Connect;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Implements a method for opening a remote connection.
@@ -49,6 +62,8 @@ import org.xml.sax.InputSource;
  */
 
 public class ConnectFunction extends BasicFunction {
+	
+	private static final Logger log = Logger.getLogger(ConnectFunction.class);
 
 	private static final FunctionReturnSequenceType RETURN_TYPE = new FunctionReturnSequenceType(Type.LONG,
 			Cardinality.ZERO_OR_ONE, "an xs:long representing the connection handle.");
@@ -100,16 +115,28 @@ public class ConnectFunction extends BasicFunction {
 
 		Sequence result = Sequence.EMPTY_SEQUENCE;
 		Object remoteConnection = null;
-		URI remoteHostUri = ((AnyURIValue) args[0].itemAt(0)).toURI();
+		URI remoteHostUri = ((AnyURIValue)args[0].itemAt(0)).toURI();
+
 		InputStream options = null;
-        if (args.length == 2) {
-    		BinaryValue optionsBinaryValue = ((BinaryValue) args[1].itemAt(0));
-    		options = optionsBinaryValue.getInputStream();
+		String optionsString = "";	
+		if (args.length == 2) {
+            if ( args[1].itemAt(0).getType() == 22 ) {
+            	optionsString = args[1].getStringValue();
+            } else if ( args[1].itemAt(0).getType() == 6 ) {
+                Serializer serializer = context.getBroker().getSerializer();
+                NodeValue inputNode = (NodeValue) args[1].itemAt(0);
+                try {
+    				optionsString = serializer.serialize(inputNode);
+    			} catch (Exception ex) {
+    				throw new XPathException(ex.getMessage());
+    			}            	
+            }
+            //options = new ByteArrayInputStream(optionsString.getBytes());
         }
 
 		// get the connection object
 		try {
-			remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, options);
+			remoteConnection = org.expath.ftclient.Connect.connect(remoteHostUri, optionsString);
 		} catch (Exception ex) {
 			throw new XPathException(ex.getMessage());
 		}

@@ -27,8 +27,11 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -75,7 +78,7 @@ public class SFTP {
 	}
 
 	public <X> X connect(URI remoteHostURI, String username, String password, String remoteHost, int remotePort,
-			InputStream clientPrivateKey) throws Exception {
+			String clientPrivateKey) throws Exception {
 		long startTime = new Date().getTime();
 		X connection = null;
 		remotePort = (remotePort == -1) ? (int) 22 : remotePort;
@@ -87,14 +90,20 @@ public class SFTP {
 				try {
 					String uuid = UUID.randomUUID().toString();
 					clientPrivateKeyTempFile = File.createTempFile("SFTPprivateKey" + uuid, ".pem");
-					OutputStream out = new FileOutputStream(clientPrivateKeyTempFile);
-					byte buf[] = new byte[1024];
-					int len;
-					while((len = clientPrivateKey.read(buf))>0) {
-						out.write(buf,0,len);
-					}
+					
+					BufferedWriter out = new BufferedWriter(new FileWriter(clientPrivateKeyTempFile.getAbsolutePath()));
+					out.write(clientPrivateKey);
 					out.close();
-					clientPrivateKey.close();
+					
+//					OutputStream out = new FileOutputStream(clientPrivateKeyTempFile);
+//					byte buf[] = new byte[1024];
+//					int len;
+//					while((len = clientPrivateKey.read(buf))>0) {
+//						out.write(buf,0,len);
+//					}
+//					out.close();
+//					clientPrivateKey.close();
+					
 					jSch.addIdentity(clientPrivateKeyTempFile.getCanonicalPath());
 					clientPrivateKeyTempFile.delete();
 				} catch (IOException ex) {
@@ -260,6 +269,7 @@ public class SFTP {
 
 	public boolean deleteResource(Object remoteConnection, String remoteResourcePath) throws Exception {
 		long startTime = new Date().getTime();
+		JSch.setLogger(new MyLogger());
 		Session session = (Session) remoteConnection;
 		if (!session.isConnected()) {
 			throw new Exception("err:FTC002: The connection was closed by server.");
@@ -286,8 +296,8 @@ public class SFTP {
 				SFTPconnection.rm(remoteResourcePath);
 			}
 		} catch (Exception ex) {
-			log.error(ex.getMessage(), ex);
-			result = false;
+			throw new Exception(ex.getMessage());
+			//result = false;
 		}
 		
 		log.info("The SFTP sub-module deleted the resource '" + remoteResourcePath + "' in "
@@ -405,4 +415,22 @@ public class SFTP {
 			xmlWriter.writeAttribute("link-to", connection.readlink(resource.getFilename()));
 		}
 	}
+	
+	  public static class MyLogger implements com.jcraft.jsch.Logger {
+		    static java.util.Hashtable name=new java.util.Hashtable();
+		    static{
+		      name.put(new Integer(DEBUG), "DEBUG: ");
+		      name.put(new Integer(INFO), "INFO: ");
+		      name.put(new Integer(WARN), "WARN: ");
+		      name.put(new Integer(ERROR), "ERROR: ");
+		      name.put(new Integer(FATAL), "FATAL: ");
+		    }
+		    public boolean isEnabled(int level){
+		      return true;
+		    }
+		    public void log(int level, String message){
+		      System.err.print(name.get(new Integer(level)));
+		      System.err.println(message);
+		    }
+		  }
 }

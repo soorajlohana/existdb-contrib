@@ -36,10 +36,10 @@ public class Connect {
     
     private static final Logger log = Logger.getLogger(Connect.class);
     
-    public static <X> X connect(URI remoteHostUri, InputStream options) throws Exception {
+    public static <X> X connect(URI remoteHostUri, String options) throws Exception {
         
         X connection = null;
-        
+
         // get the connection details
         String scheme = remoteHostUri.getScheme();
         String username = "anonymous";
@@ -70,7 +70,7 @@ public class Connect {
         }
         
         Class<?> clazz = Class.forName("org.expath.ftclient." + protocol + "." + protocol);
-        Method method = clazz.getMethod("connect", new Class<?>[] {URI.class, String.class, String.class, String.class, int.class, InputStream.class});
+        Method method = clazz.getMethod("connect", new Class<?>[] {URI.class, String.class, String.class, String.class, int.class, String.class});
         try {
             connection = (X) method.invoke(clazz.newInstance(), new Object[] {remoteHostUri, username, password, remoteHost, remotePort, options});
         } catch(InvocationTargetException ex) {

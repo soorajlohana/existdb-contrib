@@ -358,7 +358,6 @@ public class FTP {
 	private static void _generateResourceElement(XMLStreamWriter xmlWriter, FTPFile resource, InputStream is,
 			String remoteResourcePath) throws IOException, Exception {
 		xmlWriter.writeStartElement(modulePrefix + ":resource");
-		xmlWriter.writeNamespace(modulePrefix, moduleNsUri);
 		_generateMetadataAttributes(xmlWriter, resource, null, remoteResourcePath);
 		if (is != null) {
 			xmlWriter.writeCharacters(InputStream2Base64String.convert(is));

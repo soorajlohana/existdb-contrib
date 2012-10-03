@@ -373,7 +373,6 @@ public class SFTP {
 	private static void _generateResourceElement(XMLStreamWriter xmlWriter, LsEntry resource, InputStream is,
 			String remoteResourcePath, ChannelSftp connection) throws IOException, Exception {
 		xmlWriter.writeStartElement(modulePrefix + ":resource");
-		xmlWriter.writeNamespace(modulePrefix, moduleNsUri);
 		_generateMetadataAttributes(xmlWriter, resource, null, remoteResourcePath, connection);
 		if (is != null) {
 			xmlWriter.writeCharacters(InputStream2Base64String.convert(is));

@@ -371,13 +371,24 @@ public class FTClientModuleUnitTests extends BaseTest {
 	}
 
 	@Test
-	public void storeFolderWithFtp() throws URISyntaxException, Exception {
+	public void createDirWithFtp() throws URISyntaxException, Exception {
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
 	}
+	
+	@Test
+	public void createDirWithSftp() throws URISyntaxException, Exception {
+		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
+				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
+		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
+		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
+		Disconnect.disconnect(remoteConnection);
+		Assert.assertTrue(stored);
+	}
+	
 
 	@Test
 	public void test26() throws URISyntaxException, Exception {

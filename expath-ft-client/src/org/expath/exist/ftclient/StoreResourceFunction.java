@@ -34,6 +34,7 @@ import org.exist.xquery.value.Base64BinaryValueType;
 import org.exist.xquery.value.BinaryValue;
 import org.exist.xquery.value.BinaryValueFromInputStream;
 import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.NodeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceType;
 import org.exist.xquery.value.Type;
@@ -44,62 +45,86 @@ import org.w3c.dom.Element;
 
 /**
  * Implements a method for storing a resource to a remote directory.
- *
+ * 
  * @author WStarcev
  * @author Adam Retter <adam@existsolutions.com>
  * @author Claudius Teodorescu <claudius.teodorescu@gmail.com>
  */
 public class StoreResourceFunction extends BasicFunction {
-    private static final Logger log = Logger.getLogger(StoreResourceFunction.class);
+	private static final Logger log = Logger
+			.getLogger(StoreResourceFunction.class);
 
-    private static final String NAMESPACE_URI = ExistExpathFTClientModule.NAMESPACE_URI;
-    
-    public final static FunctionSignature signature = new FunctionSignature(
-        new QName("store-resource", NAMESPACE_URI, ExistExpathFTClientModule.PREFIX),
-        "This function stores a resource to the remote path. It returns true or false indicating the success of the resource storage.",
-        new SequenceType[] {
-            new FunctionParameterSequenceType("connection-handle", Type.LONG, Cardinality.EXACTLY_ONE, "The connection handle."),
-            new FunctionParameterSequenceType("remote-resource-path", Type.STRING, Cardinality.EXACTLY_ONE, "The path for resource to be stored."),
-            new FunctionParameterSequenceType("resource-contents", Type.ANY_TYPE, Cardinality.ZERO_OR_ONE, "The contents of the resource." )
-        },
-        new FunctionReturnSequenceType(Type.BOOLEAN, Cardinality.EXACTLY_ONE, "It returns true if successfully completed, false if not.")
-    );
+	private static final String NAMESPACE_URI = ExistExpathFTClientModule.NAMESPACE_URI;
 
-    public StoreResourceFunction(XQueryContext context) {
-        super(context, signature);
-    }
+	public final static FunctionSignature signature = new FunctionSignature(
+			new QName("store-resource", NAMESPACE_URI,
+					ExistExpathFTClientModule.PREFIX),
+			"This function stores a resource to the remote path. It returns true or false indicating the success of the resource storage.",
+			new SequenceType[] {
+					new FunctionParameterSequenceType("connection-handle",
+							Type.LONG, Cardinality.EXACTLY_ONE,
+							"The connection handle."),
+					new FunctionParameterSequenceType("remote-resource-path",
+							Type.STRING, Cardinality.EXACTLY_ONE,
+							"The path for resource to be stored."),
+					new FunctionParameterSequenceType("resource-contents",
+							Type.ANY_TYPE, Cardinality.ZERO_OR_ONE,
+							"The contents of the resource.") },
+			new FunctionReturnSequenceType(Type.BOOLEAN,
+					Cardinality.EXACTLY_ONE,
+					"It returns true if successfully completed, false if not."));
 
-    @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
-        
-        Boolean result = true;
+	public StoreResourceFunction(XQueryContext context) {
+		super(context, signature);
+	}
 
-        int eXistFileType = args[2].itemAt(0).getType();
+	@Override
+	public Sequence eval(Sequence[] args, Sequence contextSequence)
+			throws XPathException {
 
-        BinaryValue data = null;
+		Boolean result = true;
 
-        //convert resource to InputStream
-        switch (eXistFileType) {
-            //xs:base64Binary
-            case 26:
-                data = (BinaryValue)args[2].itemAt(0);
-            break;
-                //xs:string
-            case 22:
-                String dataString = args[2].itemAt(0).getStringValue();
-                try {
-                    data = BinaryValueFromInputStream.getInstance(context, new Base64BinaryValueType(), new ByteArrayInputStream(dataString.getBytes("UTF-8")));
-                } catch(UnsupportedEncodingException e) {
-                }
-            break;
-        }
-        //store the resource
-        try {
-            result = org.expath.ftclient.StoreResource.storeResource(ExistExpathFTClientModule.retrieveRemoteConnection(context, ((IntegerValue)args[0].itemAt(0)).getLong()), args[1].getStringValue(), data.getInputStream());
-        } catch (Exception ex) {
-            throw new XPathException(ex.getMessage());
-        }
+		int resourceType = (args[2].isEmpty()) ? 10 : args[2].itemAt(0)
+				.getType();
 
-        return BooleanValue.valueOf(result);
-    }
+		BinaryValue data = null;
+
+		// convert resource to InputStream
+		switch (resourceType) {
+		// xs:base64Binary
+		case 26:
+			data = (BinaryValue) args[2].itemAt(0);
+			break;
+		// xs:string
+		case 22:
+			String dataString = args[2].itemAt(0).getStringValue();
+			try {
+				data = BinaryValueFromInputStream.getInstance(context,
+						new Base64BinaryValueType(), new ByteArrayInputStream(
+								dataString.getBytes("UTF-8")));
+			} catch (UnsupportedEncodingException e) {
+			}
+			break;
+			// ()
+			case 10:
+				try {
+					data = BinaryValueFromInputStream.getInstance(context,
+							new Base64BinaryValueType(), new ByteArrayInputStream(
+									"".getBytes("UTF-8")));
+				} catch (UnsupportedEncodingException e) {
+				}
+				break;			
+		}
+		// store the resource
+		try {
+			result = org.expath.ftclient.StoreResource.storeResource(
+					ExistExpathFTClientModule.retrieveRemoteConnection(context,
+							((IntegerValue) args[0].itemAt(0)).getLong()),
+					args[1].getStringValue(), data.getInputStream());
+		} catch (Exception ex) {
+			throw new XPathException(ex.getMessage());
+		}
+
+		return BooleanValue.valueOf(result);
+	}
 }

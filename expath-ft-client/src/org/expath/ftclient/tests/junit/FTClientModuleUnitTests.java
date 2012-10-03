@@ -27,11 +27,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import ro.kuberam.junit.BaseTest;
+
 import com.jcraft.jsch.Session;
 
-public class FTClientModuleUnitTests {
-	@Rule
-    public TestName name= new TestName();
+public class FTClientModuleUnitTests extends BaseTest {
 
 	public static FTPClient initializeFtpConnection(String URIstring) throws URISyntaxException, Exception {
 		FTPClient remoteConnection = Connect.connect(new URI(URIstring), "");
@@ -46,8 +46,6 @@ public class FTClientModuleUnitTests {
 
 	@Test
 	public void test01() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights";
 		StreamResult resources = ListResources.listResources(remoteConnection, remoteResourcePath);
@@ -55,13 +53,10 @@ public class FTClientModuleUnitTests {
 		String resourcesString = resources.getWriter().toString();
 		System.out.println(resourcesString);
 		Assert.assertTrue(resourcesString.contains("image-with-rights.gif"));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test02() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/image-with-rights.gif";
 		StreamResult resource = RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
@@ -72,26 +67,20 @@ public class FTClientModuleUnitTests {
 				+ InputStream2Base64String.convert((InputStream) getClass()
 						.getResourceAsStream("../resources/image-with-rights.gif")) + "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test03() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/image-with-rights" + System.currentTimeMillis() + ".gif";
 		InputStream resourceInputStream = getClass().getResourceAsStream("../resources/image-with-rights.gif");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test04() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights";
@@ -100,13 +89,10 @@ public class FTClientModuleUnitTests {
 		String resourcesString = resources.getWriter().toString();
 		System.out.println(resourcesString);
 		Assert.assertTrue(resourcesString.contains("image-with-rights.gif"));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test05() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/image-with-rights.gif";
@@ -117,13 +103,10 @@ public class FTClientModuleUnitTests {
 				+ InputStream2Base64String.convert((InputStream) getClass()
 						.getResourceAsStream("../resources/image-with-rights.gif")) + "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test06() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/image-with-rights" + System.currentTimeMillis()
@@ -132,13 +115,10 @@ public class FTClientModuleUnitTests {
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test07() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/test" + System.currentTimeMillis() + ".txt";
@@ -146,13 +126,10 @@ public class FTClientModuleUnitTests {
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test08() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/test.txt";
 		StreamResult resource = RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
@@ -162,13 +139,10 @@ public class FTClientModuleUnitTests {
 				+ InputStream2Base64String.convert((InputStream) getClass().getResourceAsStream("../resources/test.txt"))
 				+ "</ft-client:resource>";
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test09() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/test.txt";
@@ -181,13 +155,10 @@ public class FTClientModuleUnitTests {
 				+ "</ft-client:resource>";
 		System.out.println(sampleResourceAsString);
 		Assert.assertTrue(sampleResourceAsString.equals(resourceString));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test10() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/test" + System.currentTimeMillis() + ".txt";
@@ -195,7 +166,6 @@ public class FTClientModuleUnitTests {
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
@@ -208,8 +178,6 @@ public class FTClientModuleUnitTests {
 
 	@Test
 	public void test12() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/image-no-rights.gif";
 		try {
@@ -221,13 +189,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test13() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/non-existing-directory";
 		try {
@@ -241,13 +206,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test14() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/non-existing-directory";
@@ -260,13 +222,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test15() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/dir-without-rights";
 		try {
@@ -278,13 +237,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test16() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/dir-without-rights";
@@ -297,13 +253,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test17() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/non-existing-image.gif";
 		try {
@@ -316,13 +269,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test18() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/non-existing-image.gif";
@@ -334,13 +284,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test19() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1",
 				IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/image-no-rights.gif";
@@ -353,13 +300,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void storeFileWrongPathWithFtp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/wrong-path/image-with-rights" + System.currentTimeMillis() + ".gif";
 		InputStream resourceInputStream = getClass().getResourceAsStream("../resources/image-with-rights.gif");
@@ -373,13 +317,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void storeFileWithoutRightsWithFtp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/dir-without-rights/image-with-rights"
 				+ System.currentTimeMillis() + ".gif";
@@ -393,13 +334,10 @@ public class FTClientModuleUnitTests {
 		} finally {
 			Disconnect.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test22() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		Disconnect.disconnect(remoteConnection);
 		String remoteResourcePath = "/";
@@ -409,76 +347,57 @@ public class FTClientModuleUnitTests {
 		} catch (Exception e) {
 			Assert.assertTrue(e.getLocalizedMessage().equals("err:FTC002: The connection was closed by server."));
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void deleteFolderWithFtp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(deleted);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void deleteFileWithFtp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/test" + System.currentTimeMillis() + ".txt";
 		(new File("/home/ftp-user/" + remoteResourcePath)).createNewFile();
 		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(deleted);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void storeFolderWithFtp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test26() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test27() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Assert.assertTrue(stored);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test28() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath = "/dir-with-rights/image-with-rights.gif";
 		StreamResult resourceMetadata = GetResourceMetadata.getResourceMetadata(remoteConnection, remoteResourcePath);
@@ -488,13 +407,10 @@ public class FTClientModuleUnitTests {
 		String sampleResourceMetadataAsString = "<?xml version=\"1.0\" ?><ft-client:resource xmlns:ft-client=\"http://expath.org/ns/ft-client\" name=\"image-with-rights.gif\" type=\"file\" absolute-path=\"/dir-with-rights/image-with-rights.gif\" last-modified=\"2012-05-14T15:28:00+03:00\" size=\"1010\" human-readable-size=\"1010 bytes\" user=\"1001\" user-group=\"1001\" permissions=\"-rw-rw-rw-\"></ft-client:resource>";
 		Assert.assertTrue(resourceMetadataString
 				.equals(sampleResourceMetadataAsString));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void test29() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		String remoteResourcePath1 = "/dir-with-rights";
 		StreamResult resources = ListResources.listResources(remoteConnection, remoteResourcePath1);
@@ -534,58 +450,44 @@ public class FTClientModuleUnitTests {
 		Assert.assertTrue(sampleResourceAsString.equals(resource5String));
 		Assert.assertTrue(sampleResourceAsString.equals(resource6String));
 		Assert.assertTrue(sampleResourceAsString.equals(resource7String));
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void retrieveLargeResource() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp.mozilla.org");
 		String remoteResourcePath = "/pub/firefox/releases/9.0b6/linux-i686/en-US/firefox-9.0b6.tar.bz2";
 		StreamResult resource = RetrieveResource.retrieveResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		String resourceString = resource.getWriter().toString();
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 	
 	@Test
 	public void deleteDirectoryWithSftp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1", IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFolder" + System.currentTimeMillis() + "/";
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, null);
 		Assert.assertTrue(stored);
 		System.out.println("Stored resource: " + remoteResourcePath + ".\n");
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(deleted);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 	
 	@Test
 	public void deleteFileWithSftp() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		Session remoteConnection = initializeSftpConnection("sftp://ftp-user:ftp-pass@127.0.0.1", IOUtils.toString(getClass().getResourceAsStream("../resources/Open-Private-Key")));
 		String remoteResourcePath = "/home/ftp-user/dir-with-rights/tmp/tempFile" + System.currentTimeMillis() + ".txt";
 		InputStream resourceInputStream = getClass().getResourceAsStream("../resources/image-with-rights.gif");
 		Boolean stored = StoreResource.storeResource(remoteConnection, remoteResourcePath, resourceInputStream);
 		Assert.assertTrue(stored);
 		System.out.println("Stored resource: " + remoteResourcePath + ".\n");
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 		Boolean deleted = DeleteResource.deleteResource(remoteConnection, remoteResourcePath);
 		Disconnect.disconnect(remoteConnection);
 		Assert.assertTrue(deleted);
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkDirectoryWithRightsTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/dir-with-rights/");
@@ -596,13 +498,10 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkDirectoryWithoutRightsTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/dir-with-rights/dir-without-rights/");
@@ -613,13 +512,10 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkDirectoryNonExistingTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/non-existing-dir/");
@@ -630,13 +526,10 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkFileWithRightsTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/dir-with-rights/image-with-rights.gif");
@@ -647,13 +540,10 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkFileWithoutRightsTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/dir-with-rights/image-no-rights.gif");
@@ -664,13 +554,10 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	@Test
 	public void _checkFileNonExistingTest() throws URISyntaxException, Exception {
-		System.out.println("Starting test '" + name.getMethodName() + "'...");
-		long startTime = new Date().getTime();
 		FTPClient remoteConnection = initializeFtpConnection("ftp://ftp-user:ftp-pass@127.0.0.1");
 		try {
 			_checkResourcePath(remoteConnection, "/dir-with-rights/non-existing-image.gif");
@@ -681,7 +568,6 @@ public class FTClientModuleUnitTests {
 			// "err:FTC003: The remote resource does not exist."));
 			FTP.disconnect(remoteConnection);
 		}
-		System.out.println("Duration of test: " + (new Date().getTime() - startTime) + " ms.\n");
 	}
 
 	public static List _checkResourcePath(FTPClient FTPconnection, String remoteResourcePath) throws IOException,

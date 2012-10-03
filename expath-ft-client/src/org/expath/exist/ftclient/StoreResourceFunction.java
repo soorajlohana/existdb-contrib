@@ -60,7 +60,7 @@ public class StoreResourceFunction extends BasicFunction {
         new SequenceType[] {
             new FunctionParameterSequenceType("connection-handle", Type.LONG, Cardinality.EXACTLY_ONE, "The connection handle."),
             new FunctionParameterSequenceType("remote-resource-path", Type.STRING, Cardinality.EXACTLY_ONE, "The path for resource to be stored."),
-            new FunctionParameterSequenceType("resource-contents", Type.ANY_TYPE, Cardinality.EXACTLY_ONE, "The contents of the resource." )
+            new FunctionParameterSequenceType("resource-contents", Type.ANY_TYPE, Cardinality.ZERO_OR_ONE, "The contents of the resource." )
         },
         new FunctionReturnSequenceType(Type.BOOLEAN, Cardinality.EXACTLY_ONE, "It returns true if successfully completed, false if not.")
     );

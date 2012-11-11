@@ -118,6 +118,9 @@ from eXist-db.org sources:
 }}}
 
 === Fetch ===
+
+the following example downloads a zip file and extracts the content specified by the patterns in to the dest directory. The original structure is flattened.
+
 {{{
         <fetch classpathref="classpath.core" dest="${top.dir}/${lib.user}
 		url="${include.module.jfreechart.url}" classname="org.jfree.chart.JFreeChart" usecache="true">
@@ -128,6 +131,9 @@ from eXist-db.org sources:
             </patternset>
         </fetch>
 }}}
+
+supported attributes: failonerror="false" maxtime="10"
+
 
 = Links =
  * [http://java.sun.com/j2se/1.5.0/docs/guide/deployment/deployment-guide/pack200.html Pack200 and Compression]

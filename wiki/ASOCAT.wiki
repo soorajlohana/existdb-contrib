@@ -133,12 +133,12 @@ the following example downloads a zip file and extracts the content specified by
 }}}
 
 supported attributes: 
-* failonerror="true|false" --> stop on error or always continue
-* maxtime="#"  --> (nr of seconds, default is 0)
-* useCache = "true| false --> "true" will store a copy into ~/.fetch
-* classname="...." --> check if the Class exists, if not download from URL
-* url="..."  --> the location of the resource
-* dest="..." --> location to store files
+  * failonerror="true|false" --> stop on error or always continue
+  * maxtime="#"  --> (nr of seconds, default is 0)
+  * useCache = "true| false --> "true" will store a copy into ~/.fetch
+  * classname="...." --> check if the Class exists, if not download from URL
+  * url="..."  --> the location of the resource
+  * dest="..." --> location to store files
 
 
 Fetch is built on top of standard Ant tasks like "Get", "Expand", "Available" and inherits features like http-proxy support.

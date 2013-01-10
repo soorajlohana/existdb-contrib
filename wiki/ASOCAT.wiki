@@ -120,6 +120,7 @@ from eXist-db.org sources:
 === Fetch ===
 
 the following example downloads a zip file and extracts the content specified by the patterns in to the dest directory. The original structure is flattened.
+If 'patternset' is left out, the specified is downloaded and stored in 'dest'
 
 {{{
         <fetch classpathref="classpath.core" dest="${top.dir}/${lib.user}
